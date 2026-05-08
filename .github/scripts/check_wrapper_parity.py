@@ -74,11 +74,24 @@ def main() -> int:
         return 0
 
     # Build markdown report
+    missing_detail = " ".join(
+        [
+            "The following methods exist in inner clients but are **not exposed**",
+            "in `FFBBDataClient`:",
+        ]
+    )
+    fix_detail = " ".join(
+        [
+            "Add the missing method(s) to",
+            "`src/ffbb_data_client/clients/ffbb_data_client.py`",
+            "so they delegate to the appropriate inner client.",
+        ]
+    )
+
     lines = [
         "## ⚠️ Wrapper parity check failed",
         "",
-        "The following methods exist in inner clients but are **not exposed** "
-        "in `FFBBDataClient`:",
+        missing_detail,
         "",
         "| Method | Source client |",
         "|---|---|",
@@ -94,9 +107,7 @@ def main() -> int:
     lines += [
         "",
         "### How to fix",
-        "Add the missing method(s) to "
-        "`src/ffbb_data_client/clients/ffbb_data_client.py` "
-        "so they delegate to the appropriate inner client.",
+        fix_detail,
     ]
 
     report = "\n".join(lines)

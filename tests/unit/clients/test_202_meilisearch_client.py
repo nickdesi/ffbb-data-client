@@ -4,9 +4,8 @@ import unittest
 from ffbb_data_client import MeilisearchClient, MultiSearchQuery, generate_queries
 from ffbb_data_client.clients.meilisearch_client import (
     _cache_get,
-    _cache_result_payload,
+    _cache_result_object,
     _make_cache_key,
-    _result_from_cached_payload,
     clear_meili_app_cache,
 )
 from ffbb_data_client.models.multi_search_results_class import MultiSearchResults
@@ -19,20 +18,18 @@ class TestMeilisearchAppCache(unittest.TestCase):
     def tearDown(self):
         clear_meili_app_cache()
 
-    def test_cache_stores_raw_payload_and_rebuilds_result(self):
+    def test_cache_stores_object_and_returns_deepcopy(self):
         result = MultiSearchResults.from_dict({"results": []})
         assert result is not None
         key = _make_cache_key(None)
 
-        _cache_result_payload(key, result)
-        cached_payload = _cache_get(key)
-        rebuilt = _result_from_cached_payload(cached_payload)
-        assert rebuilt is not None
+        _cache_result_object(key, result)
+        cached_obj = _cache_get(key)
 
-        self.assertIsInstance(cached_payload, dict)
-        self.assertIsInstance(rebuilt, MultiSearchResults)
-        self.assertIsNot(rebuilt, result)
-        self.assertEqual(rebuilt.to_dict(), result.to_dict())
+        assert cached_obj is not None
+        self.assertIsInstance(cached_obj, MultiSearchResults)
+        self.assertIsNot(cached_obj, result)
+        self.assertEqual(cached_obj.to_dict(), result.to_dict())
 
 
 class Test002MeilisearchClient(unittest.TestCase):

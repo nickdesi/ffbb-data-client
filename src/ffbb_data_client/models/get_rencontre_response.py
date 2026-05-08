@@ -52,7 +52,7 @@ class GetRencontreResponse:
             try:
                 date = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
             except (ValueError, AttributeError):
-                pass
+                date = None
         return cls(
             id=str(data.get("id", "")),
             numero=data.get("numero"),

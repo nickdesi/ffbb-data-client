@@ -35,10 +35,7 @@ except ImportError:
 
 output_dir = os.path.join(__location__, "api")
 module_dir = os.path.join(__location__, "../src/ffbb_data_client")
-try:
-    shutil.rmtree(output_dir)
-except FileNotFoundError:
-    pass
+shutil.rmtree(output_dir, ignore_errors=True)
 
 try:
     import sphinx

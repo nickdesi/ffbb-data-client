@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 import threading
@@ -39,7 +40,7 @@ _APP_CACHE_TTL: int = 300  # secondes, modifiable
 def _make_cache_key(queries: Sequence[MultiSearchQuery] | None) -> str:
     payload = [q.to_dict() for q in queries] if queries else []
     raw = json.dumps(payload, sort_keys=True, default=str)
-    return hashlib.md5(raw.encode(), usedforsecurity=False).hexdigest()
+    return hashlib.sha256(raw.encode()).hexdigest()
 
 
 def _cache_get(key: str) -> Any | None:
@@ -60,12 +61,8 @@ def _cache_set(key: str, value: Any) -> None:
         _APP_CACHE[key] = (time.monotonic(), value)
 
 
-def _result_from_cached_payload(payload: Any) -> MultiSearchResults | None:
-    return MultiSearchResults.from_dict(payload) if isinstance(payload, dict) else None
-
-
-def _cache_result_payload(key: str, result: MultiSearchResults) -> None:
-    _cache_set(key, result.to_dict())
+def _cache_result_object(key: str, result: MultiSearchResults) -> None:
+    _cache_set(key, copy.deepcopy(result))
 
 
 def clear_meili_app_cache() -> None:
@@ -163,7 +160,8 @@ class MeilisearchClient:
         key = _make_cache_key(queries)
         cached = _cache_get(key)
         if cached is not None:
-            return _result_from_cached_payload(cached)
+            cached_copy: MultiSearchResults = copy.deepcopy(cached)
+            return cached_copy
 
         url = f"{self.url}{MEILISEARCH_ENDPOINT_MULTI_SEARCH}"
         params = {"queries": [query.to_dict() for query in queries] if queries else []}
@@ -178,9 +176,11 @@ class MeilisearchClient:
                 timeout_config=self.timeout_config,
             )
         )
-        result = MultiSearchResults.from_dict(raw_data) if raw_data else None
+        result: MultiSearchResults | None = (
+            MultiSearchResults.from_dict(raw_data) if raw_data else None
+        )
         if result is not None:
-            _cache_result_payload(key, result)
+            _cache_result_object(key, result)
         return result
 
     async def multi_search_async(
@@ -191,7 +191,8 @@ class MeilisearchClient:
         key = _make_cache_key(queries)
         cached = _cache_get(key)
         if cached is not None:
-            return _result_from_cached_payload(cached)
+            cached_copy: MultiSearchResults = copy.deepcopy(cached)
+            return cached_copy
 
         url = f"{self.url}{MEILISEARCH_ENDPOINT_MULTI_SEARCH}"
         params = {"queries": [query.to_dict() for query in queries] if queries else []}
@@ -205,7 +206,9 @@ class MeilisearchClient:
                 retry_config=self.retry_config,
                 timeout_config=self.timeout_config,
             )
-            result = MultiSearchResults.from_dict(raw_data) if raw_data else None
+            result: MultiSearchResults | None = (
+                MultiSearchResults.from_dict(raw_data) if raw_data else None
+            )
         except (httpx.HTTPStatusError, httpx.RequestError) as e:
             self.logger.warning("multi_search_async request failed: %s", e)
             result = None
@@ -214,5 +217,5 @@ class MeilisearchClient:
             result = None
 
         if result is not None:
-            _cache_result_payload(key, result)
+            _cache_result_object(key, result)
         return result

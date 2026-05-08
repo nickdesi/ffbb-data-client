@@ -356,7 +356,8 @@ class CacheManager:
                 self._client.get(url, headers=headers, timeout=10)
                 count += 1
             except (OSError, ConnectionError, TimeoutError, ValueError):
-                pass
+                self.metrics.errors += 1
+                continue
         return count
 
     def invalidate_pattern(self, pattern: str) -> int:

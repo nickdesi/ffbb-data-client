@@ -152,8 +152,8 @@ class Test011EnhancedIntegration(unittest.TestCase):
         self.assertIn("id", basic_fields)
         self.assertIn("nom", basic_fields)
 
-        self.assertTrue(len(default_fields) > len(basic_fields))
-        self.assertTrue(len(detailed_fields) > len(default_fields))
+        self.assertGreater(len(default_fields), len(basic_fields))
+        self.assertGreater(len(detailed_fields), len(default_fields))
 
         print("✓ Query fields manager test passed")
         print(f"  Basic fields: {len(basic_fields)}")

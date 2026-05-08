@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 from collections.abc import Sequence
 from typing import Any, cast
@@ -548,6 +549,49 @@ class FFBBDataClient:
             correspondant=correspondant,
             entraineur=entraineur_contact,
             entraineur_adjoint=entraineur_adjoint_contact,
+        )
+
+    async def get_engagement_contacts_async(
+        self, id: str, cached_session: httpx.AsyncClient | None = None
+    ) -> EngagementContacts | None:
+        """Async version: fetch engagement then entraineur & entraineur_adjoint in parallel."""
+        engagement = await self.get_engagement_async(id, cached_session=cached_session)
+        if not engagement:
+            return None
+
+        correspondant = extract_correspondant(engagement)
+
+        entraineur_id = (
+            getattr(engagement, "idEntraineur", None)
+            or getattr(engagement, "entraineur", None)
+            or getattr(engagement, "id_entraineur", None)
+        )
+        entraineur_adjoint_id = (
+            getattr(engagement, "idEntraineurAdjoint", None)
+            or getattr(engagement, "entraineurAdjoint", None)
+            or getattr(engagement, "id_entraineur_adjoint", None)
+            or getattr(engagement, "entraineur_adjoint", None)
+        )
+
+        async def _fetch_entraineur(eid: str | None):
+            if not eid:
+                return None
+            return await self.get_entraineur_async(eid, cached_session=cached_session)
+
+        entraineur, entraineur_adjoint = await asyncio.gather(
+            _fetch_entraineur(str(entraineur_id) if entraineur_id else None),
+            _fetch_entraineur(
+                str(entraineur_adjoint_id) if entraineur_adjoint_id else None
+            ),
+        )
+
+        return EngagementContacts(
+            engagement=engagement,
+            correspondant=correspondant,
+            entraineur=extract_entraineur_contact(entraineur, "entraineur"),
+            entraineur_adjoint=extract_entraineur_contact(
+                entraineur_adjoint, "entraineur_adjoint"
+            ),
         )
 
     def get_formation(

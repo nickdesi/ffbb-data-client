@@ -61,3 +61,4 @@ uv.lock
 data/type_discovery_raw.json
 prof/
 .agent/
+graphify-out/

@@ -115,6 +115,7 @@ class Test021RawApiRestConversion(unittest.TestCase):
         cls.discovered_competition_id: int | None = None
         cls.discovered_organisme_id: int | None = None
         cls.discovered_poule_id: int | None = None
+        cls.discovery_error: Exception | None = None
 
         if mls_token:
             cls._discover_ids()
@@ -157,8 +158,8 @@ class Test021RawApiRestConversion(unittest.TestCase):
                     comp_id = hits[0].get("id")
                     if comp_id:
                         cls.discovered_competition_id = int(comp_id)
-        except Exception:
-            pass
+        except Exception as exc:
+            cls.discovery_error = exc
 
         # Discover a poule ID from the competition if found
         if cls.discovered_competition_id:
@@ -179,8 +180,8 @@ class Test021RawApiRestConversion(unittest.TestCase):
                         if poules:
                             cls.discovered_poule_id = int(poules[0]["id"])
                             break
-            except Exception:
-                pass
+            except Exception as exc:
+                cls.discovery_error = exc
 
     def setUp(self) -> None:
         time.sleep(0.3)
@@ -207,7 +208,7 @@ class Test021RawApiRestConversion(unittest.TestCase):
         for s in saisons:
             self.assertIsInstance(s, GetSaisonsResponse)
             self.assertIsInstance(s.id, str)
-            self.assertTrue(len(s.id) > 0)
+            self.assertGreater(len(s.id), 0)
             if s.nom is not None:
                 self.assertIsInstance(s.nom, str)
             if s.actif is not None:
@@ -245,9 +246,10 @@ class Test021RawApiRestConversion(unittest.TestCase):
 
         result = GetCompetitionResponse.from_dict(actual_data)
         self.assertIsNotNone(result)
+        assert result is not None
         self.assertIsInstance(result, GetCompetitionResponse)
         self.assertIsInstance(result.id, str)
-        self.assertTrue(len(result.id) > 0)
+        self.assertGreater(len(result.id), 0)
 
         # Validate top-level string fields
         if result.nom is not None:
@@ -284,9 +286,10 @@ class Test021RawApiRestConversion(unittest.TestCase):
 
         result = GetOrganismeResponse.from_dict(actual_data)
         self.assertIsNotNone(result)
+        assert result is not None
         self.assertIsInstance(result, GetOrganismeResponse)
         self.assertIsInstance(result.id, str)
-        self.assertTrue(len(result.id) > 0)
+        self.assertGreater(len(result.id), 0)
         self.assertIsInstance(result.nom, str)
 
         # Nested commune check
@@ -326,6 +329,7 @@ class Test021RawApiRestConversion(unittest.TestCase):
 
         result = GetPouleResponse.from_dict(actual_data)
         self.assertIsNotNone(result)
+        assert result is not None
         self.assertIsInstance(result, GetPouleResponse)
         self.assertIsInstance(result.id, str)
         self.assertIsInstance(result.rencontres, list)
@@ -389,12 +393,13 @@ class Test021RawApiRestConversion(unittest.TestCase):
 
         result = GetConfigurationResponse.from_dict(actual_data)
         self.assertIsNotNone(result)
+        assert result is not None
         self.assertIsInstance(result, GetConfigurationResponse)
         self.assertIsInstance(result.id, int)
         self.assertIsInstance(result.key_dh, str)
-        self.assertTrue(len(result.key_dh) > 0)
+        self.assertGreater(len(result.key_dh), 0)
         self.assertIsInstance(result.key_ms, str)
-        self.assertTrue(len(result.key_ms) > 0)
+        self.assertGreater(len(result.key_ms), 0)
 
         # Property aliases
         self.assertEqual(result.api_bearer_token, result.key_dh)
@@ -423,6 +428,7 @@ class Test021RawApiRestConversion(unittest.TestCase):
         }
         result = GameStatsModel.from_dict(data)
         self.assertIsNotNone(result)
+        assert result is not None
         self.assertEqual(result.match_id, "12345")
         self.assertEqual(result.current_status, "LIVE")
         self.assertEqual(result.current_period, "Q3")
@@ -638,8 +644,10 @@ class Test021RawMeilisearchConversion(unittest.TestCase):
 
         result = multi_search_results_from_dict(raw)
         self.assertIsNotNone(result)
+        assert result is not None
         self.assertIsInstance(result, MultiSearchResults)
         self.assertIsNotNone(result.results)
+        assert result.results is not None
         self.assertGreater(len(result.results), 0)
 
 
@@ -703,6 +711,7 @@ class Test021FromDictEdgeCases(unittest.TestCase):
         # Saison with just id
         s = GetSaisonsResponse.from_dict({"id": "42"})
         self.assertIsNotNone(s)
+        assert s is not None
         self.assertEqual(s.id, "42")
         self.assertIsNone(s.nom)
         self.assertIsNone(s.actif)
@@ -712,6 +721,7 @@ class Test021FromDictEdgeCases(unittest.TestCase):
             {"id": 1, "key_dh": "tok1", "key_ms": "tok2"}
         )
         self.assertIsNotNone(c)
+        assert c is not None
         self.assertEqual(c.id, 1)
         self.assertEqual(c.key_dh, "tok1")
         self.assertEqual(c.key_ms, "tok2")
@@ -721,6 +731,7 @@ class Test021FromDictEdgeCases(unittest.TestCase):
         # GameStatsModel with just matchId
         g = GameStatsModel.from_dict({"matchId": "99"})
         self.assertIsNotNone(g)
+        assert g is not None
         self.assertEqual(g.match_id, "99")
         self.assertIsNone(g.current_status)
         self.assertIsNone(g.score_q1_home)
@@ -756,6 +767,7 @@ class Test021FromDictEdgeCases(unittest.TestCase):
         # Departemental
         n = NiveauExtractor.extract_niveau("D1 masculine seniors")
         self.assertIsNotNone(n)
+        assert n is not None
         self.assertIsInstance(n, NiveauInfo)
         self.assertEqual(n.type, NiveauType.DEPARTEMENTAL)
         self.assertEqual(n.division, 1)
@@ -763,6 +775,7 @@ class Test021FromDictEdgeCases(unittest.TestCase):
         # Regional
         n = NiveauExtractor.extract_niveau("R2 feminine U17")
         self.assertIsNotNone(n)
+        assert n is not None
         self.assertEqual(n.type, NiveauType.REGIONAL)
         self.assertEqual(n.division, 2)
         self.assertEqual(n.categorie, CategorieType.U17)
@@ -770,6 +783,7 @@ class Test021FromDictEdgeCases(unittest.TestCase):
         # Elite
         n = NiveauExtractor.extract_niveau("ELITE masculine seniors")
         self.assertIsNotNone(n)
+        assert n is not None
         self.assertEqual(n.type, NiveauType.ELITE)
         self.assertTrue(n.is_elite)
         self.assertEqual(n.zone_effective, "regional")
@@ -778,6 +792,7 @@ class Test021FromDictEdgeCases(unittest.TestCase):
         # National
         n = NiveauExtractor.extract_niveau("NATIONAL 1 masculine")
         self.assertIsNotNone(n)
+        assert n is not None
         self.assertEqual(n.type, NiveauType.NATIONAL)
 
         # None for unrecognized
@@ -803,6 +818,7 @@ class Test021FromDictEdgeCases(unittest.TestCase):
         }
         eng = RankingEngagement.from_dict(data)
         self.assertIsNotNone(eng)
+        assert eng is not None
         self.assertEqual(eng.id, "eng-001")
         self.assertEqual(eng.nom, "Club Paris BC")
         self.assertEqual(eng.nom_usuel, "Paris BC")
@@ -815,6 +831,7 @@ class Test021FromDictEdgeCases(unittest.TestCase):
         # Without logo
         eng_no_logo = RankingEngagement.from_dict({"id": "eng-002", "nom": "Club Lyon"})
         self.assertIsNotNone(eng_no_logo)
+        assert eng_no_logo is not None
         self.assertIsNone(eng_no_logo.logo_id)
         self.assertIsNone(eng_no_logo.logo_gradient)
 
@@ -857,6 +874,7 @@ class Test021FromDictEdgeCases(unittest.TestCase):
         }
         tr = TeamRanking.from_dict(data)
         self.assertIsNotNone(tr)
+        assert tr is not None
         self.assertEqual(tr.id, "rank-001")
         self.assertEqual(tr.position, 1)
         self.assertEqual(tr.points, 30)
@@ -878,6 +896,7 @@ class Test021FromDictEdgeCases(unittest.TestCase):
 
         # Nested idEngagement
         self.assertIsNotNone(tr.id_engagement)
+        assert isinstance(tr.id_engagement, RankingEngagement)
         self.assertEqual(tr.id_engagement.id, "eng-001")
         self.assertEqual(tr.id_engagement.nom, "Paris BC")
         self.assertEqual(tr.id_engagement.logo_id, "logo-1")
@@ -936,6 +955,7 @@ class Test021FromDictEdgeCases(unittest.TestCase):
         self.assertEqual(live.score_home, 85)
         self.assertEqual(live.score_out, 80)
         self.assertIsNotNone(live.clock)
+        assert live.clock is not None
         self.assertEqual(live.clock.minutes, 5)
         self.assertEqual(live.clock.seconds, 30)
         self.assertEqual(live.clock.milliseconds, 0)
@@ -1000,6 +1020,7 @@ class Test021FromDictEdgeCases(unittest.TestCase):
             {"nom": "D2 masculine seniors", "code": "XXX"}
         )
         self.assertIsNotNone(result)
+        assert result is not None
         self.assertEqual(result.type, NiveauType.DEPARTEMENTAL)
         self.assertEqual(result.division, 2)
 
@@ -1008,6 +1029,7 @@ class Test021FromDictEdgeCases(unittest.TestCase):
             {"nom": "something unknown", "code": "R1 feminine"}
         )
         self.assertIsNotNone(result)
+        assert result is not None
         self.assertEqual(result.type, NiveauType.REGIONAL)
 
         # Neither matches
@@ -1059,12 +1081,14 @@ class Test021FromDictEdgeCases(unittest.TestCase):
         }
         result = GetPouleResponse.from_dict(data)
         self.assertIsNotNone(result)
+        assert result is not None
         self.assertEqual(result.id, "poule-1")
         self.assertEqual(len(result.rencontres), 1)
         self.assertEqual(result.rencontres[0].nomEquipe1, "Team A")
         self.assertEqual(result.rencontres[0].joue, 1)
 
         self.assertIsNotNone(result.classements)
+        assert result.classements is not None
         self.assertEqual(len(result.classements), 1)
         self.assertEqual(result.classements[0].position, 1)
         self.assertEqual(result.classements[0].points, 10)
@@ -1119,11 +1143,13 @@ class Test021FromDictEdgeCases(unittest.TestCase):
         }
         live = Live.from_dict(data)
         self.assertIsNotNone(live.team_engagement_home)
+        assert live.team_engagement_home is not None
         self.assertEqual(live.team_engagement_home.nom_officiel, "Paris BC Officiel")
         self.assertEqual(live.team_engagement_home.nom_usuel, "Paris BC")
         self.assertEqual(live.team_engagement_home.code_abrege, "PBC")
 
         self.assertIsNotNone(live.team_engagement_out)
+        assert live.team_engagement_out is not None
         self.assertEqual(live.team_engagement_out.nom_officiel, "Lyon BC Officiel")
 
     # -- test_036: Live.from_dict with ExternalID --------------------------
@@ -1151,10 +1177,12 @@ class Test021FromDictEdgeCases(unittest.TestCase):
         }
         live = Live.from_dict(data)
         self.assertIsNotNone(live.external_id)
+        assert live.external_id is not None
         self.assertEqual(live.external_id.nom_equipe1, "Team A")
         self.assertEqual(live.external_id.nom_equipe2, "Team B")
         self.assertEqual(live.external_id.numero_journee, 5)
         self.assertIsNotNone(live.external_id.competition_id)
+        assert live.external_id.competition_id is not None
         self.assertEqual(live.external_id.competition_id.code, "C001")
         self.assertEqual(live.external_id.competition_id.sexe, "M")
 

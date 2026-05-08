@@ -69,27 +69,30 @@ class MeilisearchClientExtension(MeilisearchClient):
         if not result or not queries or not result.results:
             return result
 
-        next_queries: list[MultiSearchQuery] = []
-        # Store original query indexes to merge results correctly later
-        query_indices: list[int] = []
+        MAX_ITERATIONS = 20
+        for _ in range(MAX_ITERATIONS):
+            next_queries: list[MultiSearchQuery] = []
+            query_indices: list[int] = []
 
-        for i, (querie, query_result) in enumerate(
-            zip(queries, result.results, strict=True)
-        ):
-            nb_hits = len(query_result.hits) if query_result.hits else 0
-            querie_offset = querie.offset or 0
-            querie_limit = querie.limit or 10
-
-            if query_result.estimated_total_hits is not None and nb_hits < (
-                query_result.estimated_total_hits - querie_offset
+            for i, (querie, query_result) in enumerate(
+                zip(queries, result.results, strict=True)
             ):
-                querie.offset = querie_offset + querie_limit
-                querie.limit = query_result.estimated_total_hits - nb_hits
-                next_queries.append(querie)
-                query_indices.append(i)
+                nb_hits = len(query_result.hits) if query_result.hits else 0
+                querie_offset = querie.offset or 0
+                querie_limit = querie.limit or 10
 
-        if next_queries:
-            new_result = self.recursive_smart_multi_search(next_queries, cached_session)
+                if query_result.estimated_total_hits is not None and nb_hits < (
+                    query_result.estimated_total_hits - querie_offset
+                ):
+                    querie.offset = querie_offset + querie_limit
+                    querie.limit = query_result.estimated_total_hits - nb_hits
+                    next_queries.append(querie)
+                    query_indices.append(i)
+
+            if not next_queries:
+                break
+
+            new_result = self.smart_multi_search(next_queries, cached_session)
 
             if new_result and new_result.results:
                 for orig_idx, query_result in zip(
@@ -99,6 +102,9 @@ class MeilisearchClientExtension(MeilisearchClient):
                     hits_list = orig_result.hits
                     if query_result.hits and hits_list is not None:
                         hits_list.extend(query_result.hits)
+            else:
+                break
+
         return result
 
     async def recursive_smart_multi_search_async(
@@ -110,27 +116,32 @@ class MeilisearchClientExtension(MeilisearchClient):
         if not result or not queries or not result.results:
             return result
 
-        next_queries: list[MultiSearchQuery] = []
-        # Store original query indexes to merge results correctly later
-        query_indices: list[int] = []
+        # Iterative pagination: collect all remaining queries per iteration
+        # and fetch them in a single multi_search call, repeating until done.
+        MAX_ITERATIONS = 20
+        for _ in range(MAX_ITERATIONS):
+            next_queries: list[MultiSearchQuery] = []
+            query_indices: list[int] = []
 
-        for i, (querie, query_result) in enumerate(
-            zip(queries, result.results, strict=True)
-        ):
-            nb_hits = len(query_result.hits) if query_result.hits else 0
-            querie_offset = querie.offset or 0
-            querie_limit = querie.limit or 10
-
-            if query_result.estimated_total_hits is not None and nb_hits < (
-                query_result.estimated_total_hits - querie_offset
+            for i, (querie, query_result) in enumerate(
+                zip(queries, result.results, strict=True)
             ):
-                querie.offset = querie_offset + querie_limit
-                querie.limit = query_result.estimated_total_hits - nb_hits
-                next_queries.append(querie)
-                query_indices.append(i)
+                nb_hits = len(query_result.hits) if query_result.hits else 0
+                querie_offset = querie.offset or 0
+                querie_limit = querie.limit or 10
 
-        if next_queries:
-            new_result = await self.recursive_smart_multi_search_async(
+                if query_result.estimated_total_hits is not None and nb_hits < (
+                    query_result.estimated_total_hits - querie_offset
+                ):
+                    querie.offset = querie_offset + querie_limit
+                    querie.limit = query_result.estimated_total_hits - nb_hits
+                    next_queries.append(querie)
+                    query_indices.append(i)
+
+            if not next_queries:
+                break
+
+            new_result = await self.smart_multi_search_async(
                 next_queries, cached_session
             )
 
@@ -142,6 +153,9 @@ class MeilisearchClientExtension(MeilisearchClient):
                     hits_list = orig_result.hits
                     if query_result.hits and hits_list is not None:
                         hits_list.extend(query_result.hits)
+            else:
+                break
+
         return result
 
     def recursive_multi_search(

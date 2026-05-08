@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from typing import Any, TypeVar
 
 import httpx
@@ -2026,10 +2027,29 @@ class ApiFFBBAppClient:
         max_items: int = 10000,
         cached_session: httpx.AsyncClient | None = None,
     ) -> list:
-        results: list = []
-        offset = 0
-        while len(results) < max_items:
-            batch = await self._list_directus_items_async(
+        first_batch = await self._list_directus_items_async(
+            endpoint,
+            limit=page_size,
+            filter_criteria=filter_criteria,
+            sort=sort,
+            offset=0,
+            search=search,
+            cached_session=cached_session,
+        )
+        if not first_batch:
+            return []
+        results: list = [model_cls.from_dict(r) for r in first_batch if r]
+        if len(first_batch) < page_size or len(results) >= max_items:
+            return results[:max_items]
+
+        remaining_slots = max_items - len(results)
+        pages_needed = min(
+            (remaining_slots + page_size - 1) // page_size,
+            (max_items - 1) // page_size,
+        )
+
+        async def _fetch_page(offset: int) -> list:
+            return await self._list_directus_items_async(
                 endpoint,
                 limit=page_size,
                 filter_criteria=filter_criteria,
@@ -2038,12 +2058,20 @@ class ApiFFBBAppClient:
                 search=search,
                 cached_session=cached_session,
             )
-            if not batch:
+
+        page_offsets = [page_size * (i + 1) for i in range(pages_needed)]
+        fetched_pages = await asyncio.gather(
+            *[_fetch_page(off) for off in page_offsets],
+            return_exceptions=True,
+        )
+
+        for page in fetched_pages:
+            if isinstance(page, BaseException) or not page:
                 break
-            results.extend([model_cls.from_dict(r) for r in batch if r])
-            if len(batch) < page_size:
+            results.extend([model_cls.from_dict(r) for r in page if r])
+            if len(page) < page_size:
                 break
-            offset += page_size
+
         return results[:max_items]
 
     async def list_all_rencontres_async(

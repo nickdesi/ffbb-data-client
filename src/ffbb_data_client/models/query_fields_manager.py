@@ -24,7 +24,7 @@ class QueryFieldsManager(ABC):
     @abstractmethod
     def get_fields(self) -> list[str]:
         """Return the list of fields for this query."""
-        ...
+        raise NotImplementedError
 
     @staticmethod
     def get_organisme_fields(field_set: FieldSet = FieldSet.DEFAULT) -> list[str]:
