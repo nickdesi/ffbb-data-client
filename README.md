@@ -264,6 +264,28 @@ Documentation complémentaire :
 
 ---
 
+## 🛠️ Découverte d'API et Détection de Drift (Schema Drift)
+
+Le projet intègre un système robuste de surveillance quotidienne de l'API de production de la FFBB (Directus & Meilisearch) afin de détecter immédiatement l'apparition de nouvelles ressources, de nouveaux champs ou de changements de types.
+
+### 1. Fonctionnement
+* **Script de découverte** : `scripts/discover_endpoints.py` interroge dynamiquement l'OpenAPI spec Directus de la FFBB, extrait toutes les collections, sonde les index Meilisearch (via un échantillonnage agrégé sur 20 hits) et calcule les différences structurelles avec les fichiers locaux.
+* **Détection de dérive** : Le script compare les structures internes de chaque modèle (propriétés ajoutées, supprimées ou types modifiés) ainsi que les attributs Meilisearch, et génère un rapport consolidé dans `data/api_update_summary.md`.
+
+### 2. Automatisation CI/CD
+Un workflow quotidien (`update-ffbb-api-discovery.yml`) s'exécute chaque matin à 5h17 UTC pour :
+1. Télécharger l'OpenAPI spec et sonder Meilisearch en production.
+2. Analyser les dérives structurelles.
+3. Si un changement structurel est détecté (ajout de collection, de propriétés ou d'index), le workflow ouvre automatiquement une **Pull Request** sur GitHub contenant un résumé des modifications pour permettre aux développeurs de mettre à jour les modèles Pydantic.
+
+### 3. Exécution locale
+Pour lancer manuellement la découverte d'API et mettre à jour les fichiers de schémas locaux :
+```bash
+python scripts/discover_endpoints.py
+```
+
+---
+
 ## 🤖 Intégration IA / MCP
 
 Le client sert de base au serveur MCP FFBB et expose une API stable pour construire des outils agent-friendly : recherche de clubs, récupération de poules, classements, lives, calendriers et détails de rencontres.
