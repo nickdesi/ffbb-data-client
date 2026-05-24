@@ -119,6 +119,7 @@ jobs:
     steps:
       - name: Dispatch bump event to FFBB-MCP-Server
         uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697  # v4
+        continue-on-error: true
         with:
           token: ${{ secrets.MCP_SERVER_PAT }}
           repository: nickdesi/FFBB-MCP-Server
