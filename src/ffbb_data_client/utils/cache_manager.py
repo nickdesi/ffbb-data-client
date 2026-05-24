@@ -340,7 +340,7 @@ class CacheManager:
 
     def warm_cache(self, urls: list[str], headers: dict[str, str] | None = None) -> int:
         """
-        Warm the cache by pre-fetching specified URLs.
+        Warm the cache by pre-fetching specified URLs concurrently.
 
         Args:
             urls: List of URLs to cache.
@@ -349,19 +349,62 @@ class CacheManager:
         Returns:
             Number of URLs successfully cached.
         """
-        if not self.is_enabled() or self._client is None:
+        client = self._client
+        if not self.is_enabled() or client is None:
             return 0
 
         headers = headers or {}
-        count = 0
-        for url in urls:
+        from concurrent.futures import ThreadPoolExecutor
+
+        def _fetch(url: str) -> bool:
             try:
-                self._client.get(url, headers=headers, timeout=10)
-                count += 1
+                client.get(url, headers=headers, timeout=10)
+                return True
             except (OSError, ConnectionError, TimeoutError, ValueError):
                 self.metrics.errors += 1
-                continue
+                return False
+
+        # Concurrency limit of 10 to keep it gentle on the server while warming fast
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            results = list(executor.map(_fetch, urls))
+            count = sum(1 for r in results if r)
+
         return count
+
+    async def warm_cache_async(
+        self, urls: list[str], headers: dict[str, str] | None = None
+    ) -> int:
+        """
+        Warm the cache asynchronously and concurrently.
+
+        Args:
+            urls: List of URLs to cache.
+            headers: Headers to use for requests.
+
+        Returns:
+            Number of URLs successfully cached.
+        """
+        async_client = self._async_client
+        if not self.is_enabled() or async_client is None:
+            return 0
+
+        headers = headers or {}
+        import asyncio
+
+        semaphore = asyncio.Semaphore(10)
+
+        async def _fetch(url: str) -> bool:
+            async with semaphore:
+                try:
+                    await async_client.get(url, headers=headers, timeout=10)
+                    return True
+                except (OSError, ConnectionError, TimeoutError, ValueError):
+                    self.metrics.errors += 1
+                    return False
+
+        tasks = [asyncio.create_task(_fetch(url)) for url in urls]
+        results = await asyncio.gather(*tasks)
+        return sum(1 for r in results if r)
 
     @classmethod
     def reset_instance(cls) -> None:

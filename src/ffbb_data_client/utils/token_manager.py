@@ -97,11 +97,15 @@ class TokenManager:
         config_url = f"{API_FFBB_BASE_URL}{ENDPOINT_CONFIGURATION}"
         headers = {"user-agent": DEFAULT_USER_AGENT}
 
+        from .retry_utils import get_default_retry_config, get_default_timeout_config
+
         data = catch_result(
             lambda: http_get_json(
                 config_url,
                 headers,
                 cached_session=cached_session,
+                retry_config=get_default_retry_config(),
+                timeout_config=get_default_timeout_config(),
             )
         )
 
