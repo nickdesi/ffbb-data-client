@@ -247,13 +247,11 @@ class CacheManager:
                 if isinstance(request.content, bytes)
                 else str(request.content).encode("utf-8")
             )
-            body_hash = hashlib.md5(content_bytes).hexdigest()
+            body_hash = hashlib.md5(content_bytes, usedforsecurity=False).hexdigest()
             key_parts.append(body_hash)
 
         key_string = "|".join(key_parts)
-        return (
-            f"{self.config.key_prefix}:{hashlib.md5(key_string.encode()).hexdigest()}"
-        )
+        return f"{self.config.key_prefix}:{hashlib.md5(key_string.encode(), usedforsecurity=False).hexdigest()}"
 
     @property
     def session(self) -> httpx.Client | None:

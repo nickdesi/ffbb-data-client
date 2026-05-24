@@ -7,7 +7,7 @@ along with configurable timeout management.
 
 import asyncio
 import atexit
-import random
+import secrets
 import time
 from collections.abc import Callable
 from typing import Any, cast
@@ -149,7 +149,7 @@ def calculate_delay(attempt: int, config: RetryConfig) -> float:
     if config.jitter:
         # Add random jitter (±25% of delay)
         jitter_range = delay * 0.25
-        delay += random.uniform(-jitter_range, jitter_range)
+        delay += secrets.SystemRandom().uniform(-jitter_range, jitter_range)
         delay = max(0.1, delay)  # Minimum 100ms delay
 
     return delay
