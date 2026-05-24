@@ -7626,6 +7626,11 @@
             "nullable": true,
             "type": "string"
           },
+          "code": {
+            "description": "Saisir le code pour tester le bloc, laisser vide dans le cas contraire.",
+            "nullable": true,
+            "type": "string"
+          },
           "date_created": {
             "format": "timestamp",
             "nullable": true,
@@ -7660,11 +7665,19 @@
             "nullable": false,
             "type": "string"
           },
+          "subscription_form": {
+            "nullable": true,
+            "type": "boolean"
+          },
           "title": {
             "nullable": true,
             "type": "string"
           },
           "type": {
+            "nullable": true,
+            "type": "string"
+          },
+          "type_filter": {
             "nullable": true,
             "type": "string"
           },
@@ -9373,6 +9386,10 @@
               }
             ]
           },
+          "category": {
+            "nullable": true,
+            "type": "string"
+          },
           "city": {
             "nullable": true,
             "type": "string"
@@ -9400,10 +9417,18 @@
             "nullable": true,
             "type": "string"
           },
+          "date_published": {
+            "format": "timestamp",
+            "nullable": true,
+            "type": "string"
+          },
           "date_updated": {
             "format": "timestamp",
             "nullable": true,
             "type": "string"
+          },
+          "degree": {
+            "nullable": true
           },
           "domain": {
             "nullable": true,
@@ -9480,6 +9505,10 @@
             "nullable": true,
             "type": "integer"
           },
+          "postal_code": {
+            "nullable": true,
+            "type": "string"
+          },
           "profil": {
             "nullable": true,
             "type": "string"
@@ -9511,6 +9540,28 @@
             "nullable": false,
             "type": "string"
           },
+          "structure": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/ItemsFfbbserverOrganismes"
+              }
+            ]
+          },
+          "structure_linked": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/ItemsFfbbserverOrganismes"
+              }
+            ]
+          },
           "studies": {
             "nullable": true,
             "oneOf": [
@@ -9522,7 +9573,15 @@
               }
             ]
           },
+          "terms_contact": {
+            "nullable": true,
+            "type": "string"
+          },
           "title": {
+            "nullable": true,
+            "type": "string"
+          },
+          "type": {
             "nullable": true,
             "type": "string"
           },
@@ -12207,7 +12266,7 @@
   "info": {
     "description": "This is a dynamically generated API specification for all endpoints existing on the current project.",
     "title": "Dynamic API Specification",
-    "version": "81dc585185721d2d026413c186a80f4779abf831"
+    "version": "9be33d74bfb480282da91c53c8dfa29804914c96"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -12774,6 +12833,112 @@
         "summary": "Retrieve a Files",
         "tags": [
           "Files"
+        ]
+      }
+    },
+    "/folders": {
+      "get": {
+        "description": "List the folders.",
+        "operationId": "getFolders",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Fields"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Offset"
+          },
+          {
+            "$ref": "#/components/parameters/Sort"
+          },
+          {
+            "$ref": "#/components/parameters/Filter"
+          },
+          {
+            "$ref": "#/components/parameters/Search"
+          },
+          {
+            "$ref": "#/components/parameters/Meta"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/Folders"
+                      },
+                      "type": "array"
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/x-metadata"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful request"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        },
+        "summary": "List Folders",
+        "tags": [
+          "Folders"
+        ]
+      }
+    },
+    "/folders/{id}": {
+      "get": {
+        "description": "Retrieve a single folder by unique identifier.",
+        "operationId": "getFolder",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UUId"
+          },
+          {
+            "$ref": "#/components/parameters/Fields"
+          },
+          {
+            "$ref": "#/components/parameters/Meta"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Folders"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful request"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        },
+        "summary": "Retrieve a Folder",
+        "tags": [
+          "Folders"
         ]
       }
     },
@@ -22741,6 +22906,62 @@
           "Items",
           "ItemsFfbbsiteBlockAssets"
         ]
+      },
+      "post": {
+        "description": "Create a new ffbbsite_block_assets item.",
+        "operationId": "createItemsFfbbsiteBlockAssets",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Meta"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "items": {
+                      "$ref": "#/components/schemas/ItemsFfbbsiteBlockAssets"
+                    },
+                    "type": "array"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ItemsFfbbsiteBlockAssets"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/ItemsFfbbsiteBlockAssets"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful request"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "summary": "Create an Item",
+        "tags": [
+          "Items",
+          "ItemsFfbbsiteBlockAssets"
+        ]
       }
     },
     "/items/ffbbsite_block_assets/{id}": {
@@ -22869,6 +23090,62 @@
           }
         ],
         "summary": "List Items",
+        "tags": [
+          "Items",
+          "ItemsFfbbsiteBlockAssetsDirectusFiles"
+        ]
+      },
+      "post": {
+        "description": "Create a new ffbbsite_block_assets_directus_files item.",
+        "operationId": "createItemsFfbbsiteBlockAssetsDirectusFiles",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Meta"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "items": {
+                      "$ref": "#/components/schemas/ItemsFfbbsiteBlockAssetsDirectusFiles"
+                    },
+                    "type": "array"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ItemsFfbbsiteBlockAssetsDirectusFiles"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/ItemsFfbbsiteBlockAssetsDirectusFiles"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful request"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "summary": "Create an Item",
         "tags": [
           "Items",
           "ItemsFfbbsiteBlockAssetsDirectusFiles"
@@ -23265,6 +23542,62 @@
           }
         ],
         "summary": "List Items",
+        "tags": [
+          "Items",
+          "ItemsFfbbsiteBlockAssetsFiles"
+        ]
+      },
+      "post": {
+        "description": "Create a new ffbbsite_block_assets_files item.",
+        "operationId": "createItemsFfbbsiteBlockAssetsFiles",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Meta"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "items": {
+                      "$ref": "#/components/schemas/ItemsFfbbsiteBlockAssetsFiles"
+                    },
+                    "type": "array"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ItemsFfbbsiteBlockAssetsFiles"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/ItemsFfbbsiteBlockAssetsFiles"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful request"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "summary": "Create an Item",
         "tags": [
           "Items",
           "ItemsFfbbsiteBlockAssetsFiles"
@@ -29867,6 +30200,62 @@
           "Items",
           "ItemsFfbbsiteJobs"
         ]
+      },
+      "post": {
+        "description": "Create a new ffbbsite_jobs item.",
+        "operationId": "createItemsFfbbsiteJobs",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Meta"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "items": {
+                      "$ref": "#/components/schemas/ItemsFfbbsiteJobs"
+                    },
+                    "type": "array"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ItemsFfbbsiteJobs"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/ItemsFfbbsiteJobs"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful request"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "summary": "Create an Item",
+        "tags": [
+          "Items",
+          "ItemsFfbbsiteJobs"
+        ]
       }
     },
     "/items/ffbbsite_jobs/{id}": {
@@ -29995,6 +30384,62 @@
           }
         ],
         "summary": "List Items",
+        "tags": [
+          "Items",
+          "ItemsFfbbsiteJobsContracts"
+        ]
+      },
+      "post": {
+        "description": "Create a new ffbbsite_jobs_contracts item.",
+        "operationId": "createItemsFfbbsiteJobsContracts",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Meta"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "items": {
+                      "$ref": "#/components/schemas/ItemsFfbbsiteJobsContracts"
+                    },
+                    "type": "array"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ItemsFfbbsiteJobsContracts"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/ItemsFfbbsiteJobsContracts"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful request"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "summary": "Create an Item",
         "tags": [
           "Items",
           "ItemsFfbbsiteJobsContracts"
@@ -30131,6 +30576,62 @@
           "Items",
           "ItemsFfbbsiteJobsDomains"
         ]
+      },
+      "post": {
+        "description": "Create a new ffbbsite_jobs_domains item.",
+        "operationId": "createItemsFfbbsiteJobsDomains",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Meta"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "items": {
+                      "$ref": "#/components/schemas/ItemsFfbbsiteJobsDomains"
+                    },
+                    "type": "array"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ItemsFfbbsiteJobsDomains"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/ItemsFfbbsiteJobsDomains"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful request"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "summary": "Create an Item",
+        "tags": [
+          "Items",
+          "ItemsFfbbsiteJobsDomains"
+        ]
       }
     },
     "/items/ffbbsite_jobs_domains/{id}": {
@@ -30259,6 +30760,62 @@
           }
         ],
         "summary": "List Items",
+        "tags": [
+          "Items",
+          "ItemsFfbbsiteJobsExperience"
+        ]
+      },
+      "post": {
+        "description": "Create a new ffbbsite_jobs_experience item.",
+        "operationId": "createItemsFfbbsiteJobsExperience",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Meta"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "items": {
+                      "$ref": "#/components/schemas/ItemsFfbbsiteJobsExperience"
+                    },
+                    "type": "array"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ItemsFfbbsiteJobsExperience"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/ItemsFfbbsiteJobsExperience"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful request"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "summary": "Create an Item",
         "tags": [
           "Items",
           "ItemsFfbbsiteJobsExperience"
@@ -30395,6 +30952,62 @@
           "Items",
           "ItemsFfbbsiteJobsServices"
         ]
+      },
+      "post": {
+        "description": "Create a new ffbbsite_jobs_services item.",
+        "operationId": "createItemsFfbbsiteJobsServices",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Meta"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "items": {
+                      "$ref": "#/components/schemas/ItemsFfbbsiteJobsServices"
+                    },
+                    "type": "array"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ItemsFfbbsiteJobsServices"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/ItemsFfbbsiteJobsServices"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful request"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "summary": "Create an Item",
+        "tags": [
+          "Items",
+          "ItemsFfbbsiteJobsServices"
+        ]
       }
     },
     "/items/ffbbsite_jobs_services/{id}": {
@@ -30523,6 +31136,62 @@
           }
         ],
         "summary": "List Items",
+        "tags": [
+          "Items",
+          "ItemsFfbbsiteJobsStudies"
+        ]
+      },
+      "post": {
+        "description": "Create a new ffbbsite_jobs_studies item.",
+        "operationId": "createItemsFfbbsiteJobsStudies",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Meta"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "items": {
+                      "$ref": "#/components/schemas/ItemsFfbbsiteJobsStudies"
+                    },
+                    "type": "array"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ItemsFfbbsiteJobsStudies"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/ItemsFfbbsiteJobsStudies"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful request"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "summary": "Create an Item",
         "tags": [
           "Items",
           "ItemsFfbbsiteJobsStudies"
@@ -36950,6 +37619,11 @@
       ]
     },
     {
+      "description": "Group files by virtual folders.",
+      "name": "Folders",
+      "x-collection": "directus_folders"
+    },
+    {
       "name": "ItemsEdfArenas",
       "x-collection": "edf_arenas"
     },
@@ -37261,16 +37935,16 @@
       "x-collection": "ffbbcompetitions_navigations_items"
     },
     {
+      "name": "ItemsFfbbsiteBlockJobs",
+      "x-collection": "ffbbsite_block_jobs"
+    },
+    {
       "name": "ItemsFfbbsiteAssetsTags",
       "x-collection": "ffbbsite_assets_tags"
     },
     {
       "name": "ItemsFfbbcompetitionsSEO",
       "x-collection": "ffbbcompetitions_seo"
-    },
-    {
-      "name": "ItemsFfbbsiteBlockJobs",
-      "x-collection": "ffbbsite_block_jobs"
     },
     {
       "name": "ItemsFfbbsiteJobsUnits",
@@ -37514,6 +38188,10 @@
       "x-collection": "ffbbsite_news_ffbbsite_tags"
     },
     {
+      "name": "ItemsFfbbsiteJobs",
+      "x-collection": "ffbbsite_jobs"
+    },
+    {
       "name": "ItemsEdfCampaigns",
       "x-collection": "edf_campaigns"
     },
@@ -37556,10 +38234,6 @@
     {
       "name": "ItemsFfbbcompetitionsPages",
       "x-collection": "ffbbcompetitions_pages"
-    },
-    {
-      "name": "ItemsFfbbsiteJobs",
-      "x-collection": "ffbbsite_jobs"
     },
     {
       "name": "ItemsFfbbcompetitionsPagesBlocks",

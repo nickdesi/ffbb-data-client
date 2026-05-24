@@ -35,7 +35,7 @@ jobs:
       - name: Detect structural discovery changes
         id: changes
         run: |
-          if grep -Eq '^- (Added|Removed): \[' data/api_update_summary.md; then
+          if grep -Eq '^- (Added|Removed): \[' data/api_update_summary.md || grep -q 'drift' data/api_update_summary.md; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
             echo "changed=false" >> "$GITHUB_OUTPUT"

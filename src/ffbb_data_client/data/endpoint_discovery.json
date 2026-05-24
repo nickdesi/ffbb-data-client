@@ -333,9 +333,9 @@
       "items/youtube_videos_youtube_tags"
     ],
     "metadata": {
-      "openapi_version": "81dc585185721d2d026413c186a80f4779abf831",
+      "openapi_version": "9be33d74bfb480282da91c53c8dfa29804914c96",
       "source": "https://api.ffbb.app/server/specs/oas",
-      "timestamp": "2026-04-30T13:30:14.497350+00:00"
+      "timestamp": "2026-05-24T11:03:57.203628+00:00"
     },
     "paths": {
       "items/configuration": [
@@ -789,13 +789,15 @@
         "get"
       ],
       "items/ffbbsite_block_assets": [
-        "get"
+        "get",
+        "post"
       ],
       "items/ffbbsite_block_assets/{id}": [
         "get"
       ],
       "items/ffbbsite_block_assets_directus_files": [
-        "get"
+        "get",
+        "post"
       ],
       "items/ffbbsite_block_assets_directus_files/{id}": [
         "get"
@@ -813,7 +815,8 @@
         "get"
       ],
       "items/ffbbsite_block_assets_files": [
-        "get"
+        "get",
+        "post"
       ],
       "items/ffbbsite_block_assets_files/{id}": [
         "get"
@@ -1101,37 +1104,43 @@
         "get"
       ],
       "items/ffbbsite_jobs": [
-        "get"
+        "get",
+        "post"
       ],
       "items/ffbbsite_jobs/{id}": [
         "get"
       ],
       "items/ffbbsite_jobs_contracts": [
-        "get"
+        "get",
+        "post"
       ],
       "items/ffbbsite_jobs_contracts/{id}": [
         "get"
       ],
       "items/ffbbsite_jobs_domains": [
-        "get"
+        "get",
+        "post"
       ],
       "items/ffbbsite_jobs_domains/{id}": [
         "get"
       ],
       "items/ffbbsite_jobs_experience": [
-        "get"
+        "get",
+        "post"
       ],
       "items/ffbbsite_jobs_experience/{id}": [
         "get"
       ],
       "items/ffbbsite_jobs_services": [
-        "get"
+        "get",
+        "post"
       ],
       "items/ffbbsite_jobs_services/{id}": [
         "get"
       ],
       "items/ffbbsite_jobs_studies": [
-        "get"
+        "get",
+        "post"
       ],
       "items/ffbbsite_jobs_studies/{id}": [
         "get"
@@ -1363,6 +1372,38 @@
       ]
     }
   },
+  "drift": {
+    "directus_openapi": {
+      "added_schemas": [],
+      "modified_schemas": {
+        "ItemsFfbbsiteBlockJobs": {
+          "added_properties": [
+            "code",
+            "subscription_form",
+            "type_filter"
+          ],
+          "modified_properties": {},
+          "removed_properties": []
+        },
+        "ItemsFfbbsiteJobs": {
+          "added_properties": [
+            "category",
+            "date_published",
+            "degree",
+            "postal_code",
+            "structure",
+            "structure_linked",
+            "terms_contact",
+            "type"
+          ],
+          "modified_properties": {},
+          "removed_properties": []
+        }
+      },
+      "removed_schemas": []
+    },
+    "meilisearch_indexes": {}
+  },
   "meilisearch": {
     "available_indexes": [
       "ffbbnational_galeries",
@@ -1405,7 +1446,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 690,
+        "estimatedTotalHits": 688,
         "indexUid": "ffbbnational_pratiques",
         "sampleKeys": [
           "_geo",
@@ -1459,7 +1500,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 3799,
+        "estimatedTotalHits": 3876,
         "indexUid": "ffbbnational_rss",
         "sampleKeys": [
           "categories",
@@ -1545,6 +1586,7 @@
           "codeComite",
           "codeLigue",
           "competitionsUrl",
+          "gradient_color",
           "id",
           "idCompetition",
           "idPoule",
@@ -1568,7 +1610,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 108,
+        "estimatedTotalHits": 117,
         "indexUid": "ffbbserver_formations",
         "sampleKeys": [
           "certification",
@@ -1603,7 +1645,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 4573,
+        "estimatedTotalHits": 4576,
         "indexUid": "ffbbserver_organismes",
         "sampleKeys": [
           "_geo",
@@ -1730,7 +1772,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 241,
+        "estimatedTotalHits": 207,
         "indexUid": "ffbbserver_tournois",
         "sampleKeys": [
           "_geo",
@@ -1769,7 +1811,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 5800,
+        "estimatedTotalHits": 5880,
         "indexUid": "ffbbsite_news",
         "sampleKeys": [
           "author",
@@ -1831,7 +1873,7 @@
     ],
     "metadata": {
       "source": "https://meilisearch-prod.ffbb.app/multi-search",
-      "timestamp": "2026-04-30T13:30:14.497350+00:00"
+      "timestamp": "2026-05-24T11:03:57.203628+00:00"
     },
     "unavailable_indexes": [
       {
@@ -1867,9 +1909,9 @@
   "metadata": {
     "api_base_url": "https://api.ffbb.app/",
     "meilisearch_base_url": "https://meilisearch-prod.ffbb.app/",
-    "openapi_sha256": "196c91b6ca286bc66f7c78a7e9a067f817dc89fa3deb00be3d70e0b586f8bab4",
-    "openapi_snapshot_sha256": "c0b15cf5d6e68fae001591e92c69a5155f1e96afce725065f401c92488f20015",
-    "openapi_version": "81dc585185721d2d026413c186a80f4779abf831",
-    "timestamp": "2026-04-30T13:30:14.497350+00:00"
+    "openapi_sha256": "d63e8450719e2580e1ab6c4960d6de978c1e2ab457f5e9d71cc3e872ed272641",
+    "openapi_snapshot_sha256": "fe657a217c8b5aade6ee9ea4b1dd25093b690b3fb12d39758298721d82124689",
+    "openapi_version": "9be33d74bfb480282da91c53c8dfa29804914c96",
+    "timestamp": "2026-05-24T11:03:57.203628+00:00"
   }
 }

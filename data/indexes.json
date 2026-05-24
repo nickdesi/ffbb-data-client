@@ -40,7 +40,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 690,
+      "estimatedTotalHits": 688,
       "indexUid": "ffbbnational_pratiques",
       "sampleKeys": [
         "_geo",
@@ -94,7 +94,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 3799,
+      "estimatedTotalHits": 3876,
       "indexUid": "ffbbnational_rss",
       "sampleKeys": [
         "categories",
@@ -180,6 +180,7 @@
         "codeComite",
         "codeLigue",
         "competitionsUrl",
+        "gradient_color",
         "id",
         "idCompetition",
         "idPoule",
@@ -203,7 +204,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 108,
+      "estimatedTotalHits": 117,
       "indexUid": "ffbbserver_formations",
       "sampleKeys": [
         "certification",
@@ -238,7 +239,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 4573,
+      "estimatedTotalHits": 4576,
       "indexUid": "ffbbserver_organismes",
       "sampleKeys": [
         "_geo",
@@ -365,7 +366,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 241,
+      "estimatedTotalHits": 207,
       "indexUid": "ffbbserver_tournois",
       "sampleKeys": [
         "_geo",
@@ -404,7 +405,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 5800,
+      "estimatedTotalHits": 5880,
       "indexUid": "ffbbsite_news",
       "sampleKeys": [
         "author",
@@ -466,7 +467,7 @@
   ],
   "metadata": {
     "source": "https://meilisearch-prod.ffbb.app/multi-search",
-    "timestamp": "2026-04-30T13:30:14.497350+00:00"
+    "timestamp": "2026-05-24T11:03:51.034202+00:00"
   },
   "unavailable_indexes": [
     {

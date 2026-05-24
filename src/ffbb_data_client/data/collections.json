@@ -332,9 +332,9 @@
     "items/youtube_videos_youtube_tags"
   ],
   "metadata": {
-    "openapi_version": "81dc585185721d2d026413c186a80f4779abf831",
+    "openapi_version": "9be33d74bfb480282da91c53c8dfa29804914c96",
     "source": "https://api.ffbb.app/server/specs/oas",
-    "timestamp": "2026-04-30T13:30:14.497350+00:00"
+    "timestamp": "2026-05-24T11:03:51.034202+00:00"
   },
   "paths": {
     "items/configuration": [
@@ -788,13 +788,15 @@
       "get"
     ],
     "items/ffbbsite_block_assets": [
-      "get"
+      "get",
+      "post"
     ],
     "items/ffbbsite_block_assets/{id}": [
       "get"
     ],
     "items/ffbbsite_block_assets_directus_files": [
-      "get"
+      "get",
+      "post"
     ],
     "items/ffbbsite_block_assets_directus_files/{id}": [
       "get"
@@ -812,7 +814,8 @@
       "get"
     ],
     "items/ffbbsite_block_assets_files": [
-      "get"
+      "get",
+      "post"
     ],
     "items/ffbbsite_block_assets_files/{id}": [
       "get"
@@ -1100,37 +1103,43 @@
       "get"
     ],
     "items/ffbbsite_jobs": [
-      "get"
+      "get",
+      "post"
     ],
     "items/ffbbsite_jobs/{id}": [
       "get"
     ],
     "items/ffbbsite_jobs_contracts": [
-      "get"
+      "get",
+      "post"
     ],
     "items/ffbbsite_jobs_contracts/{id}": [
       "get"
     ],
     "items/ffbbsite_jobs_domains": [
-      "get"
+      "get",
+      "post"
     ],
     "items/ffbbsite_jobs_domains/{id}": [
       "get"
     ],
     "items/ffbbsite_jobs_experience": [
-      "get"
+      "get",
+      "post"
     ],
     "items/ffbbsite_jobs_experience/{id}": [
       "get"
     ],
     "items/ffbbsite_jobs_services": [
-      "get"
+      "get",
+      "post"
     ],
     "items/ffbbsite_jobs_services/{id}": [
       "get"
     ],
     "items/ffbbsite_jobs_studies": [
-      "get"
+      "get",
+      "post"
     ],
     "items/ffbbsite_jobs_studies/{id}": [
       "get"
