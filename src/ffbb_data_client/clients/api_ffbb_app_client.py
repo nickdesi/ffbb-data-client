@@ -7,7 +7,7 @@ from typing import Any, TypeVar
 
 import httpx
 from httpx import Client
-from pydantic import TypeAdapter
+
 
 from ..config import (
     API_FFBB_BASE_URL,
@@ -56,7 +56,7 @@ from ..models.get_rencontre_response import GetRencontreResponse
 from ..models.get_salle_response import GetSalleResponse
 from ..models.get_terrain_response import GetTerrainResponse
 from ..models.get_tournoi_response import GetTournoiResponse
-from ..models.lives import Live
+from ..models.lives import Live, lives_from_dict
 from ..models.poules_models import GetPouleResponse
 from ..models.query_fields_manager import QueryFieldsManager
 from ..models.saisons_models import GetSaisonsResponse
@@ -377,8 +377,7 @@ class ApiFFBBAppClient:
                 if not isinstance(raw_data, list):
                     return []
 
-                adapter = TypeAdapter(list[Live])
-                return adapter.validate_python(raw_data)
+                return lives_from_dict(raw_data)
         except Exception as e:
             if self.debug:
                 self.logger.error(f"Error in get_lives_async: {e}")
@@ -451,8 +450,7 @@ class ApiFFBBAppClient:
             )
             actual_data = data.get("data") if data and isinstance(data, dict) else data
             if actual_data:
-                adapter = TypeAdapter(GetCompetitionResponse)
-                return adapter.validate_python(actual_data)
+                return GetCompetitionResponse.from_dict(actual_data)
             return None
         except Exception as e:
             if self.debug:
@@ -615,8 +613,7 @@ class ApiFFBBAppClient:
             )
             actual_data = data.get("data") if data and isinstance(data, dict) else data
             if actual_data and isinstance(actual_data, list):
-                adapter = TypeAdapter(list[GetSaisonsResponse])
-                return adapter.validate_python(actual_data)
+                return GetSaisonsResponse.from_list(actual_data)
         except Exception as e:
             if self.debug:
                 self.logger.error(f"Error in get_saisons_async: {e}")
@@ -767,8 +764,12 @@ class ApiFFBBAppClient:
             )
             actual_data = data.get("data") if data and isinstance(data, dict) else data
             if actual_data and isinstance(actual_data, list):
-                adapter = TypeAdapter(list[GetCompetitionResponse])
-                return adapter.validate_python(actual_data)
+                parsed = [
+                    GetCompetitionResponse.from_dict(item)
+                    for item in actual_data
+                    if item
+                ]
+                return [p for p in parsed if p is not None]
         except Exception as e:
             if self.debug:
                 self.logger.error(f"Error in list_competitions_async: {e}")
@@ -814,8 +815,7 @@ class ApiFFBBAppClient:
             )
             actual_data = data.get("data") if data and isinstance(data, dict) else data
             if actual_data:
-                adapter = TypeAdapter(GetConfigurationResponse)
-                return adapter.validate_python(actual_data)
+                return GetConfigurationResponse.from_dict(actual_data)
             return None
         except Exception as e:
             if self.debug:

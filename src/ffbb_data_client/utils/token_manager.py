@@ -114,6 +114,4 @@ class TokenManager:
         if not actual_data:
             raise RuntimeError("Failed to fetch configuration from FFBB API")
 
-        from pydantic import TypeAdapter
-
-        return TypeAdapter(GetConfigurationResponse).validate_python(actual_data)
+        return GetConfigurationResponse.from_dict(actual_data)
