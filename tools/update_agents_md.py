@@ -144,6 +144,10 @@ ou interroge l'API publique en cache en cas d'absence :
   documentation (`AGENTS.md`), de site/landing page ou autres tâches de synchronisation de
   manière autonome. Si vous estimez qu'une mise à jour automatique est pertinente ou non, prenez
   la décision par vous-même sans attendre la validation explicite de l'utilisateur.
+- **Validation pre-commit systématique (Zéro échec de CI)** : Pour éviter tout échec de build ou de formatage en CI,
+  exécutez systématiquement la validation complète locale via `rtk pre-commit run --all-files` avant de pousser
+  tout commit vers origin. Résolvez toutes les alertes (formatage, imports `isort`, typage) localement.
+
 
 ## Karpathy Guidelines (Règles de développement)
 Ces directives inspirées d'Andrej Karpathy visent à éliminer les erreurs de codage courantes en privilégiant la simplicité et la rigueur :

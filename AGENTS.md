@@ -1,8 +1,8 @@
 # FFBB Data Client SDK
 
 > ⚠️ **Fichier auto-généré** par `tools/update_agents_md.py` — ne pas modifier manuellement.
-> Dernière mise à jour : ffbb-data-client | SDK total : ~18839 lignes de code
-> (clients: 6259, models: 9878, utils: 1912, helpers: 790)
+> Dernière mise à jour : ffbb-data-client | SDK total : ~18836 lignes de code
+> (clients: 6258, models: 9878, utils: 1910, helpers: 790)
 
 ## Langue
 Tous les documents de travail (walkthrough.md, implementation_plan.md) DOIVENT être en français.
@@ -205,6 +205,10 @@ ou interroge l'API publique en cache en cas d'absence :
   documentation (`AGENTS.md`), de site/landing page ou autres tâches de synchronisation de
   manière autonome. Si vous estimez qu'une mise à jour automatique est pertinente ou non, prenez
   la décision par vous-même sans attendre la validation explicite de l'utilisateur.
+- **Validation pre-commit systématique (Zéro échec de CI)** : Pour éviter tout échec de build ou de formatage en CI,
+  exécutez systématiquement la validation complète locale via `rtk pre-commit run --all-files` avant de pousser
+  tout commit vers origin. Résolvez toutes les alertes (formatage, imports `isort`, typage) localement.
+
 
 ## Karpathy Guidelines (Règles de développement)
 Ces directives inspirées d'Andrej Karpathy visent à éliminer les erreurs de codage courantes en privilégiant la simplicité et la rigueur :
@@ -230,13 +234,13 @@ Ces directives inspirées d'Andrej Karpathy visent à éliminer les erreurs de c
 ```
 src/ffbb_data_client/
 ├── __init__.py            # Point d'entrée du SDK, expose FFBBDataClient et FFBBTokens
-├── clients/               # Clients d'API (REST et Meilisearch) et façades (≈6259 lignes)
+├── clients/               # Clients d'API (REST et Meilisearch) et façades (≈6258 lignes)
 ├── config.py              # Configuration centralisée (URLs, Headers, Endpoints, Facettes)
 ├── data/                  # Ressources et données statiques
 ├── helpers/               # Méthodes utilitaires pour requêtes HTTP et mapping (≈790 lignes)
 ├── models/                # Modèles de données Pydantic type-safe (≈9878 lignes)
 ├── py.typed               # Marqueur pour la compatibilité avec mypy
-└── utils/                 # Gestionnaires transversaux (cache, jetons de sécurité, validation) (≈1912 lignes)
+└── utils/                 # Gestionnaires transversaux (cache, jetons de sécurité, validation) (≈1910 lignes)
 ```
 
 ## Conventions de code
