@@ -6,6 +6,7 @@ along with configurable timeout management.
 """
 
 import asyncio
+import atexit
 import random
 import time
 from collections.abc import Callable
@@ -14,7 +15,6 @@ from typing import Any, cast
 import httpx
 from httpx import Client, Response
 
-import atexit
 from .secure_logging import get_secure_logger
 
 logger = get_secure_logger(__name__)

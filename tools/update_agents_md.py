@@ -140,7 +140,10 @@ ou interroge l'API publique en cache en cas d'absence :
 - **Modèles typés** : Respectez scrupuleusement la déclaration des types Pydantic de `ffbb_data_client.models`.
   Tout nouveau modèle ou modification de champ doit correspondre aux spécifications de l'API FFBB.
 - **Réponses en français** : Communiquez et expliquez toujours vos changements ou vos analyses en langue française.
-- **Génération et mises à jour autonomes** : Effectuez systématiquement toutes les régénérations de documentation (`AGENTS.md`), de site/landing page ou autres tâches de synchronisation de manière autonome. Si vous estimez qu'une mise à jour automatique est pertinente ou non, prenez la décision par vous-même sans attendre la validation explicite de l'utilisateur.
+- **Génération et mises à jour autonomes** : Effectuez systématiquement toutes les régénérations de
+  documentation (`AGENTS.md`), de site/landing page ou autres tâches de synchronisation de
+  manière autonome. Si vous estimez qu'une mise à jour automatique est pertinente ou non, prenez
+  la décision par vous-même sans attendre la validation explicite de l'utilisateur.
 
 ## Karpathy Guidelines (Règles de développement)
 Ces directives inspirées d'Andrej Karpathy visent à éliminer les erreurs de codage courantes en privilégiant la simplicité et la rigueur :
