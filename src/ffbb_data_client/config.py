@@ -8,8 +8,8 @@ MEILISEARCH_BASE_URL = "https://meilisearch-prod.ffbb.app/"
 DEFAULT_USER_AGENT = "okhttp/4.12.0"
 
 # Environment variable names for tokens
-ENV_API_TOKEN = "API_FFBB_APP_BEARER_TOKEN"
-ENV_MEILISEARCH_TOKEN = "MEILISEARCH_BEARER_TOKEN"
+ENV_API_TOKEN = "API_FFBB_APP_BEARER_TOKEN"  # noqa: S105
+ENV_MEILISEARCH_TOKEN = "MEILISEARCH_BEARER_TOKEN"  # noqa: S105
 
 # API Endpoint Paths (relative to base URL)
 ENDPOINT_CONFIGURATION = "items/configuration"
