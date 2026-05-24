@@ -8,7 +8,6 @@ from typing import Any, TypeVar
 import httpx
 from httpx import Client
 
-
 from ..config import (
     API_FFBB_BASE_URL,
     DEFAULT_USER_AGENT,
