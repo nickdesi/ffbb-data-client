@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-05-24
+
+### Added
+- **API Schema Drift Detection**: Automated detection of changes inside Directus OpenAPI schemas (added/removed/modified properties, nested types, and nullability changes)
+- **Meilisearch Attributes Drift Detection**: Automated detection of changes inside Meilisearch index schemas (`sampleKeys`) with robust sampling over 20 hits
+- **CI/CD Pull Request Automation**: Pre-commit hooks and GitHub Actions workflow automatically open a Pull Request when any API property or index drift is detected
+- Detailed Schema Drift reporting in `data/api_update_summary.md` and `report["drift"]` payload
+
+### Fixed
+- Robust Meilisearch sampling: index keys are now aggregated across 20 hits instead of 1, preventing false positives on optional null fields
+- Pre-commit & flake8 E501 line too long violations in `tools/update_agents_md.py`
+- Formatted `AGENTS.md` spacing and line wrapping for flawless agent ingestion
+
 ## [2.2.0] - 2026-05-17
 
 ### Changed
