@@ -1,7 +1,7 @@
 # FFBB Data Client SDK
 
 > ⚠️ **Fichier auto-généré** par `tools/update_agents_md.py` — ne pas modifier manuellement.
-> Dernière mise à jour : ffbb-data-client | SDK total : ~18772 lignes de code (clients: 6261, models: 9881, utils: 1840, helpers: 790)
+> Dernière mise à jour : ffbb-data-client | SDK total : ~18767 lignes de code (clients: 6259, models: 9878, utils: 1840, helpers: 790)
 
 ## Langue
 Tous les documents de travail (walkthrough.md, implementation_plan.md) DOIVENT être en français.
@@ -220,11 +220,11 @@ Ces directives inspirées d'Andrej Karpathy visent à éliminer les erreurs de c
 ```
 src/ffbb_data_client/
 ├── __init__.py            # Point d'entrée du SDK, expose FFBBDataClient et FFBBTokens
-├── clients/               # Clients d'API (REST et Meilisearch) et façades (≈6261 lignes)
+├── clients/               # Clients d'API (REST et Meilisearch) et façades (≈6259 lignes)
 ├── config.py              # Configuration centralisée (URLs, Headers, Endpoints, Facettes)
 ├── data/                  # Ressources et données statiques
 ├── helpers/               # Méthodes utilitaires pour requêtes HTTP et mapping (≈790 lignes)
-├── models/                # Modèles de données Pydantic type-safe (≈9881 lignes)
+├── models/                # Modèles de données Pydantic type-safe (≈9878 lignes)
 ├── py.typed               # Marqueur pour la compatibilité avec mypy
 └── utils/                 # Gestionnaires transversaux (cache, jetons de sécurité, validation) (≈1840 lignes)
 ```

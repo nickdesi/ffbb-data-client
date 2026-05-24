@@ -32,12 +32,14 @@ class Test001FfbbApiClientV2Core(unittest.TestCase):
 
     def test_002_create_factory_method_success(self):
         """Test factory method creates client successfully."""
-        with patch(
-            "ffbb_data_client.clients.ffbb_data_client.ApiFFBBAppClient"
-        ) as mock_api_cls, patch(
-            "ffbb_data_client.clients.ffbb_data_client.MeilisearchFFBBClient"
-        ) as mock_ms_cls:
-
+        with (
+            patch(
+                "ffbb_data_client.clients.ffbb_data_client.ApiFFBBAppClient"
+            ) as mock_api_cls,
+            patch(
+                "ffbb_data_client.clients.ffbb_data_client.MeilisearchFFBBClient"
+            ) as mock_ms_cls,
+        ):
             mock_api_instance = Mock()
             mock_ms_instance = Mock()
             mock_api_cls.return_value = mock_api_instance

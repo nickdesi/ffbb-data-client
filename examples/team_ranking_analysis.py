@@ -253,7 +253,7 @@ def find_team_poule_id(
                     else "Level not detected"
                 )
                 print(
-                    f"   {i+1}. {comp.nom} ({comp.sexe}, "
+                    f"   {i + 1}. {comp.nom} ({comp.sexe}, "
                     f"{comp.typeCompetition}) -> {niveau_info}"
                 )
         raise ValueError(
@@ -468,8 +468,7 @@ def display_team_statistics(poule_response: GetPouleResponse, team_name: str) ->
         if matches_home > 0:
             avg_home = total_scored_home / matches_home
             print(
-                f"  Home: {wins_at_home}/{matches_home} wins, "
-                f"{avg_home:.1f} pts/game"
+                f"  Home: {wins_at_home}/{matches_home} wins, {avg_home:.1f} pts/game"
             )
         if matches_away > 0:
             avg_away = total_scored_away / matches_away

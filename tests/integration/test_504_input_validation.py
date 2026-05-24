@@ -19,8 +19,9 @@ class Test015InputValidationIntegration(unittest.TestCase):
 
     def test_create_client_valid_inputs(self):
         """Test creating client with valid inputs."""
-        with patch("ffbb_data_client.clients.ffbb_data_client.ApiFFBBAppClient"), patch(
-            "ffbb_data_client.clients.ffbb_data_client.MeilisearchFFBBClient"
+        with (
+            patch("ffbb_data_client.clients.ffbb_data_client.ApiFFBBAppClient"),
+            patch("ffbb_data_client.clients.ffbb_data_client.MeilisearchFFBBClient"),
         ):
             client = FFBBDataClient.create(
                 meilisearch_bearer_token=self.valid_meilisearch_token,
@@ -82,12 +83,12 @@ class Test015InputValidationIntegration(unittest.TestCase):
 
     def test_get_saisons_valid_inputs(self):
         """Test get_saisons with valid inputs."""
-        with patch(
-            "ffbb_data_client.clients.ffbb_data_client.ApiFFBBAppClient"
-        ) as mock_api_client_class, patch(
-            "ffbb_data_client.clients.ffbb_data_client.MeilisearchFFBBClient"
+        with (
+            patch(
+                "ffbb_data_client.clients.ffbb_data_client.ApiFFBBAppClient"
+            ) as mock_api_client_class,
+            patch("ffbb_data_client.clients.ffbb_data_client.MeilisearchFFBBClient"),
         ):  # noqa: F841
-
             mock_api_client_instance = mock_api_client_class.return_value
             mock_api_client_instance.get_saisons.return_value = []
 
@@ -116,8 +117,9 @@ class Test015InputValidationIntegration(unittest.TestCase):
 
     def test_get_saisons_invalid_inputs(self):
         """Test get_saisons with invalid inputs."""
-        with patch("ffbb_data_client.clients.ffbb_data_client.ApiFFBBAppClient"), patch(
-            "ffbb_data_client.clients.ffbb_data_client.MeilisearchFFBBClient"
+        with (
+            patch("ffbb_data_client.clients.ffbb_data_client.ApiFFBBAppClient"),
+            patch("ffbb_data_client.clients.ffbb_data_client.MeilisearchFFBBClient"),
         ):
             client = FFBBDataClient.create(
                 meilisearch_bearer_token=self.valid_meilisearch_token,
@@ -136,10 +138,12 @@ class Test015InputValidationIntegration(unittest.TestCase):
 
     def test_multi_search_valid_inputs(self):
         """Test multi_search with valid inputs."""
-        with patch("ffbb_data_client.clients.ffbb_data_client.ApiFFBBAppClient"), patch(
-            "ffbb_data_client.clients.ffbb_data_client.MeilisearchFFBBClient"
-        ) as mock_meilisearch_class:
-
+        with (
+            patch("ffbb_data_client.clients.ffbb_data_client.ApiFFBBAppClient"),
+            patch(
+                "ffbb_data_client.clients.ffbb_data_client.MeilisearchFFBBClient"
+            ) as mock_meilisearch_class,
+        ):
             mock_meilisearch_instance = mock_meilisearch_class.return_value
             mock_meilisearch_instance.recursive_smart_multi_search.return_value = None
 
@@ -158,8 +162,9 @@ class Test015InputValidationIntegration(unittest.TestCase):
 
     def test_multi_search_invalid_inputs(self):
         """Test multi_search with invalid inputs."""
-        with patch("ffbb_data_client.clients.ffbb_data_client.ApiFFBBAppClient"), patch(
-            "ffbb_data_client.clients.ffbb_data_client.MeilisearchFFBBClient"
+        with (
+            patch("ffbb_data_client.clients.ffbb_data_client.ApiFFBBAppClient"),
+            patch("ffbb_data_client.clients.ffbb_data_client.MeilisearchFFBBClient"),
         ):
             client = FFBBDataClient.create(
                 meilisearch_bearer_token=self.valid_meilisearch_token,
@@ -181,8 +186,9 @@ class Test015InputValidationIntegration(unittest.TestCase):
         """Test token validation edge cases."""
         # Test token exactly at minimum length
         min_length_token = "a" * 10
-        with patch("ffbb_data_client.clients.ffbb_data_client.ApiFFBBAppClient"), patch(
-            "ffbb_data_client.clients.ffbb_data_client.MeilisearchFFBBClient"
+        with (
+            patch("ffbb_data_client.clients.ffbb_data_client.ApiFFBBAppClient"),
+            patch("ffbb_data_client.clients.ffbb_data_client.MeilisearchFFBBClient"),
         ):
             client = FFBBDataClient.create(
                 meilisearch_bearer_token=min_length_token,
@@ -192,8 +198,9 @@ class Test015InputValidationIntegration(unittest.TestCase):
 
         # Test token exactly at maximum length
         max_length_token = "a" * 1000
-        with patch("ffbb_data_client.clients.ffbb_data_client.ApiFFBBAppClient"), patch(
-            "ffbb_data_client.clients.ffbb_data_client.MeilisearchFFBBClient"
+        with (
+            patch("ffbb_data_client.clients.ffbb_data_client.ApiFFBBAppClient"),
+            patch("ffbb_data_client.clients.ffbb_data_client.MeilisearchFFBBClient"),
         ):
             client = FFBBDataClient.create(
                 meilisearch_bearer_token=self.valid_meilisearch_token,

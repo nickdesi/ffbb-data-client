@@ -185,8 +185,8 @@ _SEARCH_METHODS = [
 ]
 
 
-class FFBBDataClient:
-    """Thin facade that delegates to _RestFacade and _SearchFacade."""
+class FFBBDataClient(_RestFacade, _SearchFacade):
+    """Facade that provides unified sync and async access to FFBB data."""
 
     def __init__(
         self,
@@ -198,13 +198,11 @@ class FFBBDataClient:
         self.cached_session = api_ffbb_client.cached_session
         self.async_cached_session = api_ffbb_client.async_cached_session
 
-        self._rest = _RestFacade(api_ffbb_client, meilisearch_ffbb_client)
-        self._search = _SearchFacade(api_ffbb_client, meilisearch_ffbb_client)
+        _RestFacade.__init__(self, api_ffbb_client, meilisearch_ffbb_client)
+        _SearchFacade.__init__(self, api_ffbb_client, meilisearch_ffbb_client)
 
-        for name in _REST_METHODS:
-            setattr(self, name, getattr(self._rest, name))
-        for name in _SEARCH_METHODS:
-            setattr(self, name, getattr(self._search, name))
+        self._rest = self
+        self._search = self
 
     @staticmethod
     def create(

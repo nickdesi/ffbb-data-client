@@ -29,7 +29,6 @@ class GetCompetitionResponse:
 
     @dataclass
     class TypecompetitiongeneriqueModel:
-
         @dataclass
         class LogoModel:
             id: str
