@@ -167,6 +167,7 @@ class Test018CacheManager(unittest.TestCase):
     def test_warm_cache_async(self, mock_get):
         """Test async cache warming functionality."""
         import asyncio
+
         manager = CacheManager(self.config)
 
         urls = ["https://api.example.com/test1", "https://api.example.com/test2"]
