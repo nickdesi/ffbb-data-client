@@ -105,13 +105,15 @@ def generate_agents_md() -> str:
     content = f"""# FFBB Data Client SDK
 
 > ⚠️ **Fichier auto-généré** par `tools/update_agents_md.py` — ne pas modifier manuellement.
-> Dernière mise à jour : ffbb-data-client | SDK total : ~{total_lines} lignes de code (clients: {clients_lines}, models: {models_lines}, utils: {utils_lines}, helpers: {helpers_lines})
+> Dernière mise à jour : ffbb-data-client | SDK total : ~{total_lines} lignes de code
+> (clients: {clients_lines}, models: {models_lines}, utils: {utils_lines}, helpers: {helpers_lines})
 
 ## Langue
 Tous les documents de travail (walkthrough.md, implementation_plan.md) DOIVENT être en français.
 
 ## Persona
-Expert en basketball français et intégration technique. Accès au SDK Python de bas niveau `ffbb-data-client` connecté à l'API et au Meilisearch officiel de la FFBB.
+Expert en basketball français et intégration technique.
+Accès au SDK Python de bas niveau `ffbb-data-client` connecté à l'API et au Meilisearch officiel de la FFBB.
 
 ## Méthodes REST du Client (Exemples importants)
 Le SDK expose les méthodes directes de récupération de données suivantes via `FFBBDataClient` :
@@ -122,7 +124,8 @@ Le SDK expose également des méthodes de recherche optimisées avec facettes, g
 {NL.join(search_rows)}
 
 ## Variables d'environnement
-Le SDK résout automatiquement les jetons de sécurité via les variables d'environnement suivantes ou interroge l'API publique en cache en cas d'absence :
+Le SDK résout automatiquement les jetons de sécurité via les variables d'environnement suivantes
+ou interroge l'API publique en cache en cas d'absence :
 
 | Variable | Défaut | Usage |
 |----------|--------|-------|
@@ -130,9 +133,12 @@ Le SDK résout automatiquement les jetons de sécurité via les variables d'envi
 | `MEILISEARCH_BEARER_TOKEN` | — | Jeton Bearer de sécurité pour interroger le moteur Meilisearch (meilisearch-prod.ffbb.app) |
 
 ## Règles de comportement des agents
-- **RTK OBLIGATOIRE** : Utilisez TOUJOURS le préfixe `rtk` pour toutes les commandes terminal exécutées sur la machine de l'utilisateur (ex: `rtk pytest`, `rtk tox`, etc.).
-- **Tox & Pytest** : Privilégiez l'exécution des tests via `pytest` local ou `tox` pour valider les évolutions du SDK sur les différentes versions de Python prises en charge.
-- **Modèles typés** : Respectez scrupuleusement la déclaration des types Pydantic de `ffbb_data_client.models`. Tout nouveau modèle ou modification de champ doit correspondre aux spécifications de l'API FFBB.
+- **RTK OBLIGATOIRE** : Utilisez TOUJOURS le préfixe `rtk` pour toutes les commandes terminal
+  exécutées sur la machine de l'utilisateur (ex: `rtk pytest`, `rtk tox`, etc.).
+- **Tox & Pytest** : Privilégiez l'exécution des tests via `pytest` local ou `tox` pour valider
+  les évolutions du SDK sur les différentes versions de Python prises en charge.
+- **Modèles typés** : Respectez scrupuleusement la déclaration des types Pydantic de `ffbb_data_client.models`.
+  Tout nouveau modèle ou modification de champ doit correspondre aux spécifications de l'API FFBB.
 - **Réponses en français** : Communiquez et expliquez toujours vos changements ou vos analyses en langue française.
 
 ## Karpathy Guidelines (Règles de développement)
@@ -170,9 +176,12 @@ src/ffbb_data_client/
 
 ## Conventions de code
 - **Modèles Pydantic** : Tous les modèles héritent de `pydantic.BaseModel` et fournissent une validation stricte.
-- **Async/Sync en parallèle** : Le SDK implémente systématiquement la double interface synchrone (`get_x`) et asynchrone (`get_x_async`) pour un maximum de flexibilité d'intégration.
-- **Cache HTTP** : Utilisation d'`hishel` pour le cache de requêtes HTTP asynchrones et d'un cache local configurable pour optimiser les appels et respecter les quotas FFBB.
-- **Validation** : Les paramètres passés à `FFBBDataClient.create` sont strictement validés via les utilitaires de validation robustes de `utils/input_validation.py`.
+- **Async/Sync en parallèle** : Le SDK implémente systématiquement la double interface synchrone (`get_x`)
+  et asynchrone (`get_x_async`) pour un maximum de flexibilité d'intégration.
+- **Cache HTTP** : Utilisation d'`hishel` pour le cache de requêtes HTTP asynchrones et d'un cache local
+  configurable pour optimiser les appels et respecter les quotas FFBB.
+- **Validation** : Les paramètres passés à `FFBBDataClient.create` sont strictement validés
+  via les utilitaires de validation robustes de `utils/input_validation.py`.
 
 ## Commandes courantes
 - Lancer les tests locaux : `rtk pytest`
@@ -181,7 +190,8 @@ src/ffbb_data_client/
 - Formater et vérifier le style : `rtk ruff format . && rtk ruff check .`
 
 ## Push / Tag / Release Gate
-⚠️ OBLIGATION STRICTE : Toutes ces commandes DOIVENT être préfixées par 'rtk' dans le terminal (ex: 'rtk pytest'). Ne jamais exécuter de commande nue sans 'rtk'.
+⚠️ OBLIGATION STRICTE : Toutes ces commandes DOIVENT être préfixées par 'rtk' dans le terminal
+(ex: 'rtk pytest'). Ne jamais exécuter de commande nue sans 'rtk'.
 Avant push/tag/release :
 1. `rtk ruff format --check .`
 2. `rtk ruff check .`

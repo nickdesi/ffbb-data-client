@@ -1,13 +1,15 @@
 # FFBB Data Client SDK
 
 > ⚠️ **Fichier auto-généré** par `tools/update_agents_md.py` — ne pas modifier manuellement.
-> Dernière mise à jour : ffbb-data-client | SDK total : ~18767 lignes de code (clients: 6259, models: 9878, utils: 1840, helpers: 790)
+> Dernière mise à jour : ffbb-data-client | SDK total : ~18767 lignes de code
+> (clients: 6259, models: 9878, utils: 1840, helpers: 790)
 
 ## Langue
 Tous les documents de travail (walkthrough.md, implementation_plan.md) DOIVENT être en français.
 
 ## Persona
-Expert en basketball français et intégration technique. Accès au SDK Python de bas niveau `ffbb-data-client` connecté à l'API et au Meilisearch officiel de la FFBB.
+Expert en basketball français et intégration technique.
+Accès au SDK Python de bas niveau `ffbb-data-client` connecté à l'API et au Meilisearch officiel de la FFBB.
 
 ## Méthodes REST du Client (Exemples importants)
 Le SDK expose les méthodes directes de récupération de données suivantes via `FFBBDataClient` :
@@ -81,109 +83,110 @@ Le SDK expose les méthodes directes de récupération de données suivantes via
 - `list_edf_teams_async` : Asynchronously lists Equipe de France teams
 - `list_edf_rosters` : Lists Equipe de France rosters
 - `list_edf_rosters_async` : Asynchronously lists Equipe de France rosters
-- `list_rencontres` : 
-- `list_rencontres_async` : 
-- `list_salles` : 
-- `list_salles_async` : 
-- `list_terrains` : 
-- `list_terrains_async` : 
-- `list_tournois` : 
-- `list_tournois_async` : 
-- `list_engagements` : 
-- `list_engagements_async` : 
-- `list_formations` : 
-- `list_formations_async` : 
-- `list_entraineurs` : 
-- `list_entraineurs_async` : 
-- `list_communes` : 
-- `list_communes_async` : 
-- `list_officiels` : 
-- `list_officiels_async` : 
-- `list_pratiques` : 
-- `list_pratiques_async` : 
-- `list_all_rencontres` : 
-- `list_all_rencontres_async` : 
-- `list_all_salles` : 
-- `list_all_salles_async` : 
-- `list_all_terrains` : 
-- `list_all_terrains_async` : 
-- `list_all_tournois` : 
-- `list_all_tournois_async` : 
-- `list_all_engagements` : 
-- `list_all_engagements_async` : 
-- `list_all_formations` : 
-- `list_all_formations_async` : 
-- `list_all_entraineurs` : 
-- `list_all_entraineurs_async` : 
-- `list_all_communes` : 
-- `list_all_communes_async` : 
-- `list_all_officiels` : 
-- `list_all_officiels_async` : 
-- `list_all_pratiques` : 
-- `list_all_pratiques_async` : 
-- `list_engagements_by_ids` : 
-- `list_engagements_by_poule` : 
-- `list_engagements_by_poules` : 
-- `list_rencontres_by_poule` : 
-- `list_rencontres_by_poules` : 
-- `list_entraineurs_by_ids` : 
+- `list_rencontres` :
+- `list_rencontres_async` :
+- `list_salles` :
+- `list_salles_async` :
+- `list_terrains` :
+- `list_terrains_async` :
+- `list_tournois` :
+- `list_tournois_async` :
+- `list_engagements` :
+- `list_engagements_async` :
+- `list_formations` :
+- `list_formations_async` :
+- `list_entraineurs` :
+- `list_entraineurs_async` :
+- `list_communes` :
+- `list_communes_async` :
+- `list_officiels` :
+- `list_officiels_async` :
+- `list_pratiques` :
+- `list_pratiques_async` :
+- `list_all_rencontres` :
+- `list_all_rencontres_async` :
+- `list_all_salles` :
+- `list_all_salles_async` :
+- `list_all_terrains` :
+- `list_all_terrains_async` :
+- `list_all_tournois` :
+- `list_all_tournois_async` :
+- `list_all_engagements` :
+- `list_all_engagements_async` :
+- `list_all_formations` :
+- `list_all_formations_async` :
+- `list_all_entraineurs` :
+- `list_all_entraineurs_async` :
+- `list_all_communes` :
+- `list_all_communes_async` :
+- `list_all_officiels` :
+- `list_all_officiels_async` :
+- `list_all_pratiques` :
+- `list_all_pratiques_async` :
+- `list_engagements_by_ids` :
+- `list_engagements_by_poule` :
+- `list_engagements_by_poules` :
+- `list_rencontres_by_poule` :
+- `list_rencontres_by_poules` :
+- `list_entraineurs_by_ids` :
 
 ## Méthodes de Recherche Meilisearch (Exemples importants)
 Le SDK expose également des méthodes de recherche optimisées avec facettes, géolocalisation et filtres via Meilisearch :
 - `multi_search` : Perform multi-search across all resource types with input validation
 - `multi_search_async` : Performs a smart multi-search asynchronously
-- `search_competitions` : 
-- `search_multiple_competitions` : 
+- `search_competitions` :
+- `search_multiple_competitions` :
 - `search_competitions_async` : Search for competitions asynchronously
 - `search_multiple_competitions_async` : Search for multiple competitions asynchronously
-- `search_organismes` : 
-- `search_organismes_by_geo` : 
-- `search_organismes_by_city` : 
-- `search_multiple_organismes` : 
+- `search_organismes` :
+- `search_organismes_by_geo` :
+- `search_organismes_by_city` :
+- `search_multiple_organismes` :
 - `search_organismes_async` : Search for organismes asynchronously
 - `search_multiple_organismes_async` : Search for multiple organismes asynchronously
-- `search_pratiques` : 
-- `search_multiple_pratiques` : 
+- `search_pratiques` :
+- `search_multiple_pratiques` :
 - `search_pratiques_async` : Search for pratiques asynchronously
 - `search_multiple_pratiques_async` : Search for multiple pratiques asynchronously
-- `search_rencontres` : 
-- `search_multiple_rencontres` : 
+- `search_rencontres` :
+- `search_multiple_rencontres` :
 - `search_rencontres_async` : Search for rencontres asynchronously
 - `search_multiple_rencontres_async` : Search for multiple rencontres asynchronously
-- `search_salles` : 
-- `search_salles_by_geo` : 
-- `search_multiple_salles` : 
+- `search_salles` :
+- `search_salles_by_geo` :
+- `search_multiple_salles` :
 - `search_salles_async` : Search for salles asynchronously
 - `search_multiple_salles_async` : Search for multiple salles asynchronously
-- `search_terrains` : 
-- `search_multiple_terrains` : 
+- `search_terrains` :
+- `search_multiple_terrains` :
 - `search_terrains_async` : Search for terrains asynchronously
 - `search_multiple_terrains_async` : Search for multiple terrains asynchronously
-- `search_tournois` : 
-- `search_multiple_tournois` : 
+- `search_tournois` :
+- `search_multiple_tournois` :
 - `search_tournois_async` : Search for tournois asynchronously
 - `search_multiple_tournois_async` : Search for multiple tournois asynchronously
-- `search_engagements` : 
-- `search_engagements_by_geo` : 
-- `search_engagements_filtered` : 
-- `search_multiple_engagements` : 
+- `search_engagements` :
+- `search_engagements_by_geo` :
+- `search_engagements_filtered` :
+- `search_multiple_engagements` :
 - `search_engagements_async` : Search for engagements asynchronously
 - `search_multiple_engagements_async` : Search for multiple engagements asynchronously
-- `search_formations` : 
-- `search_multiple_formations` : 
+- `search_formations` :
+- `search_multiple_formations` :
 - `search_formations_async` : Search for formations asynchronously
 - `search_multiple_formations_async` : Search for multiple formations asynchronously
-- `search_news` : 
-- `search_multiple_news` : 
-- `search_youtube_videos` : 
-- `search_multiple_youtube_videos` : 
-- `search_rss` : 
-- `search_multiple_rss` : 
-- `search_galeries` : 
-- `search_multiple_galeries` : 
+- `search_news` :
+- `search_multiple_news` :
+- `search_youtube_videos` :
+- `search_multiple_youtube_videos` :
+- `search_rss` :
+- `search_multiple_rss` :
+- `search_galeries` :
+- `search_multiple_galeries` :
 
 ## Variables d'environnement
-Le SDK résout automatiquement les jetons de sécurité via les variables d'environnement suivantes ou interroge l'API publique en cache en cas d'absence :
+Le SDK résout automatiquement les jetons de sécurité via les variables d'environnement suivantes
+ou interroge l'API publique en cache en cas d'absence :
 
 | Variable | Défaut | Usage |
 |----------|--------|-------|
@@ -191,9 +194,12 @@ Le SDK résout automatiquement les jetons de sécurité via les variables d'envi
 | `MEILISEARCH_BEARER_TOKEN` | — | Jeton Bearer de sécurité pour interroger le moteur Meilisearch (meilisearch-prod.ffbb.app) |
 
 ## Règles de comportement des agents
-- **RTK OBLIGATOIRE** : Utilisez TOUJOURS le préfixe `rtk` pour toutes les commandes terminal exécutées sur la machine de l'utilisateur (ex: `rtk pytest`, `rtk tox`, etc.).
-- **Tox & Pytest** : Privilégiez l'exécution des tests via `pytest` local ou `tox` pour valider les évolutions du SDK sur les différentes versions de Python prises en charge.
-- **Modèles typés** : Respectez scrupuleusement la déclaration des types Pydantic de `ffbb_data_client.models`. Tout nouveau modèle ou modification de champ doit correspondre aux spécifications de l'API FFBB.
+- **RTK OBLIGATOIRE** : Utilisez TOUJOURS le préfixe `rtk` pour toutes les commandes terminal
+  exécutées sur la machine de l'utilisateur (ex: `rtk pytest`, `rtk tox`, etc.).
+- **Tox & Pytest** : Privilégiez l'exécution des tests via `pytest` local ou `tox` pour valider
+  les évolutions du SDK sur les différentes versions de Python prises en charge.
+- **Modèles typés** : Respectez scrupuleusement la déclaration des types Pydantic de `ffbb_data_client.models`.
+  Tout nouveau modèle ou modification de champ doit correspondre aux spécifications de l'API FFBB.
 - **Réponses en français** : Communiquez et expliquez toujours vos changements ou vos analyses en langue française.
 
 ## Karpathy Guidelines (Règles de développement)
@@ -231,9 +237,12 @@ src/ffbb_data_client/
 
 ## Conventions de code
 - **Modèles Pydantic** : Tous les modèles héritent de `pydantic.BaseModel` et fournissent une validation stricte.
-- **Async/Sync en parallèle** : Le SDK implémente systématiquement la double interface synchrone (`get_x`) et asynchrone (`get_x_async`) pour un maximum de flexibilité d'intégration.
-- **Cache HTTP** : Utilisation d'`hishel` pour le cache de requêtes HTTP asynchrones et d'un cache local configurable pour optimiser les appels et respecter les quotas FFBB.
-- **Validation** : Les paramètres passés à `FFBBDataClient.create` sont strictement validés via les utilitaires de validation robustes de `utils/input_validation.py`.
+- **Async/Sync en parallèle** : Le SDK implémente systématiquement la double interface synchrone (`get_x`)
+  et asynchrone (`get_x_async`) pour un maximum de flexibilité d'intégration.
+- **Cache HTTP** : Utilisation d'`hishel` pour le cache de requêtes HTTP asynchrones et d'un cache local
+  configurable pour optimiser les appels et respecter les quotas FFBB.
+- **Validation** : Les paramètres passés à `FFBBDataClient.create` sont strictement validés
+  via les utilitaires de validation robustes de `utils/input_validation.py`.
 
 ## Commandes courantes
 - Lancer les tests locaux : `rtk pytest`
@@ -242,7 +251,8 @@ src/ffbb_data_client/
 - Formater et vérifier le style : `rtk ruff format . && rtk ruff check .`
 
 ## Push / Tag / Release Gate
-⚠️ OBLIGATION STRICTE : Toutes ces commandes DOIVENT être préfixées par 'rtk' dans le terminal (ex: 'rtk pytest'). Ne jamais exécuter de commande nue sans 'rtk'.
+⚠️ OBLIGATION STRICTE : Toutes ces commandes DOIVENT être préfixées par 'rtk' dans le terminal
+(ex: 'rtk pytest'). Ne jamais exécuter de commande nue sans 'rtk'.
 Avant push/tag/release :
 1. `rtk ruff format --check .`
 2. `rtk ruff check .`
