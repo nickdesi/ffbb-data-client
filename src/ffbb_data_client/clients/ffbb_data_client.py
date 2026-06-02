@@ -4,11 +4,12 @@ import httpx
 from httpx import Client
 
 from ..utils.cache_manager import CacheManager
+from ..utils.concurrency_utils import gather_with_concurrency
 from ..utils.input_validation import validate_boolean, validate_token
 from ..utils.token_manager import TokenManager
 from ._rest_facade import _RestFacade
 from ._search_facade import _SearchFacade
-from .api_ffbb_app_client import ApiFFBBAppClient
+from .api_ffbb_app_client import ApiFFBBAppClient, _run_async
 from .meilisearch_ffbb_client import MeilisearchFFBBClient
 
 
@@ -91,3 +92,60 @@ class FFBBDataClient(_RestFacade, _SearchFacade):
         )
 
         return FFBBDataClient(api_ffbb_client, meilisearch_ffbb_client)
+
+    async def warm_organisme_cache_async(
+        self, organisme_id: int, max_concurrency: int = 5
+    ) -> None:
+        """
+        Pré-charge de manière asynchrone les données d'un organisme (club)
+        et ses équipes dans le cache SQLite local.
+        """
+        await gather_with_concurrency(
+            max_concurrency,
+            self.get_organisme_async(organisme_id),
+            self.get_equipes_async(organisme_id),
+        )
+
+    def warm_organisme_cache(self, organisme_id: int, max_concurrency: int = 5) -> None:
+        """
+        Pré-charge de manière synchrone les données d'un organisme (club)
+        et ses équipes dans le cache SQLite local.
+        """
+        _run_async(self.warm_organisme_cache_async(organisme_id, max_concurrency))
+
+    async def warm_competition_cache_async(
+        self, competition_id: int, max_concurrency: int = 5
+    ) -> None:
+        """
+        Pré-charge de manière asynchrone les données d'une compétition et de toutes
+        ses poules associées dans le cache SQLite local.
+        """
+        comp = await self.get_competition_async(competition_id)
+        if not comp:
+            return
+
+        poule_ids = set()
+        if comp.poules:
+            for poule in comp.poules:
+                if poule.id:
+                    poule_ids.add(int(poule.id))
+
+        if comp.phases:
+            for phase in comp.phases:
+                if phase.poules:
+                    for phase_poule in phase.poules:
+                        if phase_poule.id:
+                            poule_ids.add(int(phase_poule.id))
+
+        if poule_ids:
+            tasks = [self.get_poule_async(pid) for pid in sorted(poule_ids)]
+            await gather_with_concurrency(max_concurrency, *tasks)
+
+    def warm_competition_cache(
+        self, competition_id: int, max_concurrency: int = 5
+    ) -> None:
+        """
+        Pré-charge de manière synchrone les données d'une compétition et de toutes
+        ses poules associées dans le cache SQLite local.
+        """
+        _run_async(self.warm_competition_cache_async(competition_id, max_concurrency))

@@ -175,7 +175,7 @@ class CacheManager:
             # sharing one connection across threads (sync vs asyncio) is not safe.
             sync_conn = sqlite3.connect(":memory:", check_same_thread=False)
             async_conn = sqlite3.connect(":memory:", check_same_thread=False)
-            storage = hishel.SyncSqliteStorage(
+            storage: Any = hishel.SyncSqliteStorage(
                 connection=sync_conn, default_ttl=self.config.expire_after
             )
             self._client = hishel.httpx.SyncCacheClient(
@@ -184,7 +184,7 @@ class CacheManager:
                 transport=httpx.HTTPTransport(retries=self.config.transport_retries),
             )
             # Async version uses its own connection
-            async_storage = hishel.AsyncSqliteStorage(
+            async_storage: Any = hishel.AsyncSqliteStorage(
                 connection=cast(Any, async_conn), default_ttl=self.config.expire_after
             )
             self._async_client = hishel.httpx.AsyncCacheClient(

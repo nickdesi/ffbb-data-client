@@ -64,6 +64,7 @@ from .models.terrains_hit import TerrainsHit
 from .models.tournois_facet_distribution import TournoisFacetDistribution
 from .models.tournois_facet_stats import TournoisFacetStats
 from .models.tournois_hit import TournoisHit
+from .utils.concurrency_utils import gather_with_concurrency
 from .utils.token_manager import FFBBTokens, TokenManager
 
 # Public API exports
@@ -144,6 +145,7 @@ __all__ = [
     # Token management
     "FFBBTokens",
     "TokenManager",
+    "gather_with_concurrency",
 ]
 
 from importlib.metadata import PackageNotFoundError, version

@@ -174,6 +174,9 @@ class ApiFFBBAppClient:
     @property
     def bearer_token(self) -> str:
         """Get the bearer token."""
+        auth = self.headers.get("Authorization", "")
+        if auth.startswith("Bearer "):
+            return auth.removeprefix("Bearer ")
         return self._bearer_token
 
     def get_organisme_for_search(
