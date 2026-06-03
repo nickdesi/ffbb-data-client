@@ -101,7 +101,7 @@ jobs:
         id: wheel-distribution
         run: echo "path=$(ls dist/*.whl)" >> "$GITHUB_OUTPUT"
       - name: Store the distribution files for use in other stages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: python-distribution-files
           path: dist/
@@ -135,7 +135,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-tox-${{ matrix.python }}-
       - name: Retrieve pre-built distribution files
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with: {name: python-distribution-files, path: dist/}
       - name: Run tests
         env:
