@@ -34,6 +34,9 @@ logger = get_secure_logger(__name__)
 _DEFAULT_SYNC_CLIENT: httpx.Client | None = None
 _DEFAULT_ASYNC_CLIENT: httpx.AsyncClient | None = None
 
+# ⚡ Performance optimization: Connection limits to keep TLS sockets warm across calls
+_POOL_LIMITS = httpx.Limits(max_keepalive_connections=50, max_connections=200)
+
 
 def _build_timeout(timeout: int | float | TimeoutConfig | None) -> httpx.Timeout:
     if isinstance(timeout, TimeoutConfig):
@@ -51,14 +54,20 @@ def _build_timeout(timeout: int | float | TimeoutConfig | None) -> httpx.Timeout
 def _get_default_sync_client(timeout: int | float = 20) -> httpx.Client:
     global _DEFAULT_SYNC_CLIENT
     if _DEFAULT_SYNC_CLIENT is None or _DEFAULT_SYNC_CLIENT.is_closed:
-        _DEFAULT_SYNC_CLIENT = httpx.Client(timeout=_build_timeout(timeout))
+        _DEFAULT_SYNC_CLIENT = httpx.Client(
+            timeout=_build_timeout(timeout),
+            limits=_POOL_LIMITS,
+        )
     return _DEFAULT_SYNC_CLIENT
 
 
 async def _get_default_async_client(timeout: int | float = 20) -> httpx.AsyncClient:
     global _DEFAULT_ASYNC_CLIENT
     if _DEFAULT_ASYNC_CLIENT is None or _DEFAULT_ASYNC_CLIENT.is_closed:
-        _DEFAULT_ASYNC_CLIENT = httpx.AsyncClient(timeout=_build_timeout(timeout))
+        _DEFAULT_ASYNC_CLIENT = httpx.AsyncClient(
+            timeout=_build_timeout(timeout),
+            limits=_POOL_LIMITS,
+        )
     return _DEFAULT_ASYNC_CLIENT
 
 

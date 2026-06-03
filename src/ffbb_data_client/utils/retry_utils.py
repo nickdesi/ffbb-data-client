@@ -22,18 +22,21 @@ logger = get_secure_logger(__name__)
 _DEFAULT_CLIENT: httpx.Client | None = None
 _DEFAULT_ASYNC_CLIENT: httpx.AsyncClient | None = None
 
+# ⚡ Performance optimization: Connection limits to keep TLS sockets warm across calls
+_POOL_LIMITS = httpx.Limits(max_keepalive_connections=50, max_connections=200)
+
 
 def _get_default_client() -> httpx.Client:
     global _DEFAULT_CLIENT
     if _DEFAULT_CLIENT is None or _DEFAULT_CLIENT.is_closed:
-        _DEFAULT_CLIENT = httpx.Client()
+        _DEFAULT_CLIENT = httpx.Client(limits=_POOL_LIMITS)
     return _DEFAULT_CLIENT
 
 
 async def _get_default_async_client() -> httpx.AsyncClient:
     global _DEFAULT_ASYNC_CLIENT
     if _DEFAULT_ASYNC_CLIENT is None or _DEFAULT_ASYNC_CLIENT.is_closed:
-        _DEFAULT_ASYNC_CLIENT = httpx.AsyncClient()
+        _DEFAULT_ASYNC_CLIENT = httpx.AsyncClient(limits=_POOL_LIMITS)
     return _DEFAULT_ASYNC_CLIENT
 
 

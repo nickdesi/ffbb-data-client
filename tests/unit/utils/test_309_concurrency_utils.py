@@ -4,6 +4,7 @@ Tests pour les outils de concurrence.
 
 import asyncio
 import unittest
+
 from ffbb_data_client.utils.concurrency_utils import gather_with_concurrency
 
 
@@ -33,7 +34,10 @@ class TestConcurrencyUtils(unittest.TestCase):
             results = loop.run_until_complete(gather_with_concurrency(2, *coros))
 
             self.assertEqual(results, [0, 2, 4, 6, 8])
-            self.assertTrue(max_seen_concurrency <= 2, f"Expected concurrency <= 2, got {max_seen_concurrency}")
+            self.assertTrue(
+                max_seen_concurrency <= 2,
+                f"Expected concurrency <= 2, got {max_seen_concurrency}",
+            )
         finally:
             loop.close()
 

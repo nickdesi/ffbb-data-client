@@ -168,6 +168,10 @@ class CacheManager:
         cast(Any, policy).cacheable_status_codes = [200, 203, 204, 206, 300, 301, 308]
         # ────────────────────────────────────────────────────────────────────
 
+        # ⚡ Optimisation des performances réseau : connection pooling robuste pour HTTPX
+        # Permet de maintenir les sockets TLS chauds et d'éviter les handshakes répétés
+        limits = httpx.Limits(max_keepalive_connections=50, max_connections=200)
+
         if self.config.backend == "memory":
             import sqlite3
 
@@ -181,7 +185,9 @@ class CacheManager:
             self._client = hishel.httpx.SyncCacheClient(
                 storage=storage,
                 policy=policy,
-                transport=httpx.HTTPTransport(retries=self.config.transport_retries),
+                transport=httpx.HTTPTransport(
+                    retries=self.config.transport_retries, limits=limits
+                ),
             )
             # Async version uses its own connection
             async_storage: Any = hishel.AsyncSqliteStorage(
@@ -191,7 +197,7 @@ class CacheManager:
                 storage=async_storage,
                 policy=policy,
                 transport=httpx.AsyncHTTPTransport(
-                    retries=self.config.transport_retries
+                    retries=self.config.transport_retries, limits=limits
                 ),
             )
         elif self.config.backend == "sqlite":
@@ -203,7 +209,9 @@ class CacheManager:
             self._client = hishel.httpx.SyncCacheClient(
                 storage=storage,
                 policy=policy,
-                transport=httpx.HTTPTransport(retries=self.config.transport_retries),
+                transport=httpx.HTTPTransport(
+                    retries=self.config.transport_retries, limits=limits
+                ),
             )
             # Async version uses its own database file
             async_storage = hishel.AsyncSqliteStorage(
@@ -214,7 +222,7 @@ class CacheManager:
                 storage=async_storage,
                 policy=policy,
                 transport=httpx.AsyncHTTPTransport(
-                    retries=self.config.transport_retries
+                    retries=self.config.transport_retries, limits=limits
                 ),
             )
         else:

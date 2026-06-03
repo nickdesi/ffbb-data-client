@@ -3,6 +3,7 @@ Tests pour les méthodes de Cache Warming de FFBBDataClient.
 """
 
 from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
 
 from ffbb_data_client import FFBBDataClient
@@ -17,12 +18,14 @@ async def test_warm_organisme_cache_async():
         debug=False,
     )
 
-    with patch.object(
-        client, "get_organisme_async", new_callable=AsyncMock
-    ) as mock_get_org, patch.object(
-        client, "get_equipes_async", new_callable=AsyncMock
-    ) as mock_get_eq:
-
+    with (
+        patch.object(
+            client, "get_organisme_async", new_callable=AsyncMock
+        ) as mock_get_org,
+        patch.object(
+            client, "get_equipes_async", new_callable=AsyncMock
+        ) as mock_get_eq,
+    ):
         await client.warm_organisme_cache_async(1234, max_concurrency=2)
 
         mock_get_org.assert_called_once_with(1234)
@@ -39,7 +42,6 @@ def test_warm_organisme_cache():
     with patch.object(
         client, "warm_organisme_cache_async", new_callable=AsyncMock
     ) as mock_warm_async:
-
         client.warm_organisme_cache(1234, max_concurrency=2)
         mock_warm_async.assert_called_once_with(1234, 2)
 
@@ -68,12 +70,14 @@ async def test_warm_competition_cache_async():
     phase1.poules = [poule3]
     mock_comp.phases = [phase1]
 
-    with patch.object(
-        client, "get_competition_async", new=AsyncMock(return_value=mock_comp)
-    ) as mock_get_comp, patch.object(
-        client, "get_poule_async", new_callable=AsyncMock
-    ) as mock_get_poule:
-
+    with (
+        patch.object(
+            client, "get_competition_async", new=AsyncMock(return_value=mock_comp)
+        ) as mock_get_comp,
+        patch.object(
+            client, "get_poule_async", new_callable=AsyncMock
+        ) as mock_get_poule,
+    ):
         await client.warm_competition_cache_async(5678, max_concurrency=3)
 
         mock_get_comp.assert_called_once_with(5678)
@@ -92,6 +96,5 @@ def test_warm_competition_cache():
     with patch.object(
         client, "warm_competition_cache_async", new_callable=AsyncMock
     ) as mock_warm_async:
-
         client.warm_competition_cache(5678, max_concurrency=3)
         mock_warm_async.assert_called_once_with(5678, 3)
