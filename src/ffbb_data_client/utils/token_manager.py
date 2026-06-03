@@ -13,7 +13,6 @@ from ..config import (
     ENV_MEILISEARCH_TOKEN,
 )
 from ..helpers.http_requests_helper import catch_result
-from ..helpers.http_requests_utils import http_get_json
 from ..models.configuration_models import GetConfigurationResponse
 from ..utils.cache_manager import CacheConfig, CacheManager
 
@@ -97,6 +96,7 @@ class TokenManager:
         config_url = f"{API_FFBB_BASE_URL}{ENDPOINT_CONFIGURATION}"
         headers = {"user-agent": DEFAULT_USER_AGENT}
 
+        from ..helpers.http_requests_utils import http_get_json
         from .retry_utils import get_default_retry_config, get_default_timeout_config
 
         data = catch_result(
