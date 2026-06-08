@@ -318,30 +318,6 @@ class TestCacheManagerCoverage(unittest.TestCase):
         result = cm.warm_cache(["https://example.com"])
         self.assertEqual(result, 0)
 
-    def test_invalidate_pattern_disabled(self) -> None:
-        from ffbb_data_client.utils.cache_manager import CacheManager
-
-        CacheManager.reset_instance()
-        from ffbb_data_client.utils.cache_manager import CacheConfig
-
-        cm = CacheManager(CacheConfig(enabled=False))
-        result = cm.invalidate_pattern("test")
-        self.assertEqual(result, 0)
-
-    def test_invalidate_pattern_error(self) -> None:
-        from ffbb_data_client.utils.cache_manager import CacheConfig, CacheManager
-
-        cm = CacheManager(CacheConfig(backend="memory"))
-        cm._client = MagicMock()
-        type(cm._client)._storage = property(
-            lambda self: (_ for _ in ()).throw(RuntimeError("fail"))
-        )
-        cm.config.enabled = True
-
-        result = cm.invalidate_pattern("test")
-        self.assertEqual(result, 0)
-        self.assertEqual(cm.metrics.errors, 1)
-
     def test_get_metrics(self) -> None:
         from ffbb_data_client.utils.cache_manager import CacheConfig, CacheManager
 

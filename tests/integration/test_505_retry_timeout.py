@@ -142,8 +142,9 @@ class Test017RetryTimeoutIntegration(unittest.TestCase):
         ]
 
         for retry_config, timeout_config in configs:
-            with self.subTest(), patch(
-                "ffbb_data_client.clients.api_ffbb_app_client.get_secure_logger"
+            with (
+                self.subTest(),
+                patch("ffbb_data_client.clients.api_ffbb_app_client.get_secure_logger"),
             ):
                 client = ApiFFBBAppClient(
                     bearer_token=self.valid_token,

@@ -212,7 +212,8 @@ def _probe_meili_indexes(token: str) -> list[dict[str, Any]]:
     discovered: list[dict[str, Any]] = []
 
     for index_uid in sorted(set(MEILI_CANDIDATE_INDEXES)):
-        payload = {"queries": [{"indexUid": index_uid, "q": "", "limit": 1}]}
+        # Use limit 20 to aggregate observed keys across multiple records
+        payload = {"queries": [{"indexUid": index_uid, "q": "", "limit": 20}]}
         try:
             response = http_post_json(url, headers, data=payload, timeout=30)
         except Exception:
@@ -227,17 +228,19 @@ def _probe_meili_indexes(token: str) -> list[dict[str, Any]]:
 
         results = response.get("results", []) if isinstance(response, dict) else []
         result = results[0] if results else {}
+        hits = result.get("hits", [])
+        observed_keys: set[str] = set()
+        if isinstance(hits, list):
+            for hit in hits:
+                if isinstance(hit, dict):
+                    observed_keys.update(hit.keys())
         discovered.append(
             {
                 "indexUid": index_uid,
                 "available": bool(results),
                 "status": "available" if results else "empty_or_not_available",
                 "estimatedTotalHits": result.get("estimatedTotalHits"),
-                "sampleKeys": (
-                    sorted(result.get("hits", [{}])[0].keys())
-                    if result.get("hits")
-                    else []
-                ),
+                "sampleKeys": sorted(observed_keys),
             }
         )
 
@@ -257,27 +260,142 @@ def _diff_lists(before: list[str], after: list[str]) -> dict[str, list[str]]:
 def _previous_collections(previous: Any) -> list[str]:
     if isinstance(previous, dict):
         if isinstance(previous.get("collections"), list):
-            return previous["collections"]
+            return [str(x) for x in previous["collections"]]
         if isinstance(previous.get("directus"), dict):
             collections = previous["directus"].get("collections")
             if isinstance(collections, list):
-                return collections
+                return [str(x) for x in collections]
     if isinstance(previous, list):
-        return previous
+        return [str(x) for x in previous]
     return []
 
 
 def _previous_indexes(previous: Any) -> list[str]:
     if isinstance(previous, dict):
         if isinstance(previous.get("available_indexes"), list):
-            return previous["available_indexes"]
+            return [str(x) for x in previous["available_indexes"]]
         if isinstance(previous.get("meilisearch"), dict):
             indexes = previous["meilisearch"].get("available_indexes")
             if isinstance(indexes, list):
-                return indexes
+                return [str(x) for x in indexes]
     if isinstance(previous, list):
-        return previous
+        return [str(x) for x in previous]
     return []
+
+
+def _diff_openapi_schemas(before_snapshot: Any, after_snapshot: Any) -> dict[str, Any]:
+    if not isinstance(before_snapshot, dict) or not isinstance(after_snapshot, dict):
+        return {}
+
+    before_schemas = before_snapshot.get("components", {}).get("schemas", {})
+    after_schemas = after_snapshot.get("components", {}).get("schemas", {})
+
+    drift: dict[str, Any] = {
+        "added_schemas": [],
+        "removed_schemas": [],
+        "modified_schemas": {},
+    }
+
+    all_before = set(before_schemas.keys())
+    all_after = set(after_schemas.keys())
+
+    drift["added_schemas"] = sorted(all_after - all_before)
+    drift["removed_schemas"] = sorted(all_before - all_after)
+
+    common_schemas = all_before & all_after
+    for schema_name in sorted(common_schemas):
+        before_prop = before_schemas[schema_name].get("properties", {})
+        after_prop = after_schemas[schema_name].get("properties", {})
+
+        before_keys = set(before_prop.keys())
+        after_keys = set(after_prop.keys())
+
+        added_props = sorted(after_keys - before_keys)
+        removed_props = sorted(before_keys - after_keys)
+        modified_props: dict[str, dict[str, str]] = {}
+
+        for prop_name in sorted(before_keys & after_keys):
+            b_details = before_prop[prop_name]
+            a_details = after_prop[prop_name]
+
+            def _get_type_summary(details: Any) -> str:
+                if not isinstance(details, dict):
+                    return str(details)
+                if "oneOf" in details:
+                    types = []
+                    for item in details["oneOf"]:
+                        if isinstance(item, dict):
+                            if "$ref" in item:
+                                types.append(str(item["$ref"].split("/")[-1]))
+                            elif "type" in item:
+                                types.append(str(item["type"]))
+                    return " | ".join(types) + (
+                        " | None" if details.get("nullable") else ""
+                    )
+                if "$ref" in details:
+                    return str(details["$ref"].split("/")[-1])
+                t = str(details.get("type", "unknown"))
+                if details.get("format"):
+                    t = f"{t} ({details['format']})"
+                if details.get("nullable"):
+                    t = f"{t} | None"
+                return t
+
+            b_type = _get_type_summary(b_details)
+            a_type = _get_type_summary(a_details)
+
+            if b_type != a_type:
+                modified_props[prop_name] = {"before": b_type, "after": a_type}
+
+        if added_props or removed_props or modified_props:
+            drift["modified_schemas"][schema_name] = {
+                "added_properties": added_props,
+                "removed_properties": removed_props,
+                "modified_properties": modified_props,
+            }
+
+    return drift
+
+
+def _diff_meili_attributes(before_payload: Any, after_payload: Any) -> dict[str, Any]:
+    if not isinstance(before_payload, dict) or not isinstance(after_payload, dict):
+        return {}
+
+    def _extract_keys(payload: Any) -> dict[str, list[str]]:
+        mapping = {}
+        indexes = []
+        if isinstance(payload, dict):
+            indexes = payload.get("indexes", [])
+            if not indexes and "meilisearch" in payload:
+                indexes = payload["meilisearch"].get("indexes", [])
+        elif isinstance(payload, list):
+            indexes = payload
+
+        for idx in indexes:
+            if isinstance(idx, dict) and "indexUid" in idx and "sampleKeys" in idx:
+                mapping[idx["indexUid"]] = idx["sampleKeys"]
+        return mapping
+
+    before_keys = _extract_keys(before_payload)
+    after_keys = _extract_keys(after_payload)
+
+    drift: dict[str, Any] = {}
+
+    common_indexes = set(before_keys.keys()) & set(after_keys.keys())
+    for idx_uid in sorted(common_indexes):
+        b_keys = set(before_keys[idx_uid])
+        a_keys = set(after_keys[idx_uid])
+
+        added = sorted(a_keys - b_keys)
+        removed = sorted(b_keys - a_keys)
+
+        if added or removed:
+            drift[idx_uid] = {
+                "added": added,
+                "removed": removed,
+            }
+
+    return drift
 
 
 def _build_change_summary(
@@ -332,8 +450,61 @@ def _build_change_summary(
         f"- Added: {indexes_diff['added'] or 'None'}",
         f"- Removed: {indexes_diff['removed'] or 'None'}",
         "",
-        "Generated by `python scripts/discover_endpoints.py`.",
     ]
+
+    # Schema Drift properties diff
+    openapi_drift = _diff_openapi_schemas(previous_openapi_snapshot, openapi_snapshot)
+    if (
+        openapi_drift.get("added_schemas")
+        or openapi_drift.get("removed_schemas")
+        or openapi_drift.get("modified_schemas")
+    ):
+        lines.append("## Directus schema properties drift")
+        if openapi_drift["added_schemas"]:
+            lines.append(f"- Added schemas: `{openapi_drift['added_schemas']}`")
+        if openapi_drift["removed_schemas"]:
+            lines.append(f"- Removed schemas: `{openapi_drift['removed_schemas']}`")
+
+        for schema_name, changes in sorted(openapi_drift["modified_schemas"].items()):
+            lines.append(f"- **{schema_name}** :")
+            if changes["added_properties"]:
+                lines.append(
+                    "  - Added properties: "
+                    + ", ".join(f"`{p}`" for p in changes["added_properties"])
+                )
+            if changes["removed_properties"]:
+                lines.append(
+                    "  - Removed properties: "
+                    + ", ".join(f"`{p}`" for p in changes["removed_properties"])
+                )
+            if changes["modified_properties"]:
+                mods = []
+                for p, t in sorted(changes["modified_properties"].items()):
+                    mods.append(f"`{p}` (`{t['before']}` -> `{t['after']}`)")
+                lines.append("  - Type changes: " + ", ".join(mods))
+        lines.append("")
+
+    # Meilisearch attributes drift diff
+    meili_drift = _diff_meili_attributes(
+        previous_indexes or previous_report, indexes_payload
+    )
+    if meili_drift:
+        lines.append("## Meilisearch index attributes drift")
+        for idx_uid, changes in sorted(meili_drift.items()):
+            lines.append(f"- **{idx_uid}** :")
+            if changes["added"]:
+                lines.append(
+                    "  - Added attributes: "
+                    + ", ".join(f"`{a}`" for a in changes["added"])
+                )
+            if changes["removed"]:
+                lines.append(
+                    "  - Removed attributes: "
+                    + ", ".join(f"`{a}`" for a in changes["removed"])
+                )
+        lines.append("")
+
+    lines.append("Generated by `python scripts/discover_endpoints.py`.")
     return "\n".join(lines) + "\n"
 
 
@@ -392,6 +563,12 @@ def main() -> None:
             if not item["available"]
         ],
     }
+
+    openapi_drift = _diff_openapi_schemas(previous_openapi_snapshot, openapi_snapshot)
+    meili_drift = _diff_meili_attributes(
+        previous_indexes or previous_report, indexes_payload
+    )
+
     report = {
         "metadata": {
             "timestamp": timestamp,
@@ -403,6 +580,10 @@ def main() -> None:
         },
         "directus": collections_payload,
         "meilisearch": indexes_payload,
+        "drift": {
+            "directus_openapi": openapi_drift,
+            "meilisearch_indexes": meili_drift,
+        },
     }
 
     summary = _build_change_summary(

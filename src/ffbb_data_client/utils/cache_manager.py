@@ -2,7 +2,7 @@
 Advanced cache management for FFBB Data Client.
 
 This module provides sophisticated caching strategies including:
-- Multi-level caching (memory, disk, Redis)
+- Dual backend support (memory via in-memory sqlite, persistent sqlite)
 - Configurable cache policies
 - Cache performance metrics
 - Intelligent cache invalidation
@@ -52,7 +52,7 @@ class CacheConfig:
 
     Attributes:
         enabled: Whether caching is enabled.
-        backend: Cache backend ('memory', 'sqlite', 'redis').
+        backend: Cache backend ('memory', 'sqlite'). Redis is planned but not yet implemented.
         expire_after: Default expiration time in seconds.
         max_size: Maximum cache size (for memory backend).
         redis_url: Redis URL for Redis backend.
@@ -168,6 +168,10 @@ class CacheManager:
         cast(Any, policy).cacheable_status_codes = [200, 203, 204, 206, 300, 301, 308]
         # ────────────────────────────────────────────────────────────────────
 
+        # ⚡ Optimisation des performances réseau : connection pooling robuste pour HTTPX
+        # Permet de maintenir les sockets TLS chauds et d'éviter les handshakes répétés
+        limits = httpx.Limits(max_keepalive_connections=50, max_connections=200)
+
         if self.config.backend == "memory":
             import sqlite3
 
@@ -175,43 +179,50 @@ class CacheManager:
             # sharing one connection across threads (sync vs asyncio) is not safe.
             sync_conn = sqlite3.connect(":memory:", check_same_thread=False)
             async_conn = sqlite3.connect(":memory:", check_same_thread=False)
-            storage = hishel.SyncSqliteStorage(
+            storage: Any = hishel.SyncSqliteStorage(
                 connection=sync_conn, default_ttl=self.config.expire_after
             )
             self._client = hishel.httpx.SyncCacheClient(
                 storage=storage,
                 policy=policy,
-                transport=httpx.HTTPTransport(retries=self.config.transport_retries),
+                transport=httpx.HTTPTransport(
+                    retries=self.config.transport_retries, limits=limits
+                ),
             )
             # Async version uses its own connection
-            async_storage = hishel.AsyncSqliteStorage(
+            async_storage: Any = hishel.AsyncSqliteStorage(
                 connection=cast(Any, async_conn), default_ttl=self.config.expire_after
             )
             self._async_client = hishel.httpx.AsyncCacheClient(
                 storage=async_storage,
                 policy=policy,
                 transport=httpx.AsyncHTTPTransport(
-                    retries=self.config.transport_retries
+                    retries=self.config.transport_retries, limits=limits
                 ),
             )
         elif self.config.backend == "sqlite":
+            # Use separate database files to avoid "database is locked" errors
+            # when sync and async clients write concurrently.
             storage = hishel.SyncSqliteStorage(
                 database_path="http_cache.db", default_ttl=self.config.expire_after
             )
             self._client = hishel.httpx.SyncCacheClient(
                 storage=storage,
                 policy=policy,
-                transport=httpx.HTTPTransport(retries=self.config.transport_retries),
+                transport=httpx.HTTPTransport(
+                    retries=self.config.transport_retries, limits=limits
+                ),
             )
-            # Async version
+            # Async version uses its own database file
             async_storage = hishel.AsyncSqliteStorage(
-                database_path="http_cache.db", default_ttl=self.config.expire_after
+                database_path="http_cache_async.db",
+                default_ttl=self.config.expire_after,
             )
             self._async_client = hishel.httpx.AsyncCacheClient(
                 storage=async_storage,
                 policy=policy,
                 transport=httpx.AsyncHTTPTransport(
-                    retries=self.config.transport_retries
+                    retries=self.config.transport_retries, limits=limits
                 ),
             )
         else:
@@ -244,13 +255,11 @@ class CacheManager:
                 if isinstance(request.content, bytes)
                 else str(request.content).encode("utf-8")
             )
-            body_hash = hashlib.md5(content_bytes).hexdigest()
+            body_hash = hashlib.md5(content_bytes, usedforsecurity=False).hexdigest()
             key_parts.append(body_hash)
 
         key_string = "|".join(key_parts)
-        return (
-            f"{self.config.key_prefix}:{hashlib.md5(key_string.encode()).hexdigest()}"
-        )
+        return f"{self.config.key_prefix}:{hashlib.md5(key_string.encode(), usedforsecurity=False).hexdigest()}"
 
     @property
     def session(self) -> httpx.Client | None:
@@ -337,7 +346,7 @@ class CacheManager:
 
     def warm_cache(self, urls: list[str], headers: dict[str, str] | None = None) -> int:
         """
-        Warm the cache by pre-fetching specified URLs.
+        Warm the cache by pre-fetching specified URLs concurrently.
 
         Args:
             urls: List of URLs to cache.
@@ -346,41 +355,62 @@ class CacheManager:
         Returns:
             Number of URLs successfully cached.
         """
-        if not self.is_enabled() or self._client is None:
+        client = self._client
+        if not self.is_enabled() or client is None:
             return 0
 
         headers = headers or {}
-        count = 0
-        for url in urls:
+        from concurrent.futures import ThreadPoolExecutor
+
+        def _fetch(url: str) -> bool:
             try:
-                self._client.get(url, headers=headers, timeout=10)
-                count += 1
+                client.get(url, headers=headers, timeout=10)
+                return True
             except (OSError, ConnectionError, TimeoutError, ValueError):
                 self.metrics.errors += 1
-                continue
+                return False
+
+        # Concurrency limit of 10 to keep it gentle on the server while warming fast
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            results = list(executor.map(_fetch, urls))
+            count = sum(1 for r in results if r)
+
         return count
 
-    def invalidate_pattern(self, pattern: str) -> int:
+    async def warm_cache_async(
+        self, urls: list[str], headers: dict[str, str] | None = None
+    ) -> int:
         """
-        Invalidate cache entries matching a pattern.
+        Warm the cache asynchronously and concurrently.
 
         Args:
-            pattern: Pattern to match for invalidation.
+            urls: List of URLs to cache.
+            headers: Headers to use for requests.
 
         Returns:
-            Number of entries invalidated.
+            Number of URLs successfully cached.
         """
-        if not self.is_enabled() or self._client is None:
+        async_client = self._async_client
+        if not self.is_enabled() or async_client is None:
             return 0
 
-        try:
-            getattr(self._client, "_storage", None)
-            # hishel storage doesn't generally support pattern invalidation exposing cache_dict,
-            # so we'd need to iterate visually, but for now we skip or implement if needed
-            return 0
-        except (OSError, RuntimeError, AttributeError, KeyError):
-            self.metrics.errors += 1
-        return 0
+        headers = headers or {}
+        import asyncio
+
+        semaphore = asyncio.Semaphore(10)
+
+        async def _fetch(url: str) -> bool:
+            async with semaphore:
+                try:
+                    await async_client.get(url, headers=headers, timeout=10)
+                    return True
+                except (OSError, ConnectionError, TimeoutError, ValueError):
+                    self.metrics.errors += 1
+                    return False
+
+        tasks = [asyncio.create_task(_fetch(url)) for url in urls]
+        results = await asyncio.gather(*tasks)
+        return sum(1 for r in results if r)
 
     @classmethod
     def reset_instance(cls) -> None:

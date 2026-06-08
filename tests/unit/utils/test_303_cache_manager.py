@@ -163,12 +163,20 @@ class Test018CacheManager(unittest.TestCase):
 
         self.assertEqual(mock_get.call_count, 2)
 
-    def test_invalidate_pattern(self):
-        """Test cache invalidation by pattern."""
+    @patch("ffbb_data_client.utils.cache_manager.hishel.httpx.AsyncCacheClient.get")
+    def test_warm_cache_async(self, mock_get):
+        """Test async cache warming functionality."""
+        import asyncio
+
         manager = CacheManager(self.config)
 
-        # This should not raise an exception
-        manager.invalidate_pattern("test_pattern")
+        urls = ["https://api.example.com/test1", "https://api.example.com/test2"]
+        headers = {"Authorization": "Bearer token"}
+
+        # Use asyncio.run to execute the coroutine
+        asyncio.run(manager.warm_cache_async(urls, headers))
+
+        self.assertEqual(mock_get.call_count, 2)
 
     def test_singleton_pattern(self):
         """Test that CacheManager follows singleton pattern."""

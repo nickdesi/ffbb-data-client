@@ -62,13 +62,25 @@ def write_summary(text: str) -> None:
 def main() -> int:
     api_methods = get_public_methods(CLIENTS / "api_ffbb_app_client.py")
     ms_methods = get_public_methods(CLIENTS / "meilisearch_ffbb_client.py")
-    wrapper_methods = get_public_methods(CLIENTS / "ffbb_data_client.py")
+
+    # Collect wrapper methods from the main file AND any facade files.
+    # After the v2.1.0 refactor, methods live in _rest_facade.py and
+    # _search_facade.py; the thin ffbb_data_client.py delegates via setattr.
+    wrapper_files = [
+        CLIENTS / "ffbb_data_client.py",
+        CLIENTS / "_rest_facade.py",
+        CLIENTS / "_search_facade.py",
+    ]
+    wrapper_methods: set[str] = set()
+    for wf in wrapper_files:
+        if wf.exists():
+            wrapper_methods |= get_public_methods(wf)
 
     all_inner = api_methods | ms_methods
     missing = sorted(all_inner - wrapper_methods)
 
     if not missing:
-        msg = "## ✅ Wrapper parity OK\n\nAll public methods from inner clients are exposed in `FFBBDataClient`."
+        msg = "## ✅ Wrapper parity OK\n\nAll public methods from inner clients are exposed in `FFBBDataClient` (including facade files)."
         print(msg)
         write_summary(msg)
         return 0
@@ -77,13 +89,14 @@ def main() -> int:
     missing_detail = " ".join(
         [
             "The following methods exist in inner clients but are **not exposed**",
-            "in `FFBBDataClient`:",
+            "in `FFBBDataClient` or its facade files:",
         ]
     )
     fix_detail = " ".join(
         [
             "Add the missing method(s) to",
-            "`src/ffbb_data_client/clients/ffbb_data_client.py`",
+            "`src/ffbb_data_client/clients/ffbb_data_client.py` or one of its",
+            "facade files (`_rest_facade.py`, `_search_facade.py`)",
             "so they delegate to the appropriate inner client.",
         ]
     )

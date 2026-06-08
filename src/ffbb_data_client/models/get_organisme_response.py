@@ -106,7 +106,6 @@ class GetOrganismeResponse:
 
             @dataclass
             class TypecompetitiongeneriqueModel:
-
                 @dataclass
                 class LogoModel:
                     id: str
@@ -135,7 +134,6 @@ class GetOrganismeResponse:
 
     @dataclass
     class OffrespratiquesitemModel:
-
         @dataclass
         class Ffbbserver_Offres_Pratiques_IdModel:
             id: str

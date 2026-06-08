@@ -13,7 +13,6 @@ from ..config import (
     ENV_MEILISEARCH_TOKEN,
 )
 from ..helpers.http_requests_helper import catch_result
-from ..helpers.http_requests_utils import http_get_json
 from ..models.configuration_models import GetConfigurationResponse
 from ..utils.cache_manager import CacheConfig, CacheManager
 
@@ -97,11 +96,16 @@ class TokenManager:
         config_url = f"{API_FFBB_BASE_URL}{ENDPOINT_CONFIGURATION}"
         headers = {"user-agent": DEFAULT_USER_AGENT}
 
+        from ..helpers.http_requests_utils import http_get_json
+        from .retry_utils import get_default_retry_config, get_default_timeout_config
+
         data = catch_result(
             lambda: http_get_json(
                 config_url,
                 headers,
                 cached_session=cached_session,
+                retry_config=get_default_retry_config(),
+                timeout_config=get_default_timeout_config(),
             )
         )
 
@@ -110,6 +114,4 @@ class TokenManager:
         if not actual_data:
             raise RuntimeError("Failed to fetch configuration from FFBB API")
 
-        from pydantic import TypeAdapter
-
-        return TypeAdapter(GetConfigurationResponse).validate_python(actual_data)
+        return GetConfigurationResponse.from_dict(actual_data)

@@ -6,6 +6,18 @@ import time
 from typing import Any
 from urllib.parse import urlencode
 
+try:
+    import orjson  # type: ignore
+
+    _JSON_LOADS = orjson.loads
+except ImportError:
+    try:
+        import ujson  # type: ignore
+
+        _JSON_LOADS = ujson.loads
+    except ImportError:
+        _JSON_LOADS = json.loads
+
 import httpx
 from httpx import Client, Response
 
@@ -21,6 +33,9 @@ logger = get_secure_logger(__name__)
 
 _DEFAULT_SYNC_CLIENT: httpx.Client | None = None
 _DEFAULT_ASYNC_CLIENT: httpx.AsyncClient | None = None
+
+# ⚡ Performance optimization: Connection limits to keep TLS sockets warm across calls
+_POOL_LIMITS = httpx.Limits(max_keepalive_connections=50, max_connections=200)
 
 
 def _build_timeout(timeout: int | float | TimeoutConfig | None) -> httpx.Timeout:
@@ -39,14 +54,20 @@ def _build_timeout(timeout: int | float | TimeoutConfig | None) -> httpx.Timeout
 def _get_default_sync_client(timeout: int | float = 20) -> httpx.Client:
     global _DEFAULT_SYNC_CLIENT
     if _DEFAULT_SYNC_CLIENT is None or _DEFAULT_SYNC_CLIENT.is_closed:
-        _DEFAULT_SYNC_CLIENT = httpx.Client(timeout=_build_timeout(timeout))
+        _DEFAULT_SYNC_CLIENT = httpx.Client(
+            timeout=_build_timeout(timeout),
+            limits=_POOL_LIMITS,
+        )
     return _DEFAULT_SYNC_CLIENT
 
 
 async def _get_default_async_client(timeout: int | float = 20) -> httpx.AsyncClient:
     global _DEFAULT_ASYNC_CLIENT
     if _DEFAULT_ASYNC_CLIENT is None or _DEFAULT_ASYNC_CLIENT.is_closed:
-        _DEFAULT_ASYNC_CLIENT = httpx.AsyncClient(timeout=_build_timeout(timeout))
+        _DEFAULT_ASYNC_CLIENT = httpx.AsyncClient(
+            timeout=_build_timeout(timeout),
+            limits=_POOL_LIMITS,
+        )
     return _DEFAULT_ASYNC_CLIENT
 
 
@@ -62,6 +83,41 @@ def close_default_clients() -> None:
 atexit.register(close_default_clients)
 
 
+def _handle_token_refresh(
+    url: str, headers: dict[str, str], debug: bool = False
+) -> bool:
+    """
+    Tente de rafraîchir les tokens de la FFBB via TokenManager.
+    Met à jour l'en-tête 'Authorization' dans le dictionnaire headers.
+    """
+    if "Authorization" not in headers:
+        return False
+    try:
+        if debug:
+            logger.info(
+                "Détection d'une erreur 401/403 de sécurité. Tentative de rafraîchissement automatique du token..."
+            )
+
+        from ..utils.token_manager import TokenManager
+
+        tokens = TokenManager.get_tokens(use_cache=False)
+
+        if "meilisearch" in url.lower():
+            new_token = tokens.meilisearch_token
+        else:
+            new_token = tokens.api_token
+
+        headers["Authorization"] = f"Bearer {new_token}"
+        if debug:
+            logger.info(
+                "Le token a été rafraîchi et mis à jour dynamiquement dans les headers."
+            )
+        return True
+    except Exception as e:
+        logger.error(f"Échec du rafraîchissement automatique du token : {e}")
+        return False
+
+
 def to_json_from_response(response: Response) -> Any:
     """
     Converts the HTTP response to a JSON dictionary.
@@ -72,18 +128,12 @@ def to_json_from_response(response: Response) -> Any:
     Returns:
         Any: Parsed JSON payload (dict, list, etc.).
     """
-    if isinstance(response, Response):
-        try:
-            return response.json()
-        except (json.JSONDecodeError, ValueError) as e:
-            logger.warning(f"Error in to_json_from_response: {e}")
-
     data_str = response.text.strip()
 
     try:
-        return json.loads(data_str)
-    except json.JSONDecodeError as e:
-        logger.warning(f"Error in to_json_from_response: {e}")
+        return _JSON_LOADS(data_str)
+    except Exception:
+        pass
 
     if data_str.endswith(","):
         data_str = data_str[:-1]
@@ -94,7 +144,14 @@ def to_json_from_response(response: Response) -> Any:
     if data_str.startswith('""'):
         data_str = data_str[2:]
 
-    return json.loads(data_str)
+    try:
+        return _JSON_LOADS(data_str)
+    except Exception as e:
+        logger.warning(f"Error in to_json_from_response: {e}")
+        try:
+            return response.json()
+        except Exception:
+            raise e
 
 
 def http_get(
@@ -147,6 +204,32 @@ def http_get(
             response = _get_default_sync_client(timeout).get(
                 url, headers=headers, timeout=_build_timeout(timeout_config or timeout)
             )
+
+    if response.status_code in (401, 403) and "Authorization" in headers:
+        if _handle_token_refresh(url, headers, debug):
+            if retry_config and timeout_config:
+                response = make_http_request_with_retry(
+                    "GET",
+                    url,
+                    headers,
+                    cached_session=cached_session,
+                    retry_config=retry_config,
+                    timeout_config=timeout_config,
+                    debug=debug,
+                )
+            else:
+                if cached_session:
+                    response = cached_session.get(
+                        url,
+                        headers=headers,
+                        timeout=_build_timeout(timeout_config or timeout),
+                    )
+                else:
+                    response = _get_default_sync_client(timeout).get(
+                        url,
+                        headers=headers,
+                        timeout=_build_timeout(timeout_config or timeout),
+                    )
 
     if debug:
         end_time = time.time()
@@ -217,6 +300,35 @@ def http_post(
                 json=data,
                 timeout=_build_timeout(timeout_config or timeout),
             )
+
+    if response.status_code in (401, 403) and "Authorization" in headers:
+        if _handle_token_refresh(url, headers, debug):
+            if retry_config and timeout_config:
+                response = make_http_request_with_retry(
+                    "POST",
+                    url,
+                    headers,
+                    data=data,
+                    cached_session=cached_session,
+                    retry_config=retry_config,
+                    timeout_config=timeout_config,
+                    debug=debug,
+                )
+            else:
+                if cached_session:
+                    response = cached_session.post(
+                        url,
+                        headers=headers,
+                        json=data,
+                        timeout=_build_timeout(timeout_config or timeout),
+                    )
+                else:
+                    response = _get_default_sync_client(timeout).post(
+                        url,
+                        headers=headers,
+                        json=data,
+                        timeout=_build_timeout(timeout_config or timeout),
+                    )
 
     if debug:
         end_time = time.time()
@@ -346,6 +458,32 @@ async def http_get_async(
                 url, headers=headers, timeout=_build_timeout(timeout_config or timeout)
             )
 
+    if response.status_code in (401, 403) and "Authorization" in headers:
+        if _handle_token_refresh(url, headers, debug):
+            if retry_config and timeout_config:
+                response = await make_http_request_with_retry_async(
+                    "GET",
+                    url,
+                    headers,
+                    cached_session=cached_session,
+                    retry_config=retry_config,
+                    timeout_config=timeout_config,
+                    debug=debug,
+                )
+            else:
+                if cached_session:
+                    response = await cached_session.get(
+                        url,
+                        headers=headers,
+                        timeout=_build_timeout(timeout_config or timeout),
+                    )
+                else:
+                    response = await (await _get_default_async_client(timeout)).get(
+                        url,
+                        headers=headers,
+                        timeout=_build_timeout(timeout_config or timeout),
+                    )
+
     if debug:
         end_time = time.time()
         logger.debug(
@@ -431,6 +569,35 @@ async def http_post_async(
                 json=filtered_data,
                 timeout=_build_timeout(timeout_config or timeout),
             )
+
+    if response.status_code in (401, 403) and "Authorization" in headers:
+        if _handle_token_refresh(url, headers, debug):
+            if retry_config and timeout_config:
+                response = await make_http_request_with_retry_async(
+                    "POST",
+                    url,
+                    headers,
+                    data=filtered_data,
+                    cached_session=cached_session,
+                    retry_config=retry_config,
+                    timeout_config=timeout_config,
+                    debug=debug,
+                )
+            else:
+                if cached_session:
+                    response = await cached_session.post(
+                        url,
+                        headers=headers,
+                        json=filtered_data,
+                        timeout=_build_timeout(timeout_config or timeout),
+                    )
+                else:
+                    response = await (await _get_default_async_client(timeout)).post(
+                        url,
+                        headers=headers,
+                        json=filtered_data,
+                        timeout=_build_timeout(timeout_config or timeout),
+                    )
 
     if debug:
         end_time = time.time()

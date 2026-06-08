@@ -1,0 +1,37 @@
+name: ✨ Proposition de fonctionnalité
+description: Suggérer une idée ou une amélioration pour ffbb-data-client.
+title: "[FEATURE] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Vous avez une idée pour rendre `ffbb-data-client` encore plus performant ? Proposez-la ici !
+  - type: textarea
+    id: problem
+    attributes:
+      label: Est-ce que votre proposition résout un problème existant ?
+      description: Une description claire et concise du problème ou du besoin non couvert.
+      placeholder: Je rencontre des difficultés lorsque j'essaie de...
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Description de la solution proposée
+      description: Décrivez clairement la fonctionnalité ou l'évolution que vous imaginez.
+      placeholder: J'aimerais que le SDK permette de...
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives envisagées
+      description: Avez-vous pensé à des solutions de contournement ou à d'autres façons de faire ?
+      placeholder: J'ai essayé d'écrire une fonction utilitaire à côté, mais...
+  - type: textarea
+    id: context
+    attributes:
+      label: Contexte additionnel
+      description: Ajoutez toute autre information, cas d'usage, ou lien vers de la documentation de l'API FFBB ici.
+      placeholder: Lien vers l'API, exemple de JSON retourné par l'API, etc.

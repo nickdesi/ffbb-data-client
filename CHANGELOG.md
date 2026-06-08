@@ -5,6 +5,69 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-05-24
+
+### Added
+- **API Schema Drift Detection**: Automated detection of changes inside Directus OpenAPI schemas (added/removed/modified properties, nested types, and nullability changes)
+- **Meilisearch Attributes Drift Detection**: Automated detection of changes inside Meilisearch index schemas (`sampleKeys`) with robust sampling over 20 hits
+- **CI/CD Pull Request Automation**: Pre-commit hooks and GitHub Actions workflow automatically open a Pull Request when any API property or index drift is detected
+- Detailed Schema Drift reporting in `data/api_update_summary.md` and `report["drift"]` payload
+
+### Fixed
+- Robust Meilisearch sampling: index keys are now aggregated across 20 hits instead of 1, preventing false positives on optional null fields
+- Pre-commit & flake8 E501 line too long violations in `tools/update_agents_md.py`
+- Formatted `AGENTS.md` spacing and line wrapping for flawless agent ingestion
+
+## [2.2.0] - 2026-05-17
+
+### Changed
+- **REFACTOR**: `FFBBDataClient` (2865 → 272 lines) split into modular facades — `_RestFacade` (1592 lines) and `_SearchFacade` (1020 lines)
+- Public API remains 100% backward-compatible — all 167 methods accessible directly on `FFBBDataClient`
+- `check_wrapper_parity.py` updated to scan facade files in addition to the main client
+
+### Added
+- `pytest_asyncio_mode = "auto"` in `pyproject.toml` for pytest-asyncio compatibility
+- `isolated_build = True` in `tox.ini` for proper PEP 517 builds
+
+### Fixed
+- `CacheManager` docstring corrected — Redis backend marked as "planned" (not implemented)
+- `readme_renderer[md]` moved from `install_requires` to `testing` extras (build-time only dependency)
+
+### Removed
+- Orphaned `src/ffbb_api_client_v3/` directory (residual from v2.1.0 cleanup)
+- Orphaned `.coverage` file at project root
+- `benchmark_search_organisme.py` moved from root to `scripts/`
+
+## [2.1.0] - 2026-05-17
+
+### Changed
+- **BREAKING (internal)**: Sync methods now delegate to async counterparts via `_run_async()` helper, eliminating ~604 lines of duplication
+- Sync and async share a single source of truth — async methods are canonical
+- `ThreadPoolExecutor` fallback handles nested event loops gracefully
+
+### Added
+- **NEW**: Pre-push hook for type-check (mypy + pyright) — catches type errors before push
+- **NEW**: CodeQL security scanning in CI
+- **NEW**: Dependabot for automated dependency updates (GitHub Actions + pip)
+- **NEW**: `SECURITY.md` security policy
+
+### Fixed
+- SQLite cache concurrency: sync uses `http_cache.db`, async uses `http_cache_async.db` (prevents `database is locked`)
+- CI type check failures with proper generic typing for `_run_async(coro: Awaitable[T]) -> T`
+- `FFBBDataClient` wrapper parity — added 8 missing async method delegations
+
+### Removed
+- Dead `invalidate_pattern()` from `CacheManager` and related tests
+- `ffbb_api_client_v3` shim, dead scripts, and backward-compat alias
+
+### Security
+- CI supply chain hardened with pinned action versions and trusted publishers
+
+## [2.0.2] - 2026-05-17
+
+### Changed
+- README version updated to v2.0.2
+
 ## [1.6.1] - 2026-04-29
 
 ### Changed

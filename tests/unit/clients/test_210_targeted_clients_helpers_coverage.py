@@ -183,7 +183,10 @@ class TestTargetedApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(client.bearer_token, "api-token")
         self.assertEqual(client.headers["Authorization"], "Bearer api-token")
 
-    @patch("ffbb_data_client.clients.api_ffbb_app_client.http_get_json")
+    @patch(
+        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        new_callable=AsyncMock,
+    )
     def test_get_directus_item_extracts_nested_data_and_fields(
         self, mock_get: MagicMock
     ) -> None:
@@ -197,7 +200,10 @@ class TestTargetedApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
         self.assertIn("https://api.example/items/1", called_url)
         self.assertIn("fields%5B%5D=id", called_url)
 
-    @patch("ffbb_data_client.clients.api_ffbb_app_client.http_get_json")
+    @patch(
+        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        new_callable=AsyncMock,
+    )
     def test_get_directus_item_handles_raw_dict_and_non_dict(
         self, mock_get: MagicMock
     ) -> None:
@@ -208,7 +214,10 @@ class TestTargetedApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
         mock_get.return_value = {"data": ["not", "dict"]}
         self.assertIsNone(client._get_directus_item("items", 1))
 
-    @patch("ffbb_data_client.clients.api_ffbb_app_client.http_get_json")
+    @patch(
+        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        new_callable=AsyncMock,
+    )
     def test_list_directus_items_extracts_lists_and_defaults_empty(
         self, mock_get: MagicMock
     ) -> None:
@@ -283,9 +292,11 @@ class TestTargetedApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
 
 class TestTargetedFFBBDataClientCoverage(unittest.IsolatedAsyncioTestCase):
     def test_chunked_handles_empty_and_partial_chunks(self) -> None:
-        self.assertEqual(FFBBDataClient._chunked([], 2), [])
+        from ffbb_data_client.clients._rest_facade import _RestFacade
+
+        self.assertEqual(_RestFacade._chunked([], 2), [])
         self.assertEqual(
-            FFBBDataClient._chunked([1, 2, 3, 4, 5], 2), [[1, 2], [3, 4], [5]]
+            _RestFacade._chunked([1, 2, 3, 4, 5], 2), [[1, 2], [3, 4], [5]]
         )
 
     @patch("ffbb_data_client.clients.ffbb_data_client.MeilisearchFFBBClient")
@@ -443,10 +454,10 @@ class TestTargetedFFBBDataClientCoverage(unittest.IsolatedAsyncioTestCase):
         api = MagicMock()
         meili = MagicMock()
         client = FFBBDataClient(api, meili)
-        client._BATCH_CHUNK_SIZE = 2
-        client.list_engagements = MagicMock(side_effect=[["e1"], ["e2"]])
-        client.list_rencontres = MagicMock(side_effect=[["r1"], ["r2"]])
-        client.list_entraineurs = MagicMock(side_effect=[["c1"], ["c2"]])
+        client._rest._BATCH_CHUNK_SIZE = 2
+        client._rest.list_engagements = MagicMock(side_effect=[["e1"], ["e2"]])
+        client._rest.list_rencontres = MagicMock(side_effect=[["r1"], ["r2"]])
+        client._rest.list_entraineurs = MagicMock(side_effect=[["c1"], ["c2"]])
 
         self.assertEqual(client.list_engagements_by_ids([1, 2, 3]), ["e1", "e2"])
         self.assertEqual(client.list_rencontres_by_poules([7, 8, 9]), ["r1", "r2"])
@@ -454,15 +465,15 @@ class TestTargetedFFBBDataClientCoverage(unittest.IsolatedAsyncioTestCase):
 
         self.assertIn(
             '"id": {"_in": [1, 2]}',
-            client.list_engagements.call_args_list[0].kwargs["filter_criteria"],
+            client._rest.list_engagements.call_args_list[0].kwargs["filter_criteria"],
         )
         self.assertIn(
             '"idPoule": {"_in": [7, 8]}',
-            client.list_rencontres.call_args_list[0].kwargs["filter_criteria"],
+            client._rest.list_rencontres.call_args_list[0].kwargs["filter_criteria"],
         )
         self.assertIn(
             '"idLicence": {"_in": ["11", "12"]}',
-            client.list_entraineurs.call_args_list[0].kwargs["filter_criteria"],
+            client._rest.list_entraineurs.call_args_list[0].kwargs["filter_criteria"],
         )
 
     async def test_list_all_and_typed_list_delegations_forward_validated_arguments(

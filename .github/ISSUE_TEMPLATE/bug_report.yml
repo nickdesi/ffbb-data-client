@@ -1,0 +1,64 @@
+name: 🐛 Signalement de bug
+description: Signaler un problème ou un comportement inattendu dans ffbb-data-client.
+title: "[BUG] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci de prendre le temps de signaler ce bug ! Vos retours nous aident à améliorer `ffbb-data-client`.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description du bug
+      description: Une description claire et concise de ce qu'est le bug.
+      placeholder: Quel est le problème rencontré ?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Étapes pour reproduire
+      description: |
+        Expliquez comment nous pouvons reproduire le comportement. Un exemple de code minimal est grandement apprécié !
+      placeholder: |
+        1. Instancier le client `FFBBDataClient()`
+        2. Appeler la méthode `get_...` avec les paramètres ...
+        3. Voir l'erreur apparaitre
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Comportement attendu
+      description: Décrivez ce qui aurait dû se passer.
+      placeholder: Quel comportement ou résultat attendiez-vous ?
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environnement de développement
+      description: Version de Python, OS, version du SDK, etc.
+      placeholder: |
+        - OS: macOS / Linux / Windows
+        - Python version: 3.11.x
+        - ffbb-data-client version: 1.x.x
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Stacktrace et logs additionnels
+      description: Copiez-collez les logs ou les traces d'erreur ici si nécessaire.
+      render: python
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Avant de soumettre
+      description: "Veuillez vérifier les points suivants :"
+      options:
+        - label: J'ai recherché dans les issues existantes si ce problème n'avait pas déjà été signalé.
+          required: true
+        - label: J'ai testé mon code en local et validé le fonctionnement.
+          required: true

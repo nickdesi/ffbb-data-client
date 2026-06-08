@@ -33,20 +33,18 @@
 - du cache HTTP configurable via `hishel` ;
 - des helpers prêts pour l'intégration MCP / agents IA.
 
-> La V3 remplace l’approche V2 basée sur des dictionnaires bruts et une configuration manuelle. Elle privilégie le typage, la robustesse réseau et les appels batchés.
-
 ---
 
-## 🚀 Version v1.7.0 — 30 avril 2026
+## 🚀 Version v2.2.0 — Mai 2026
 
 Principales évolutions récentes :
 
-- ajout d'entités REST et Meilisearch : rencontres, officiels, entraîneurs, communes et assets ;
-- réutilisation des clients `httpx` synchrones et asynchrones ;
-- cache Meilisearch optimisé pour limiter les copies coûteuses ;
-- retries de transport configurables via `CacheConfig.transport_retries` ;
-- mise à jour des schémas OpenAPI, collections et index ;
-- stabilisation CI, typage, tests et formatage.
+- **refactor architecture** : `FFBBDataClient` (2865 → 272 lignes) découpé en `_RestFacade` + `_SearchFacade` — API publique 100% compatible ;
+- **unification sync/async** : les méthodes synchrones délèguent à leurs homologues asynchrones via `_run_async()`, éliminant ~604 lignes de duplication ;
+- **nouvelles entités** : EDF (matches, joueurs, rosters, équipes), Genius Sport (matches, live logs), Rematch Videos ;
+- **cache SQLite concurrency-safe** : fichiers séparés pour sync (`http_cache.db`) et async (`http_cache_async.db`) ;
+- **CI renforcée** : mypy + pyright + CodeQL + Dependabot + hook pre-push + wrapper parity check ;
+- **nettoyage** : suppression du shim `ffbb_api_client_v3`, scripts morts et code mort (`invalidate_pattern`).
 
 Voir aussi : [`CHANGELOG.md`](CHANGELOG.md) et [`RELEASE_NOTES.md`](RELEASE_NOTES.md).
 
@@ -96,11 +94,12 @@ lives = client.get_lives()
 | Domaine | Capacités |
 |---|---|
 | API FFBB | clubs, compétitions, organismes, saisons, poules, classements, rencontres, lives |
+| Entités additionnelles | EDF (matches, joueurs, rosters, équipes), Genius Sport, Rematch Videos |
 | Recherche | organismes, compétitions, rencontres, salles, terrains, pratiques, tournois, engagements et formations |
 | REST typé | récupération de ressources individuelles avec modèles Pydantic v2 |
-| Async | méthodes `*_async()` pour les appels réseau non bloquants |
-| Cache | cache HTTP `hishel`, sessions `httpx` réutilisées, retries configurables |
-| Sécurité | masquage des tokens dans les logs |
+| Async | méthodes `*_async()` — source de vérité ; sync délègue via `_run_async()` |
+| Cache | cache HTTP `hishel`, sessions `httpx` réutilisées, retries configurables, SQLite séparés sync/async |
+| Sécurité | masquage des tokens dans les logs, CodeQL scanning, Dependabot |
 | IA / MCP | structure compatible avec des wrappers MCP et agents IA |
 
 ---
@@ -220,14 +219,20 @@ Il est donc possible de laisser le client résoudre les tokens automatiquement o
 ```text
 src/ffbb_data_client/
 ├── clients/
-│   ├── ffbb_data_client.py       # Façade publique
-│   ├── api_ffbb_app_client.py      # Client REST FFBB
-│   └── meilisearch_ffbb_client.py  # Client recherche Meilisearch
-├── helpers/                        # Requêtes HTTP, multi-search, conversions
-├── models/                         # Modèles Pydantic v2
-├── utils/                          # cache, tokens, logging sécurisé
-└── data/                           # schémas et métadonnées embarqués
+│   ├── ffbb_data_client.py       # Façade publique (272 lignes, delegation)
+│   ├── _rest_facade.py           # Façade REST API (Directus)
+│   ├── _search_facade.py         # Façade recherche Meilisearch
+│   ├── api_ffbb_app_client.py    # Client REST FFBB (async source of truth)
+│   └── meilisearch_ffbb_client.py # Client recherche Meilisearch
+├── helpers/                       # Requêtes HTTP, multi-search, conversions
+├── models/                        # Modèles Pydantic v2
+├── utils/                         # cache (sync/async séparés), tokens, logging sécurisé
+└── data/                          # schémas et métadonnées embarqués
 ```
+
+> **Architecture sync/async** : Depuis v2.1.0, les méthodes asynchrones sont la source de vérité. Les méthodes synchrones délèguent via `_run_async()`, un helper qui gère les event loops imbriqués avec `ThreadPoolExecutor`.
+>
+> **Architecture facades** : Depuis v2.2.0, `FFBBDataClient` est une fine coquille qui compose `_RestFacade` et `_SearchFacade`. L'API publique reste identique — `client.get_organisme(123)` fonctionne comme avant.
 
 ---
 
@@ -244,13 +249,40 @@ Commandes utiles :
 pytest tests/unit/
 pytest tests/integration/
 pytest tests/ --cov=src
+tox -e type          # mypy + pyright
 ```
+
+Hooks automatiques :
+- **pre-push** : exécute mypy + pyright avant chaque push
+- **pre-commit** : black, isort, flake8, trailing-whitespace
 
 Documentation complémentaire :
 
 - [`LOCAL_CI_GUIDE.md`](LOCAL_CI_GUIDE.md)
 - [`docs/testing_conventions.md`](docs/testing_conventions.md)
 - [`docs/architecture.rst`](docs/architecture.rst)
+
+---
+
+## 🛠️ Découverte d'API et Détection de Drift (Schema Drift)
+
+Le projet intègre un système robuste de surveillance quotidienne de l'API de production de la FFBB (Directus & Meilisearch) afin de détecter immédiatement l'apparition de nouvelles ressources, de nouveaux champs ou de changements de types.
+
+### 1. Fonctionnement
+* **Script de découverte** : `scripts/discover_endpoints.py` interroge dynamiquement l'OpenAPI spec Directus de la FFBB, extrait toutes les collections, sonde les index Meilisearch (via un échantillonnage agrégé sur 20 hits) et calcule les différences structurelles avec les fichiers locaux.
+* **Détection de dérive** : Le script compare les structures internes de chaque modèle (propriétés ajoutées, supprimées ou types modifiés) ainsi que les attributs Meilisearch, et génère un rapport consolidé dans `data/api_update_summary.md`.
+
+### 2. Automatisation CI/CD
+Un workflow quotidien (`update-ffbb-api-discovery.yml`) s'exécute chaque matin à 5h17 UTC pour :
+1. Télécharger l'OpenAPI spec et sonder Meilisearch en production.
+2. Analyser les dérives structurelles.
+3. Si un changement structurel est détecté (ajout de collection, de propriétés ou d'index), le workflow ouvre automatiquement une **Pull Request** sur GitHub contenant un résumé des modifications pour permettre aux développeurs de mettre à jour les modèles Pydantic.
+
+### 3. Exécution locale
+Pour lancer manuellement la découverte d'API et mettre à jour les fichiers de schémas locaux :
+```bash
+python scripts/discover_endpoints.py
+```
 
 ---
 

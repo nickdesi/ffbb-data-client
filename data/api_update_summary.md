@@ -1,10 +1,10 @@
 # FFBB API update summary
 
-- Timestamp: `2026-04-30T13:30:14.497350+00:00`
+- Timestamp: `2026-06-02T20:40:09.992981+00:00`
 - API base URL: `https://api.ffbb.app/`
 - Meilisearch base URL: `https://meilisearch-prod.ffbb.app/`
-- OpenAPI version: `81dc585185721d2d026413c186a80f4779abf831`
-- OpenAPI SHA256: `196c91b6ca286bc66f7c78a7e9a067f817dc89fa3deb00be3d70e0b586f8bab4`
+- OpenAPI version: `d534dddb74cd8e06b644e372058e26d655fe6ad5`
+- OpenAPI SHA256: `f91c949b6f44aa8475e02fd537582ec732f7f0d3ea67add9638601e3c907abbb`
 
 ## Directus collections
 - Total: `164`

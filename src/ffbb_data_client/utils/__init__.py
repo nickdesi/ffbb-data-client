@@ -1,5 +1,6 @@
 """Utility modules for FFBB API client."""
 
+from .concurrency_utils import gather_with_concurrency
 from .converter_utils import (
     from_bool,
     from_datetime,
@@ -14,6 +15,7 @@ from .converter_utils import (
 )
 
 __all__ = [
+    "gather_with_concurrency",
     "from_bool",
     "from_datetime",
     "from_enum",

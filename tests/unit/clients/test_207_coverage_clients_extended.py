@@ -54,7 +54,10 @@ class TestApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(client.debug)
         self.assertEqual(client.bearer_token, "token123")
 
-    @patch("ffbb_data_client.clients.api_ffbb_app_client.http_get_json")
+    @patch(
+        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        new_callable=AsyncMock,
+    )
     def test_get_configuration(self, mock_get):
         mock_get.return_value = {
             "data": {"id": "1", "key_dh": "a", "key_ms": "b", "maintenance": False}
@@ -64,7 +67,10 @@ class TestApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
         self.assertIsNotNone(res)
         self.assertEqual(res.key_dh, "a")
 
-    @patch("ffbb_data_client.clients.api_ffbb_app_client.http_get_json")
+    @patch(
+        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        new_callable=AsyncMock,
+    )
     def test_get_configuration_none(self, mock_get):
         mock_get.return_value = None
         client = ApiFFBBAppClient("token123")
@@ -174,7 +180,8 @@ class TestApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
     def test_list_competitions_none_fields(self):
         client = ApiFFBBAppClient("token")
         with patch(
-            "ffbb_data_client.clients.api_ffbb_app_client.http_get_json"
+            "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+            new_callable=AsyncMock,
         ) as mock_get:
             mock_get.return_value = {"data": []}
             res = client.list_competitions(fields=None)

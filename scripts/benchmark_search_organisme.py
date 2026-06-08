@@ -33,7 +33,7 @@ def main():
         t1 = time.perf_counter()
         times.append(t1 - t0)
         n_hits = len(res.hits) if res and hasattr(res, "hits") and res.hits else 0
-        print(f"Run {i+1:2d}: {times[-1]:.3f}s — {n_hits} résultats")
+        print(f"Run {i + 1:2d}: {times[-1]:.3f}s — {n_hits} résultats")
     print("\nRésumé:")
     print(f"  Moyenne : {statistics.mean(times):.3f}s")
     print(f"  Médiane : {statistics.median(times):.3f}s")

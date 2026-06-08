@@ -1,6 +1,31 @@
 # Release Notes - FFBB API Client V2
 
-## Version 1.5.0 (Latest Release)
+## Version 2.2.0 (Latest Release)
+
+### 🏗 Architecture Refactor
+
+#### **Facade Pattern — FFBBDataClient Modularization**
+- **REFACTOR**: `FFBBDataClient` split from a monolithic 2865-line file into three focused modules:
+  - `ffbb_data_client.py` (272 lines) — thin public facade with factory and delegation
+  - `_rest_facade.py` (1592 lines) — all REST API (Directus) methods
+  - `_search_facade.py` (1020 lines) — all Meilisearch search methods
+- **BACKWARD-COMPATIBLE**: All 167 public methods remain accessible directly on `FFBBDataClient` instances — zero breaking changes
+- Methods delegated via `setattr` at construction time — no performance impact
+
+#### **CI & Build Improvements**
+- `pytest_asyncio_mode = "auto"` — prevents pytest-asyncio breaking changes across versions
+- `isolated_build = True` in tox — proper PEP 517 builds with setuptools_scm
+- `check_wrapper_parity.py` updated to scan facade files alongside the main client
+
+### 🐛 Bug Fixes & Cleanup
+- `CacheManager` docstring corrected — Redis backend documented as "planned"
+- `readme_renderer[md]` moved to dev extras (was incorrectly in runtime dependencies)
+- Orphaned `src/ffbb_api_client_v3/` directory removed
+- `benchmark_search_organisme.py` moved to `scripts/`
+
+---
+
+## Version 2.1.0 (Previous Release)
 
 ### 🚀 Major Features & Improvements
 

@@ -6,7 +6,8 @@ along with configurable timeout management.
 """
 
 import asyncio
-import random
+import atexit
+import secrets
 import time
 from collections.abc import Callable
 from typing import Any, cast
@@ -17,6 +18,38 @@ from httpx import Client, Response
 from .secure_logging import get_secure_logger
 
 logger = get_secure_logger(__name__)
+
+_DEFAULT_CLIENT: httpx.Client | None = None
+_DEFAULT_ASYNC_CLIENT: httpx.AsyncClient | None = None
+
+# ⚡ Performance optimization: Connection limits to keep TLS sockets warm across calls
+_POOL_LIMITS = httpx.Limits(max_keepalive_connections=50, max_connections=200)
+
+
+def _get_default_client() -> httpx.Client:
+    global _DEFAULT_CLIENT
+    if _DEFAULT_CLIENT is None or _DEFAULT_CLIENT.is_closed:
+        _DEFAULT_CLIENT = httpx.Client(limits=_POOL_LIMITS)
+    return _DEFAULT_CLIENT
+
+
+async def _get_default_async_client() -> httpx.AsyncClient:
+    global _DEFAULT_ASYNC_CLIENT
+    if _DEFAULT_ASYNC_CLIENT is None or _DEFAULT_ASYNC_CLIENT.is_closed:
+        _DEFAULT_ASYNC_CLIENT = httpx.AsyncClient(limits=_POOL_LIMITS)
+    return _DEFAULT_ASYNC_CLIENT
+
+
+def close_default_clients() -> None:
+    """Close module-level fallback clients."""
+    global _DEFAULT_CLIENT, _DEFAULT_ASYNC_CLIENT
+    if _DEFAULT_CLIENT is not None and not _DEFAULT_CLIENT.is_closed:
+        _DEFAULT_CLIENT.close()
+    _DEFAULT_CLIENT = None
+    _DEFAULT_ASYNC_CLIENT = None
+
+
+atexit.register(close_default_clients)
 
 
 class RetryConfig:
@@ -119,7 +152,7 @@ def calculate_delay(attempt: int, config: RetryConfig) -> float:
     if config.jitter:
         # Add random jitter (±25% of delay)
         jitter_range = delay * 0.25
-        delay += random.uniform(-jitter_range, jitter_range)
+        delay += secrets.SystemRandom().uniform(-jitter_range, jitter_range)
         delay = max(0.1, delay)  # Minimum 100ms delay
 
     return delay
@@ -271,20 +304,20 @@ def make_http_request_with_retry(
             else:
                 raise ValueError(f"Unsupported HTTP method: {method}")
         else:
-            with httpx.Client() as session:
-                if method.upper() == "GET":
-                    return session.get(
-                        url, headers=headers, timeout=timeout_config.total_timeout
-                    )
-                elif method.upper() == "POST":
-                    return session.post(
-                        url,
-                        headers=headers,
-                        json=data,
-                        timeout=timeout_config.total_timeout,
-                    )
-                else:
-                    raise ValueError(f"Unsupported HTTP method: {method}")
+            session = _get_default_client()
+            if method.upper() == "GET":
+                return session.get(
+                    url, headers=headers, timeout=timeout_config.total_timeout
+                )
+            elif method.upper() == "POST":
+                return session.post(
+                    url,
+                    headers=headers,
+                    json=data,
+                    timeout=timeout_config.total_timeout,
+                )
+            else:
+                raise ValueError(f"Unsupported HTTP method: {method}")
 
     return execute_with_retry(
         _make_request, config=retry_config, timeout_config=timeout_config
@@ -398,26 +431,21 @@ async def make_http_request_with_retry_async(
         if cached_session:
             session = cached_session
         else:
-            session = httpx.AsyncClient()
+            session = await _get_default_async_client()
 
-        try:
-            if method.upper() == "GET":
-                return await session.get(
-                    url, headers=headers, timeout=timeout_config.total_timeout
-                )
-            elif method.upper() == "POST":
-                return await session.post(
-                    url,
-                    headers=headers,
-                    json=data,
-                    timeout=timeout_config.total_timeout,
-                )
-            else:
-                raise ValueError(f"Unsupported HTTP method: {method}")
-        finally:
-            # If we created a new session, close it
-            if not cached_session:
-                await session.aclose()
+        if method.upper() == "GET":
+            return await session.get(
+                url, headers=headers, timeout=timeout_config.total_timeout
+            )
+        elif method.upper() == "POST":
+            return await session.post(
+                url,
+                headers=headers,
+                json=data,
+                timeout=timeout_config.total_timeout,
+            )
+        else:
+            raise ValueError(f"Unsupported HTTP method: {method}")
 
     return cast(
         Response,

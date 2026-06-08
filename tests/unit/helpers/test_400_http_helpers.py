@@ -205,6 +205,64 @@ class Test045HttpHelpers(unittest.TestCase):
         result = url_with_params("https://api.ffbb.app/items", {"key": None})
         self.assertEqual(result, "https://api.ffbb.app/items")
 
+    @patch("ffbb_data_client.utils.token_manager.TokenManager.get_tokens")
+    @patch("ffbb_data_client.helpers.http_requests_utils.httpx.Client.get")
+    def test_021_http_get_token_auto_refresh_on_401(
+        self, mock_get: MagicMock, mock_get_tokens: MagicMock
+    ) -> None:
+        mock_resp_401 = Mock()
+        mock_resp_401.status_code = 401
+        mock_resp_401.text = "Unauthorized"
+
+        mock_resp_200 = Mock()
+        mock_resp_200.status_code = 200
+        mock_resp_200.text = '{"ok": true}'
+
+        mock_get.side_effect = [mock_resp_401, mock_resp_200]
+
+        mock_tokens = Mock()
+        mock_tokens.api_token = "new_api_token"
+        mock_tokens.meilisearch_token = "new_ms_token"
+        mock_get_tokens.return_value = mock_tokens
+
+        headers = {"Authorization": "Bearer old_token"}
+        response = http_get("https://api.ffbb.app/items/test", headers)
+
+        self.assertEqual(response, mock_resp_200)
+        self.assertEqual(headers["Authorization"], "Bearer new_api_token")
+        mock_get_tokens.assert_called_once_with(use_cache=False)
+        self.assertEqual(mock_get.call_count, 2)
+
+    @patch("ffbb_data_client.utils.token_manager.TokenManager.get_tokens")
+    @patch("ffbb_data_client.helpers.http_requests_utils.httpx.Client.post")
+    def test_022_http_post_token_auto_refresh_on_403(
+        self, mock_post: MagicMock, mock_get_tokens: MagicMock
+    ) -> None:
+        mock_resp_403 = Mock()
+        mock_resp_403.status_code = 403
+        mock_resp_403.text = "Forbidden"
+
+        mock_resp_200 = Mock()
+        mock_resp_200.status_code = 200
+        mock_resp_200.text = '{"ok": true}'
+
+        mock_post.side_effect = [mock_resp_403, mock_resp_200]
+
+        mock_tokens = Mock()
+        mock_tokens.api_token = "new_api_token"
+        mock_tokens.meilisearch_token = "new_ms_token"
+        mock_get_tokens.return_value = mock_tokens
+
+        headers = {"Authorization": "Bearer old_token"}
+        response = http_post(
+            "https://api.ffbb.app/items/test", headers, data={"foo": "bar"}
+        )
+
+        self.assertEqual(response, mock_resp_200)
+        self.assertEqual(headers["Authorization"], "Bearer new_api_token")
+        mock_get_tokens.assert_called_once_with(use_cache=False)
+        self.assertEqual(mock_post.call_count, 2)
+
 
 if __name__ == "__main__":
     unittest.main()
