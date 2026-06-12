@@ -12,7 +12,7 @@ on:
 
 permissions:
   pull-requests: write
-  contents: read
+  contents: write
 
 jobs:
   review:
@@ -28,11 +28,19 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Nécessaire pour avoir l'historique et faire le merge
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
+
+      - name: Resolve bolt.md Merge Conflicts
+        env:
+          BASE_BRANCH: ${{ github.event.pull_request.base.ref }}
+          HEAD_BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: node .github/scripts/resolve-bolt-conflict.js
 
       - name: Run AI Reviewer
         if: env.GEMINI_API_KEY != ''
@@ -40,6 +48,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_PR_NUMBER: ${{ inputs.pr_number || github.event.pull_request.number }}
         run: node .github/scripts/ai-pr-reviewer.js
+
 
 
 
