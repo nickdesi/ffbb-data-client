@@ -333,9 +333,9 @@
       "items/youtube_videos_youtube_tags"
     ],
     "metadata": {
-      "openapi_version": "d534dddb74cd8e06b644e372058e26d655fe6ad5",
+      "openapi_version": "e87b36bf7b32469a3887e00693ba92ae2a8c3077",
       "source": "https://api.ffbb.app/server/specs/oas",
-      "timestamp": "2026-06-02T20:40:09.992981+00:00"
+      "timestamp": "2026-06-13T08:31:02.566267+00:00"
     },
     "paths": {
       "items/configuration": [
@@ -1375,7 +1375,16 @@
   "drift": {
     "directus_openapi": {
       "added_schemas": [],
-      "modified_schemas": {},
+      "modified_schemas": {
+        "ItemsFfbbsiteJobs": {
+          "added_properties": [
+            "mail",
+            "phone"
+          ],
+          "modified_properties": {},
+          "removed_properties": []
+        }
+      },
       "removed_schemas": []
     },
     "meilisearch_indexes": {}
@@ -1422,7 +1431,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 657,
+        "estimatedTotalHits": 1242,
         "indexUid": "ffbbnational_pratiques",
         "sampleKeys": [
           "_geo",
@@ -1476,7 +1485,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 3901,
+        "estimatedTotalHits": 3938,
         "indexUid": "ffbbnational_rss",
         "sampleKeys": [
           "categories",
@@ -1586,7 +1595,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 117,
+        "estimatedTotalHits": 121,
         "indexUid": "ffbbserver_formations",
         "sampleKeys": [
           "certification",
@@ -1656,7 +1665,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 3889,
+        "estimatedTotalHits": 1774,
         "indexUid": "ffbbserver_rencontres",
         "sampleKeys": [
           "_geo",
@@ -1748,7 +1757,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 168,
+        "estimatedTotalHits": 136,
         "indexUid": "ffbbserver_tournois",
         "sampleKeys": [
           "_geo",
@@ -1787,7 +1796,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 5905,
+        "estimatedTotalHits": 5942,
         "indexUid": "ffbbsite_news",
         "sampleKeys": [
           "author",
@@ -1816,7 +1825,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 1826,
+        "estimatedTotalHits": 1830,
         "indexUid": "youtube_videos",
         "sampleKeys": [
           "channelId",
@@ -1849,7 +1858,7 @@
     ],
     "metadata": {
       "source": "https://meilisearch-prod.ffbb.app/multi-search",
-      "timestamp": "2026-06-02T20:40:09.992981+00:00"
+      "timestamp": "2026-06-13T08:31:02.566267+00:00"
     },
     "unavailable_indexes": [
       {
@@ -1885,9 +1894,9 @@
   "metadata": {
     "api_base_url": "https://api.ffbb.app/",
     "meilisearch_base_url": "https://meilisearch-prod.ffbb.app/",
-    "openapi_sha256": "f91c949b6f44aa8475e02fd537582ec732f7f0d3ea67add9638601e3c907abbb",
-    "openapi_snapshot_sha256": "5a6abc2d506dd2987ed0b1476d02cfa6cf630e5a4548b74ca95ae26defd043c0",
-    "openapi_version": "d534dddb74cd8e06b644e372058e26d655fe6ad5",
-    "timestamp": "2026-06-02T20:40:09.992981+00:00"
+    "openapi_sha256": "63b8c96ced6c0ba0e412ec51024f2cec016675b116ffaf40c261cede676ab2a9",
+    "openapi_snapshot_sha256": "1fb4d7fde5ff51099effca37db457cae680352559d5e5fd139c2083e7497dd9e",
+    "openapi_version": "e87b36bf7b32469a3887e00693ba92ae2a8c3077",
+    "timestamp": "2026-06-13T08:31:02.566267+00:00"
   }
 }
