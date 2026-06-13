@@ -9501,9 +9501,17 @@
             "nullable": true,
             "type": "string"
           },
+          "mail": {
+            "nullable": true,
+            "type": "string"
+          },
           "openings": {
             "nullable": true,
             "type": "integer"
+          },
+          "phone": {
+            "nullable": true,
+            "type": "string"
           },
           "postal_code": {
             "nullable": true,
@@ -12266,7 +12274,7 @@
   "info": {
     "description": "This is a dynamically generated API specification for all endpoints existing on the current project.",
     "title": "Dynamic API Specification",
-    "version": "9be33d74bfb480282da91c53c8dfa29804914c96"
+    "version": "e87b36bf7b32469a3887e00693ba92ae2a8c3077"
   },
   "openapi": "3.0.1",
   "paths": {
