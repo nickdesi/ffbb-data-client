@@ -14,8 +14,8 @@ if (!GITHUB_TOKEN || !GEMINI_API_KEY || !GITHUB_REPOSITORY || !PR_NUMBER) {
 
 // Configuration des extensions de fichiers à analyser
 const SUPPORTED_EXTENSIONS = [
-  '.js', '.ts', '.jsx', '.tsx', '.py', '.sh', '.yml', '.yaml', 
-  '.json', '.css', '.html', '.go', '.rs', '.c', '.cpp', '.h', 
+  '.js', '.ts', '.jsx', '.tsx', '.py', '.sh', '.yml', '.yaml',
+  '.json', '.css', '.html', '.go', '.rs', '.c', '.cpp', '.h',
   '.conf', '.ini', '.md'
 ];
 
@@ -143,7 +143,7 @@ async function run() {
 
     // 4. Appeler l'API Gemini
     console.log("Envoi des modifications à l'API Gemini...");
-    
+
     const systemInstruction = `Tu es un expert en revue de code (ingénieur logiciel principal). Ton rôle est d'analyser les modifications d'une Pull Request (les diffs fournis avec leurs patches) et de générer une revue technique constructive et précise.
 
 Consignes impératives :
@@ -193,7 +193,7 @@ ${JSON.stringify(fileDiffData, null, 2)}`;
 
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
     const urlObj = new URL(geminiUrl);
-    
+
     const geminiOptions = {
       hostname: urlObj.hostname,
       path: urlObj.pathname + urlObj.search,
@@ -205,7 +205,7 @@ ${JSON.stringify(fileDiffData, null, 2)}`;
 
     const geminiResponseRaw = await makeRequest(geminiOptions, geminiPayload);
     const geminiResponse = JSON.parse(geminiResponseRaw);
-    
+
     // Extraire le texte de la réponse
     const responseText = geminiResponse.candidates[0].content.parts[0].text;
     const reviewResult = JSON.parse(responseText);

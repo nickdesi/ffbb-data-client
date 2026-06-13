@@ -23,7 +23,7 @@ function runCmd(cmd) {
 // Fonction pour résoudre le conflit dans le contenu du fichier bolt.md
 function resolveBoltConflict(fileContent) {
   const conflictRegex = /<<<<<<< HEAD([\s\S]*?)=======([\s\S]*?)>>>>>>> [^\n]*/g;
-  
+
   let resolvedContent = fileContent;
   let hasConflict = false;
 

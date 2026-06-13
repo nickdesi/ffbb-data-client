@@ -22,12 +22,12 @@ jobs:
     # Optionnel: pour limiter la revue aux PR créées par un utilisateur spécifique (ex: Jules)
     # Remplacer 'jules-username' par l'identifiant GitHub de Jules
     # if: github.event.pull_request.user.login == 'jules-username'
-    
+
     runs-on: ubuntu-latest
-    
+
     env:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -51,7 +51,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_PR_NUMBER: ${{ inputs.pr_number || github.event.pull_request.number }}
         run: node .github/scripts/ai-pr-reviewer.js
-
-
-
-
