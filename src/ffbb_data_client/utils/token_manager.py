@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import json
 import os
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable, TypeVar, cast
+from typing import Any, TypeVar, cast
 
 from httpx import ReadTimeout
 

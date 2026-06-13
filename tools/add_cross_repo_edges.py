@@ -29,7 +29,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-
 # ── Configuration ────────────────────────────────────────────────────
 
 DEFAULT_CONFIG = Path("graphify-cross-repo.json")
