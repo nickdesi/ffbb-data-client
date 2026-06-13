@@ -61,20 +61,21 @@ class Test020TokenManager(unittest.TestCase):
         self.assertEqual(tokens1.api_token, "env_api_token")
         self.assertEqual(tokens2.api_token, "env_api_token")
 
-    @patch("ffbb_data_client.helpers.http_requests_utils.http_get_json")
+    @patch("ffbb_data_client.utils.token_manager.make_http_request_with_retry")
     def test_get_tokens_from_api_when_env_missing(self, mock_http):
         """Test tokens are fetched from API when env vars are missing."""
         # Clear env vars
         os.environ.pop(ENV_API_TOKEN, None)
         os.environ.pop(ENV_MEILISEARCH_TOKEN, None)
 
-        mock_http.return_value = {
-            "data": {
-                "id": 1,
-                "key_dh": "api_from_fetch",
-                "key_ms": "ms_from_fetch",
-            }
-        }
+        from unittest.mock import MagicMock
+
+        mock_response = MagicMock()
+        mock_response.text = (
+            '{"data": {"id": 1, "key_dh": "api_from_fetch", "key_ms": "ms_from_fetch"}}'
+        )
+        mock_response.status_code = 200
+        mock_http.return_value = mock_response
 
         tokens = TokenManager.get_tokens()
 
@@ -82,34 +83,40 @@ class Test020TokenManager(unittest.TestCase):
         self.assertEqual(tokens.meilisearch_token, "ms_from_fetch")
         mock_http.assert_called_once()
 
-    @patch("ffbb_data_client.helpers.http_requests_utils.http_get_json")
+    @patch("ffbb_data_client.utils.token_manager.make_http_request_with_retry")
     def test_get_tokens_api_failure(self, mock_http):
         """Test error handling when API fetch fails."""
         # Clear env vars
         os.environ.pop(ENV_API_TOKEN, None)
         os.environ.pop(ENV_MEILISEARCH_TOKEN, None)
 
-        mock_http.return_value = None
+        from unittest.mock import MagicMock
+
+        mock_response = MagicMock()
+        mock_response.text = '{"data": null}'
+        mock_response.status_code = 200
+        mock_http.return_value = mock_response
 
         with self.assertRaises(RuntimeError) as context:
             TokenManager.get_tokens()
 
         self.assertIn("Failed to fetch configuration", str(context.exception))
 
-    @patch("ffbb_data_client.helpers.http_requests_utils.http_get_json")
+    @patch("ffbb_data_client.utils.token_manager.make_http_request_with_retry")
     def test_get_tokens_partial_env_fetches_from_api(self, mock_http):
         """Test API fetch when only one env var is set."""
         # Set only one env var
         os.environ[ENV_API_TOKEN] = "partial_token"
         os.environ.pop(ENV_MEILISEARCH_TOKEN, None)
 
-        mock_http.return_value = {
-            "data": {
-                "id": 1,
-                "key_dh": "api_from_fetch",
-                "key_ms": "ms_from_fetch",
-            }
-        }
+        from unittest.mock import MagicMock
+
+        mock_response = MagicMock()
+        mock_response.text = (
+            '{"data": {"id": 1, "key_dh": "api_from_fetch", "key_ms": "ms_from_fetch"}}'
+        )
+        mock_response.status_code = 200
+        mock_http.return_value = mock_response
 
         tokens = TokenManager.get_tokens()
 

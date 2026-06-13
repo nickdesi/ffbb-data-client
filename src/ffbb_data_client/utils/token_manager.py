@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+import json
 import os
 from dataclasses import dataclass
+from typing import Any, Callable, TypeVar, cast
+
+from httpx import ReadTimeout
 
 from ..config import (
     API_FFBB_BASE_URL,
@@ -12,9 +16,33 @@ from ..config import (
     ENV_API_TOKEN,
     ENV_MEILISEARCH_TOKEN,
 )
-from ..helpers.http_requests_helper import catch_result
 from ..models.configuration_models import GetConfigurationResponse
 from ..utils.cache_manager import CacheConfig, CacheManager
+from ..utils.retry_utils import (
+    get_default_retry_config,
+    get_default_timeout_config,
+    make_http_request_with_retry,
+)
+
+T = TypeVar("T")
+
+
+def _catch_result(callback: Callable[[], T], is_retrieving: bool = False) -> T | None:
+    """Local retry wrapper to avoid importing the helpers package and creating cycles."""
+    try:
+        return callback()
+    except json.decoder.JSONDecodeError as e:
+        if e.msg == "Expecting value":
+            return None
+        raise e
+    except ReadTimeout as e:
+        if not is_retrieving:
+            return _catch_result(callback, True)
+        raise e
+    except ConnectionError as e:
+        if not is_retrieving:
+            return _catch_result(callback, True)
+        raise e
 
 
 @dataclass
@@ -96,18 +124,31 @@ class TokenManager:
         config_url = f"{API_FFBB_BASE_URL}{ENDPOINT_CONFIGURATION}"
         headers = {"user-agent": DEFAULT_USER_AGENT}
 
-        from ..helpers.http_requests_utils import http_get_json
-        from .retry_utils import get_default_retry_config, get_default_timeout_config
-
-        data = catch_result(
-            lambda: http_get_json(
+        def _get_json() -> dict[str, Any]:
+            response = make_http_request_with_retry(
+                "GET",
                 config_url,
                 headers,
                 cached_session=cached_session,
                 retry_config=get_default_retry_config(),
                 timeout_config=get_default_timeout_config(),
             )
-        )
+            response.raise_for_status()
+            import json
+
+            try:
+                import orjson  # type: ignore
+
+                return cast(dict[str, Any], orjson.loads(response.text.strip()))
+            except ImportError:
+                try:
+                    import ujson  # type: ignore
+
+                    return cast(dict[str, Any], ujson.loads(response.text.strip()))
+                except ImportError:
+                    return cast(dict[str, Any], json.loads(response.text.strip()))
+
+        data = _catch_result(_get_json)
 
         actual_data = data.get("data") if data and isinstance(data, dict) else data
 
