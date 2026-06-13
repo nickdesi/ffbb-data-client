@@ -35,18 +35,17 @@
 
 ---
 
-## 🚀 Version v2.2.0 — Mai 2026
+## 🚀 Version v2.3.1 — Juin 2026
 
 Principales évolutions récentes :
 
-- **refactor architecture** : `FFBBDataClient` (2865 → 272 lignes) découpé en `_RestFacade` + `_SearchFacade` — API publique 100% compatible ;
-- **unification sync/async** : les méthodes synchrones délèguent à leurs homologues asynchrones via `_run_async()`, éliminant ~604 lignes de duplication ;
-- **nouvelles entités** : EDF (matches, joueurs, rosters, équipes), Genius Sport (matches, live logs), Rematch Videos ;
-- **cache SQLite concurrency-safe** : fichiers séparés pour sync (`http_cache.db`) et async (`http_cache_async.db`) ;
-- **CI renforcée** : mypy + pyright + CodeQL + Dependabot + hook pre-push + wrapper parity check ;
-- **nettoyage** : suppression du shim `ffbb_api_client_v3`, scripts morts et code mort (`invalidate_pattern`).
+- **détection de drift API** : surveillance des changements de schéma Directus (propriétés/types/nullabilité) ;
+- **détection de drift Meilisearch** : agrégation robuste des attributs (`sampleKeys`) sur plusieurs hits ;
+- **automatisation CI/CD** : ouverture automatique de PR lorsqu'un drift est détecté ;
+- **fiabilité outillage** : alignement pyupgrade/isort/pre-commit pour des runs CI reproductibles ;
+- **qualité/sécurité** : corrections CodeQL et nettoyage des alertes d'analyse statique.
 
-Voir aussi : [`CHANGELOG.md`](CHANGELOG.md) et [`RELEASE_NOTES.md`](RELEASE_NOTES.md).
+Voir aussi : [CHANGELOG.md](https://github.com/nickdesi/ffbb-data-client/blob/master/CHANGELOG.md) et [RELEASE_NOTES.md](https://github.com/nickdesi/ffbb-data-client/blob/master/RELEASE_NOTES.md).
 
 ---
 
