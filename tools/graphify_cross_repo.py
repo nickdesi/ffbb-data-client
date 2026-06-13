@@ -30,6 +30,7 @@ import subprocess
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from contextlib import suppress
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
@@ -245,18 +246,14 @@ def merge_graphs(
         if "nodes" in line and "edges" in line:
             # Extract nodes: "6951 nodes"
             if "nodes" in line:
-                try:
+                with suppress(IndexError, ValueError):
                     nodes_part = line.split("->")[1].split("nodes")[0].strip()
                     nodes = int(nodes_part.replace(",", ""))
-                except (IndexError, ValueError):
-                    pass
             # Extract edges: "17400 edges"
             if "edges" in line:
-                try:
+                with suppress(IndexError, ValueError):
                     edges_part = line.split("edges")[0].split(",")[-1].strip()
                     edges = int(edges_part.replace(",", ""))
-                except (IndexError, ValueError):
-                    pass
 
     # Run clustering unless skipped
     communities = 0
@@ -275,10 +272,8 @@ def merge_graphs(
                 if "communities" in line:
                     parts = line.split("-")
                     if len(parts) > 1:
-                        try:
+                        with suppress(ValueError, IndexError):
                             communities = int(parts[-1].split("communities")[0].strip())
-                        except (ValueError, IndexError):
-                            pass
 
     cross_edges_added = 0
     cross_edge_stats: cross_repo_edges.CrossRepoEdgeStats | None = None

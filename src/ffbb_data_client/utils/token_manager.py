@@ -135,7 +135,6 @@ class TokenManager:
                 timeout_config=get_default_timeout_config(),
             )
             response.raise_for_status()
-            import json
 
             try:
                 import orjson  # type: ignore
