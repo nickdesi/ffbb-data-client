@@ -1,0 +1,2 @@
+# Force union merge driver for Jules learning log to prevent merge conflicts
+.jules/bolt.md merge=union
