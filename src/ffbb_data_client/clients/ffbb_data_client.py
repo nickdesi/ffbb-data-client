@@ -7,9 +7,10 @@ from ..utils.cache_manager import CacheManager
 from ..utils.concurrency_utils import gather_with_concurrency
 from ..utils.input_validation import validate_boolean, validate_token
 from ..utils.token_manager import TokenManager
+from ._helpers import run_async as _run_async
 from ._rest_facade import _RestFacade
 from ._search_facade import _SearchFacade
-from .api_ffbb_app_client import ApiFFBBAppClient, _run_async
+from .api_ffbb_app_client import ApiFFBBAppClient
 from .meilisearch_ffbb_client import MeilisearchFFBBClient
 
 

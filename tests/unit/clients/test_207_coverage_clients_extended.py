@@ -55,7 +55,7 @@ class TestApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(client.bearer_token, "token123")
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     def test_get_configuration(self, mock_get):
@@ -68,7 +68,7 @@ class TestApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(res.key_dh, "a")
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     def test_get_configuration_none(self, mock_get):
@@ -78,7 +78,7 @@ class TestApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(res)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     async def test_get_configuration_async(self, mock_get_async):
@@ -90,7 +90,7 @@ class TestApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
         self.assertIsNotNone(res)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     async def test_get_configuration_async_error(self, mock_get_async):
@@ -100,7 +100,7 @@ class TestApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(res)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     async def test_get_lives_async_error(self, mock_get_async):
@@ -110,7 +110,7 @@ class TestApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(res)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.competition.http_get_json_async",
         new_callable=AsyncMock,
     )
     async def test_get_competition_async_error(self, mock_get_async):
@@ -120,7 +120,7 @@ class TestApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(res)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.competition.http_get_json_async",
         new_callable=AsyncMock,
     )
     async def test_get_poule_async_error(self, mock_get_async):
@@ -130,7 +130,7 @@ class TestApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(res)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.organisme.http_get_json_async",
         new_callable=AsyncMock,
     )
     async def test_list_competitions_async_error(self, mock_get_async):
@@ -140,7 +140,7 @@ class TestApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(res, [])
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.competition.http_get_json_async",
         new_callable=AsyncMock,
     )
     async def test_get_saisons_async_error(self, mock_get_async):
@@ -150,7 +150,7 @@ class TestApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(res, [])
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.organisme.http_get_json_async",
         new_callable=AsyncMock,
     )
     async def test_get_organisme_async_error(self, mock_get_async):
@@ -160,7 +160,7 @@ class TestApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(res)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.organisme.http_get_json_async",
         new_callable=AsyncMock,
     )
     async def test_get_equipes_async(self, mock_get_async):
@@ -180,7 +180,7 @@ class TestApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
     def test_list_competitions_none_fields(self):
         client = ApiFFBBAppClient("token")
         with patch(
-            "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+            "ffbb_data_client.clients._mixins.organisme.http_get_json_async",
             new_callable=AsyncMock,
         ) as mock_get:
             mock_get.return_value = {"data": []}

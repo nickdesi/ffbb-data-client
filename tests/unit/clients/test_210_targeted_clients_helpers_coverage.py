@@ -184,7 +184,7 @@ class TestTargetedApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(client.headers["Authorization"], "Bearer api-token")
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     def test_get_directus_item_extracts_nested_data_and_fields(
@@ -201,7 +201,7 @@ class TestTargetedApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
         self.assertIn("fields%5B%5D=id", called_url)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     def test_get_directus_item_handles_raw_dict_and_non_dict(
@@ -215,7 +215,7 @@ class TestTargetedApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(client._get_directus_item("items", 1))
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     def test_list_directus_items_extracts_lists_and_defaults_empty(
@@ -242,7 +242,7 @@ class TestTargetedApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(client._list_directus_items("items"), [])
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     async def test_async_directus_helpers_success_and_failure(

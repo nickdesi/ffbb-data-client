@@ -15,7 +15,7 @@ class TestNewMethodsCoverage(unittest.IsolatedAsyncioTestCase):
         self.main_client = FFBBDataClient(self.api_client, self.ms_client)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     def test_get_rencontre(self, mock_get):
@@ -30,7 +30,7 @@ class TestNewMethodsCoverage(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(res_v3, res)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     async def test_get_rencontre_async(self, mock_get_async):
@@ -48,7 +48,7 @@ class TestNewMethodsCoverage(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(res_v3, res)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     def test_get_engagement(self, mock_get):
@@ -63,7 +63,7 @@ class TestNewMethodsCoverage(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(res_v3, res)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     async def test_get_engagement_async(self, mock_get_async):
@@ -81,7 +81,7 @@ class TestNewMethodsCoverage(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(res_v3, res)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     def test_get_formation(self, mock_get):
@@ -96,7 +96,7 @@ class TestNewMethodsCoverage(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(res_v3, res)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     async def test_get_formation_async(self, mock_get_async):
@@ -114,7 +114,7 @@ class TestNewMethodsCoverage(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(res_v3, res)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     def test_get_entraineur(self, mock_get):
@@ -129,7 +129,7 @@ class TestNewMethodsCoverage(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(res_v3, res)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     async def test_get_entraineur_async(self, mock_get_async):
@@ -147,7 +147,7 @@ class TestNewMethodsCoverage(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(res_v3, res)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     def test_get_commune(self, mock_get):
@@ -162,7 +162,7 @@ class TestNewMethodsCoverage(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(res_v3, res)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     async def test_get_commune_async(self, mock_get_async):
@@ -180,7 +180,7 @@ class TestNewMethodsCoverage(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(res_v3, res)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     def test_get_officiel(self, mock_get):
@@ -195,7 +195,7 @@ class TestNewMethodsCoverage(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(res_v3, res)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     async def test_get_officiel_async(self, mock_get_async):
@@ -213,7 +213,7 @@ class TestNewMethodsCoverage(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(res_v3, res)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     def test_get_salle(self, mock_get):
@@ -228,7 +228,7 @@ class TestNewMethodsCoverage(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(res_v3, res)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     async def test_get_salle_async(self, mock_get_async):
@@ -246,7 +246,7 @@ class TestNewMethodsCoverage(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(res_v3, res)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     def test_get_terrain(self, mock_get):
@@ -261,7 +261,7 @@ class TestNewMethodsCoverage(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(res_v3, res)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     async def test_get_terrain_async(self, mock_get_async):
@@ -279,7 +279,7 @@ class TestNewMethodsCoverage(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(res_v3, res)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     def test_get_tournoi(self, mock_get):
@@ -294,7 +294,7 @@ class TestNewMethodsCoverage(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(res_v3, res)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     async def test_get_tournoi_async(self, mock_get_async):
@@ -312,7 +312,7 @@ class TestNewMethodsCoverage(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(res_v3, res)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     def test_get_pratique(self, mock_get):
@@ -327,7 +327,7 @@ class TestNewMethodsCoverage(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(res_v3, res)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     async def test_get_pratique_async(self, mock_get_async):
@@ -345,7 +345,7 @@ class TestNewMethodsCoverage(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(res_v3, res)
 
     @patch(
-        "ffbb_data_client.clients.api_ffbb_app_client.http_get_json_async",
+        "ffbb_data_client.clients._mixins.getters.http_get_json_async",
         new_callable=AsyncMock,
     )
     async def test_get_rencontre_async_error(self, mock_get_async):

@@ -863,7 +863,7 @@ class _RestFacade:
         search: str | None = None,
         cached_session: Client | None = None,
     ) -> list[GetRencontreResponse]:
-        return self._api.list_rencontres(
+        return self._api.list_rencontres(  # type: ignore[no-any-return]
             limit=limit,
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
@@ -883,7 +883,7 @@ class _RestFacade:
         search: str | None = None,
         cached_session: Client | None = None,
     ) -> list[GetSalleResponse]:
-        return self._api.list_salles(
+        return self._api.list_salles(  # type: ignore[no-any-return]
             limit=limit,
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
@@ -903,7 +903,7 @@ class _RestFacade:
         search: str | None = None,
         cached_session: Client | None = None,
     ) -> list[GetTerrainResponse]:
-        return self._api.list_terrains(
+        return self._api.list_terrains(  # type: ignore[no-any-return]
             limit=limit,
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
@@ -923,7 +923,7 @@ class _RestFacade:
         search: str | None = None,
         cached_session: Client | None = None,
     ) -> list[GetTournoiResponse]:
-        return self._api.list_tournois(
+        return self._api.list_tournois(  # type: ignore[no-any-return]
             limit=limit,
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
@@ -943,7 +943,7 @@ class _RestFacade:
         search: str | None = None,
         cached_session: Client | None = None,
     ) -> list[GetEngagementResponse]:
-        return self._api.list_engagements(
+        return self._api.list_engagements(  # type: ignore[no-any-return]
             limit=limit,
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
@@ -963,7 +963,7 @@ class _RestFacade:
         search: str | None = None,
         cached_session: Client | None = None,
     ) -> list[GetFormationResponse]:
-        return self._api.list_formations(
+        return self._api.list_formations(  # type: ignore[no-any-return]
             limit=limit,
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
@@ -983,7 +983,7 @@ class _RestFacade:
         search: str | None = None,
         cached_session: Client | None = None,
     ) -> list[GetEntraineurResponse]:
-        return self._api.list_entraineurs(
+        return self._api.list_entraineurs(  # type: ignore[no-any-return]
             limit=limit,
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
@@ -1003,7 +1003,7 @@ class _RestFacade:
         search: str | None = None,
         cached_session: Client | None = None,
     ) -> list[GetCommuneResponse]:
-        return self._api.list_communes(
+        return self._api.list_communes(  # type: ignore[no-any-return]
             limit=limit,
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
@@ -1023,7 +1023,7 @@ class _RestFacade:
         search: str | None = None,
         cached_session: Client | None = None,
     ) -> list[GetOfficielResponse]:
-        return self._api.list_officiels(
+        return self._api.list_officiels(  # type: ignore[no-any-return]
             limit=limit,
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
@@ -1043,7 +1043,7 @@ class _RestFacade:
         search: str | None = None,
         cached_session: Client | None = None,
     ) -> list[GetPratiqueResponse]:
-        return self._api.list_pratiques(
+        return self._api.list_pratiques(  # type: ignore[no-any-return]
             limit=limit,
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
@@ -1063,7 +1063,7 @@ class _RestFacade:
         search: str | None = None,
         cached_session: httpx.AsyncClient | None = None,
     ) -> list[GetRencontreResponse]:
-        return await self._api.list_rencontres_async(
+        return await self._api.list_rencontres_async(  # type: ignore[no-any-return]
             limit=limit,
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
@@ -1083,7 +1083,7 @@ class _RestFacade:
         search: str | None = None,
         cached_session: httpx.AsyncClient | None = None,
     ) -> list[GetSalleResponse]:
-        return await self._api.list_salles_async(
+        return await self._api.list_salles_async(  # type: ignore[no-any-return]
             limit=limit,
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
@@ -1103,7 +1103,7 @@ class _RestFacade:
         search: str | None = None,
         cached_session: httpx.AsyncClient | None = None,
     ) -> list[GetTerrainResponse]:
-        return await self._api.list_terrains_async(
+        return await self._api.list_terrains_async(  # type: ignore[no-any-return]
             limit=limit,
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
@@ -1123,7 +1123,7 @@ class _RestFacade:
         search: str | None = None,
         cached_session: httpx.AsyncClient | None = None,
     ) -> list[GetTournoiResponse]:
-        return await self._api.list_tournois_async(
+        return await self._api.list_tournois_async(  # type: ignore[no-any-return]
             limit=limit,
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
@@ -1143,7 +1143,7 @@ class _RestFacade:
         search: str | None = None,
         cached_session: httpx.AsyncClient | None = None,
     ) -> list[GetEngagementResponse]:
-        return await self._api.list_engagements_async(
+        return await self._api.list_engagements_async(  # type: ignore[no-any-return]
             limit=limit,
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
@@ -1163,7 +1163,7 @@ class _RestFacade:
         search: str | None = None,
         cached_session: httpx.AsyncClient | None = None,
     ) -> list[GetFormationResponse]:
-        return await self._api.list_formations_async(
+        return await self._api.list_formations_async(  # type: ignore[no-any-return]
             limit=limit,
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
@@ -1183,7 +1183,7 @@ class _RestFacade:
         search: str | None = None,
         cached_session: httpx.AsyncClient | None = None,
     ) -> list[GetEntraineurResponse]:
-        return await self._api.list_entraineurs_async(
+        return await self._api.list_entraineurs_async(  # type: ignore[no-any-return]
             limit=limit,
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
@@ -1203,7 +1203,7 @@ class _RestFacade:
         search: str | None = None,
         cached_session: httpx.AsyncClient | None = None,
     ) -> list[GetCommuneResponse]:
-        return await self._api.list_communes_async(
+        return await self._api.list_communes_async(  # type: ignore[no-any-return]
             limit=limit,
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
@@ -1223,7 +1223,7 @@ class _RestFacade:
         search: str | None = None,
         cached_session: httpx.AsyncClient | None = None,
     ) -> list[GetOfficielResponse]:
-        return await self._api.list_officiels_async(
+        return await self._api.list_officiels_async(  # type: ignore[no-any-return]
             limit=limit,
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
@@ -1243,7 +1243,7 @@ class _RestFacade:
         search: str | None = None,
         cached_session: httpx.AsyncClient | None = None,
     ) -> list[GetPratiqueResponse]:
-        return await self._api.list_pratiques_async(
+        return await self._api.list_pratiques_async(  # type: ignore[no-any-return]
             limit=limit,
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
@@ -1267,7 +1267,7 @@ class _RestFacade:
         max_items: int = 10000,
         cached_session: Client | None = None,
     ) -> list[GetRencontreResponse]:
-        return self._api.list_all_rencontres(
+        return self._api.list_all_rencontres(  # type: ignore[no-any-return]
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
             ),
@@ -1287,7 +1287,7 @@ class _RestFacade:
         max_items: int = 10000,
         cached_session: Client | None = None,
     ) -> list[GetSalleResponse]:
-        return self._api.list_all_salles(
+        return self._api.list_all_salles(  # type: ignore[no-any-return]
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
             ),
@@ -1307,7 +1307,7 @@ class _RestFacade:
         max_items: int = 10000,
         cached_session: Client | None = None,
     ) -> list[GetTerrainResponse]:
-        return self._api.list_all_terrains(
+        return self._api.list_all_terrains(  # type: ignore[no-any-return]
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
             ),
@@ -1327,7 +1327,7 @@ class _RestFacade:
         max_items: int = 10000,
         cached_session: Client | None = None,
     ) -> list[GetTournoiResponse]:
-        return self._api.list_all_tournois(
+        return self._api.list_all_tournois(  # type: ignore[no-any-return]
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
             ),
@@ -1347,7 +1347,7 @@ class _RestFacade:
         max_items: int = 10000,
         cached_session: Client | None = None,
     ) -> list[GetEngagementResponse]:
-        return self._api.list_all_engagements(
+        return self._api.list_all_engagements(  # type: ignore[no-any-return]
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
             ),
@@ -1367,7 +1367,7 @@ class _RestFacade:
         max_items: int = 10000,
         cached_session: Client | None = None,
     ) -> list[GetFormationResponse]:
-        return self._api.list_all_formations(
+        return self._api.list_all_formations(  # type: ignore[no-any-return]
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
             ),
@@ -1387,7 +1387,7 @@ class _RestFacade:
         max_items: int = 10000,
         cached_session: Client | None = None,
     ) -> list[GetEntraineurResponse]:
-        return self._api.list_all_entraineurs(
+        return self._api.list_all_entraineurs(  # type: ignore[no-any-return]
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
             ),
@@ -1407,7 +1407,7 @@ class _RestFacade:
         max_items: int = 10000,
         cached_session: Client | None = None,
     ) -> list[GetCommuneResponse]:
-        return self._api.list_all_communes(
+        return self._api.list_all_communes(  # type: ignore[no-any-return]
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
             ),
@@ -1427,7 +1427,7 @@ class _RestFacade:
         max_items: int = 10000,
         cached_session: Client | None = None,
     ) -> list[GetOfficielResponse]:
-        return self._api.list_all_officiels(
+        return self._api.list_all_officiels(  # type: ignore[no-any-return]
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
             ),
@@ -1447,7 +1447,7 @@ class _RestFacade:
         max_items: int = 10000,
         cached_session: Client | None = None,
     ) -> list[GetPratiqueResponse]:
-        return self._api.list_all_pratiques(
+        return self._api.list_all_pratiques(  # type: ignore[no-any-return]
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
             ),
@@ -1467,7 +1467,7 @@ class _RestFacade:
         max_items: int = 10000,
         cached_session: httpx.AsyncClient | None = None,
     ) -> list[GetRencontreResponse]:
-        return await self._api.list_all_rencontres_async(
+        return await self._api.list_all_rencontres_async(  # type: ignore[no-any-return]
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
             ),
@@ -1487,7 +1487,7 @@ class _RestFacade:
         max_items: int = 10000,
         cached_session: httpx.AsyncClient | None = None,
     ) -> list[GetSalleResponse]:
-        return await self._api.list_all_salles_async(
+        return await self._api.list_all_salles_async(  # type: ignore[no-any-return]
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
             ),
@@ -1507,7 +1507,7 @@ class _RestFacade:
         max_items: int = 10000,
         cached_session: httpx.AsyncClient | None = None,
     ) -> list[GetTerrainResponse]:
-        return await self._api.list_all_terrains_async(
+        return await self._api.list_all_terrains_async(  # type: ignore[no-any-return]
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
             ),
@@ -1527,7 +1527,7 @@ class _RestFacade:
         max_items: int = 10000,
         cached_session: httpx.AsyncClient | None = None,
     ) -> list[GetTournoiResponse]:
-        return await self._api.list_all_tournois_async(
+        return await self._api.list_all_tournois_async(  # type: ignore[no-any-return]
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
             ),
@@ -1547,7 +1547,7 @@ class _RestFacade:
         max_items: int = 10000,
         cached_session: httpx.AsyncClient | None = None,
     ) -> list[GetEngagementResponse]:
-        return await self._api.list_all_engagements_async(
+        return await self._api.list_all_engagements_async(  # type: ignore[no-any-return]
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
             ),
@@ -1567,7 +1567,7 @@ class _RestFacade:
         max_items: int = 10000,
         cached_session: httpx.AsyncClient | None = None,
     ) -> list[GetFormationResponse]:
-        return await self._api.list_all_formations_async(
+        return await self._api.list_all_formations_async(  # type: ignore[no-any-return]
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
             ),
@@ -1587,7 +1587,7 @@ class _RestFacade:
         max_items: int = 10000,
         cached_session: httpx.AsyncClient | None = None,
     ) -> list[GetEntraineurResponse]:
-        return await self._api.list_all_entraineurs_async(
+        return await self._api.list_all_entraineurs_async(  # type: ignore[no-any-return]
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
             ),
@@ -1607,7 +1607,7 @@ class _RestFacade:
         max_items: int = 10000,
         cached_session: httpx.AsyncClient | None = None,
     ) -> list[GetCommuneResponse]:
-        return await self._api.list_all_communes_async(
+        return await self._api.list_all_communes_async(  # type: ignore[no-any-return]
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
             ),
@@ -1627,7 +1627,7 @@ class _RestFacade:
         max_items: int = 10000,
         cached_session: httpx.AsyncClient | None = None,
     ) -> list[GetOfficielResponse]:
-        return await self._api.list_all_officiels_async(
+        return await self._api.list_all_officiels_async(  # type: ignore[no-any-return]
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
             ),
@@ -1647,7 +1647,7 @@ class _RestFacade:
         max_items: int = 10000,
         cached_session: httpx.AsyncClient | None = None,
     ) -> list[GetPratiqueResponse]:
-        return await self._api.list_all_pratiques_async(
+        return await self._api.list_all_pratiques_async(  # type: ignore[no-any-return]
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
             ),
