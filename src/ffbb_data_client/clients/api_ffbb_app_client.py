@@ -111,3 +111,15 @@ from ..models.get_organisme_response import GetOrganismeResponse  # noqa: E402, 
 from ..models.lives import lives_from_dict  # noqa: E402, F401
 from ..models.poules_models import GetPouleResponse  # noqa: E402, F401
 from ..models.saisons_models import GetSaisonsResponse  # noqa: E402, F401
+
+# Déclare explicitement l'API publique du module (classe principale + re-exports
+# de compatibilité) afin que les imports ci-dessus soient reconnus comme exportés.
+__all__ = [
+    "ApiFFBBAppClient",
+    "http_get_json_async",
+    "GetCompetitionResponse",
+    "GetOrganismeResponse",
+    "lives_from_dict",
+    "GetPouleResponse",
+    "GetSaisonsResponse",
+]

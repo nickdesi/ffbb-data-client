@@ -168,7 +168,12 @@ class TestRetryUtilsCoverage(unittest.TestCase):
             make_http_request_with_retry,
         )
 
-        with patch("ffbb_data_client.utils.retry_utils.httpx.Client") as MockSession:
+        with (
+            patch("ffbb_data_client.utils.retry_utils.httpx.Client") as MockSession,
+            # Reset le client par défaut partagé pour forcer la construction du
+            # mock (le singleton peut subsister entre tests).
+            patch("ffbb_data_client.utils.retry_utils._DEFAULT_CLIENT", None),
+        ):
             mock_session = MagicMock()
             response = MagicMock()
             response.status_code = 200
@@ -176,12 +181,6 @@ class TestRetryUtilsCoverage(unittest.TestCase):
             mock_session.__enter__ = MagicMock(return_value=mock_session)
             mock_session.__exit__ = MagicMock(return_value=False)
             MockSession.return_value = mock_session
-
-            # Reset le client par défaut partagé pour forcer la construction du
-            # mock (le singleton peut subsister entre tests).
-            import ffbb_data_client.utils.retry_utils as _retry_utils
-
-            _retry_utils._DEFAULT_CLIENT = None
 
             result = make_http_request_with_retry(
                 "POST",
