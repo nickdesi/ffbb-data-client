@@ -11,7 +11,6 @@ DiscoveryArtefactName = Literal[
     "endpoint_discovery.json",
     "indexes.json",
     "openapi.json",
-    "openapi_full.json",
 ]
 
 

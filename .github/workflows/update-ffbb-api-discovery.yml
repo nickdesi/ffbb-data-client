@@ -81,4 +81,3 @@ jobs:
             src/ffbb_data_client/data/endpoint_discovery.json
             src/ffbb_data_client/data/indexes.json
             src/ffbb_data_client/data/openapi.json
-            src/ffbb_data_client/data/openapi_full.json

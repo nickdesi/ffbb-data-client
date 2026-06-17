@@ -60,12 +60,13 @@ INDEXES_PATH = DATA_DIR / "indexes.json"
 OPENAPI_PATH = DATA_DIR / "openapi.json"
 OPENAPI_FULL_PATH = DATA_DIR / "openapi_full.json"
 CHANGE_SUMMARY_PATH = DATA_DIR / "api_update_summary.md"
+# openapi_full.json est volontairement absent : conservé sous data/ pour le dev
+# mais exclu du package (cf. setup.cfg [options.exclude_package_data]).
 PACKAGED_ARTEFACT_PATHS = [
     COLLECTIONS_PATH,
     REPORT_PATH,
     INDEXES_PATH,
     OPENAPI_PATH,
-    OPENAPI_FULL_PATH,
 ]
 
 MEILI_CANDIDATE_INDEXES = [

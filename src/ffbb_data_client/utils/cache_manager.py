@@ -148,7 +148,6 @@ class CacheManager:
 
             self.config = config or CacheConfig()
             self.metrics = CacheMetrics()
-            self._memory_cache: dict[str, dict[str, Any]] = {}
             self._client: httpx.Client | None = None
             self._async_client: httpx.AsyncClient | None = None
 

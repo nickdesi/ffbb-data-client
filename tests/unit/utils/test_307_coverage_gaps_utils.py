@@ -177,6 +177,12 @@ class TestRetryUtilsCoverage(unittest.TestCase):
             mock_session.__exit__ = MagicMock(return_value=False)
             MockSession.return_value = mock_session
 
+            # Reset le client par défaut partagé pour forcer la construction du
+            # mock (le singleton peut subsister entre tests).
+            import ffbb_data_client.utils.retry_utils as _retry_utils
+
+            _retry_utils._DEFAULT_CLIENT = None
+
             result = make_http_request_with_retry(
                 "POST",
                 "https://example.com/api",

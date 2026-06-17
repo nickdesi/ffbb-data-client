@@ -54,7 +54,6 @@ jobs:
               'ffbb_data_client/data/endpoint_discovery.json',
               'ffbb_data_client/data/indexes.json',
               'ffbb_data_client/data/openapi.json',
-              'ffbb_data_client/data/openapi_full.json',
           }
           with zipfile.ZipFile(wheels[0]) as wheel:
               names = set(wheel.namelist())

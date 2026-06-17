@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import atexit
 import json
 import time
 from typing import Any
@@ -27,15 +26,12 @@ from ..utils.retry_utils import (
     make_http_request_with_retry,
     make_http_request_with_retry_async,
 )
+from ..utils.retry_utils import _get_default_async_client as _shared_async_client
+from ..utils.retry_utils import _get_default_client as _shared_sync_client
+from ..utils.retry_utils import close_default_clients as _close_shared_clients
 from ..utils.secure_logging import get_secure_logger
 
 logger = get_secure_logger(__name__)
-
-_DEFAULT_SYNC_CLIENT: httpx.Client | None = None
-_DEFAULT_ASYNC_CLIENT: httpx.AsyncClient | None = None
-
-# ⚡ Performance optimization: Connection limits to keep TLS sockets warm across calls
-_POOL_LIMITS = httpx.Limits(max_keepalive_connections=50, max_connections=200)
 
 
 def _build_timeout(timeout: int | float | TimeoutConfig | None) -> httpx.Timeout:
@@ -52,35 +48,18 @@ def _build_timeout(timeout: int | float | TimeoutConfig | None) -> httpx.Timeout
 
 
 def _get_default_sync_client(timeout: int | float = 20) -> httpx.Client:
-    global _DEFAULT_SYNC_CLIENT
-    if _DEFAULT_SYNC_CLIENT is None or _DEFAULT_SYNC_CLIENT.is_closed:
-        _DEFAULT_SYNC_CLIENT = httpx.Client(
-            timeout=_build_timeout(timeout),
-            limits=_POOL_LIMITS,
-        )
-    return _DEFAULT_SYNC_CLIENT
+    # Pool unique partagé (défini dans retry_utils). Le timeout est appliqué
+    # par requête via timeout=..., pas au niveau du client.
+    return _shared_sync_client()
 
 
 async def _get_default_async_client(timeout: int | float = 20) -> httpx.AsyncClient:
-    global _DEFAULT_ASYNC_CLIENT
-    if _DEFAULT_ASYNC_CLIENT is None or _DEFAULT_ASYNC_CLIENT.is_closed:
-        _DEFAULT_ASYNC_CLIENT = httpx.AsyncClient(
-            timeout=_build_timeout(timeout),
-            limits=_POOL_LIMITS,
-        )
-    return _DEFAULT_ASYNC_CLIENT
+    return await _shared_async_client()
 
 
 def close_default_clients() -> None:
-    """Close module-level fallback clients used when no session is provided."""
-    global _DEFAULT_SYNC_CLIENT, _DEFAULT_ASYNC_CLIENT
-    if _DEFAULT_SYNC_CLIENT is not None and not _DEFAULT_SYNC_CLIENT.is_closed:
-        _DEFAULT_SYNC_CLIENT.close()
-    _DEFAULT_SYNC_CLIENT = None
-    _DEFAULT_ASYNC_CLIENT = None
-
-
-atexit.register(close_default_clients)
+    """Ferme le pool de clients partagé (délégué à retry_utils)."""
+    _close_shared_clients()
 
 
 def _handle_token_refresh(
