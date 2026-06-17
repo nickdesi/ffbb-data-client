@@ -23,12 +23,14 @@ from httpx import Client, Response
 from ..utils.retry_utils import (
     RetryConfig,
     TimeoutConfig,
-    make_http_request_with_retry,
-    make_http_request_with_retry_async,
 )
 from ..utils.retry_utils import _get_default_async_client as _shared_async_client
 from ..utils.retry_utils import _get_default_client as _shared_sync_client
 from ..utils.retry_utils import close_default_clients as _close_shared_clients
+from ..utils.retry_utils import (
+    make_http_request_with_retry,
+    make_http_request_with_retry_async,
+)
 from ..utils.secure_logging import get_secure_logger
 
 logger = get_secure_logger(__name__)
