@@ -441,7 +441,7 @@ def _build_change_summary(
         f"- Added: {collections_diff['added'] or 'None'}",
         f"- Removed: {collections_diff['removed'] or 'None'}",
         "",
-        "## Directus item paths",
+        "## OpenAPI paths (items, assets, files)",
         f"- Total: `{len(current_paths)}`",
         f"- Added: {paths_diff['added'] or 'None'}",
         f"- Removed: {paths_diff['removed'] or 'None'}",
