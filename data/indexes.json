@@ -40,7 +40,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 1242,
+      "estimatedTotalHits": 201,
       "indexUid": "ffbbnational_pratiques",
       "sampleKeys": [
         "_geo",
@@ -94,7 +94,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 3938,
+      "estimatedTotalHits": 4001,
       "indexUid": "ffbbnational_rss",
       "sampleKeys": [
         "categories",
@@ -204,7 +204,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 121,
+      "estimatedTotalHits": 129,
       "indexUid": "ffbbserver_formations",
       "sampleKeys": [
         "certification",
@@ -239,7 +239,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 4577,
+      "estimatedTotalHits": 4584,
       "indexUid": "ffbbserver_organismes",
       "sampleKeys": [
         "_geo",
@@ -274,7 +274,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 1774,
+      "estimatedTotalHits": 126,
       "indexUid": "ffbbserver_rencontres",
       "sampleKeys": [
         "_geo",
@@ -302,7 +302,6 @@
         "nomEquipe2",
         "numeroJournee",
         "officiels",
-        "officiels_string",
         "organisateur",
         "pratique",
         "rematch_videos",
@@ -366,7 +365,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 136,
+      "estimatedTotalHits": 55,
       "indexUid": "ffbbserver_tournois",
       "sampleKeys": [
         "_geo",
@@ -405,7 +404,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 5942,
+      "estimatedTotalHits": 6003,
       "indexUid": "ffbbsite_news",
       "sampleKeys": [
         "author",
@@ -434,7 +433,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 1830,
+      "estimatedTotalHits": 1834,
       "indexUid": "youtube_videos",
       "sampleKeys": [
         "channelId",
@@ -467,7 +466,7 @@
   ],
   "metadata": {
     "source": "https://meilisearch-prod.ffbb.app/multi-search",
-    "timestamp": "2026-06-13T08:31:02.566267+00:00"
+    "timestamp": "2026-07-02T08:24:40.487600+00:00"
   },
   "unavailable_indexes": [
     {
