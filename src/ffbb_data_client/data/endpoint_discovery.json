@@ -333,9 +333,9 @@
       "items/youtube_videos_youtube_tags"
     ],
     "metadata": {
-      "openapi_version": "e87b36bf7b32469a3887e00693ba92ae2a8c3077",
+      "openapi_version": "cde03f660fbe401f4986d03bd8ec16df4e22f67b",
       "source": "https://api.ffbb.app/server/specs/oas",
-      "timestamp": "2026-06-13T08:31:02.566267+00:00"
+      "timestamp": "2026-07-02T08:24:40.487600+00:00"
     },
     "paths": {
       "items/configuration": [
@@ -1375,19 +1375,17 @@
   "drift": {
     "directus_openapi": {
       "added_schemas": [],
-      "modified_schemas": {
-        "ItemsFfbbsiteJobs": {
-          "added_properties": [
-            "mail",
-            "phone"
-          ],
-          "modified_properties": {},
-          "removed_properties": []
-        }
-      },
+      "modified_schemas": {},
       "removed_schemas": []
     },
-    "meilisearch_indexes": {}
+    "meilisearch_indexes": {
+      "ffbbserver_rencontres": {
+        "added": [],
+        "removed": [
+          "officiels_string"
+        ]
+      }
+    }
   },
   "meilisearch": {
     "available_indexes": [
@@ -1431,7 +1429,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 1242,
+        "estimatedTotalHits": 201,
         "indexUid": "ffbbnational_pratiques",
         "sampleKeys": [
           "_geo",
@@ -1485,7 +1483,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 3938,
+        "estimatedTotalHits": 4001,
         "indexUid": "ffbbnational_rss",
         "sampleKeys": [
           "categories",
@@ -1595,7 +1593,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 121,
+        "estimatedTotalHits": 129,
         "indexUid": "ffbbserver_formations",
         "sampleKeys": [
           "certification",
@@ -1630,7 +1628,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 4577,
+        "estimatedTotalHits": 4584,
         "indexUid": "ffbbserver_organismes",
         "sampleKeys": [
           "_geo",
@@ -1665,7 +1663,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 1774,
+        "estimatedTotalHits": 126,
         "indexUid": "ffbbserver_rencontres",
         "sampleKeys": [
           "_geo",
@@ -1693,7 +1691,6 @@
           "nomEquipe2",
           "numeroJournee",
           "officiels",
-          "officiels_string",
           "organisateur",
           "pratique",
           "rematch_videos",
@@ -1757,7 +1754,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 136,
+        "estimatedTotalHits": 55,
         "indexUid": "ffbbserver_tournois",
         "sampleKeys": [
           "_geo",
@@ -1796,7 +1793,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 5942,
+        "estimatedTotalHits": 6003,
         "indexUid": "ffbbsite_news",
         "sampleKeys": [
           "author",
@@ -1825,7 +1822,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 1830,
+        "estimatedTotalHits": 1834,
         "indexUid": "youtube_videos",
         "sampleKeys": [
           "channelId",
@@ -1858,7 +1855,7 @@
     ],
     "metadata": {
       "source": "https://meilisearch-prod.ffbb.app/multi-search",
-      "timestamp": "2026-06-13T08:31:02.566267+00:00"
+      "timestamp": "2026-07-02T08:24:40.487600+00:00"
     },
     "unavailable_indexes": [
       {
@@ -1894,9 +1891,9 @@
   "metadata": {
     "api_base_url": "https://api.ffbb.app/",
     "meilisearch_base_url": "https://meilisearch-prod.ffbb.app/",
-    "openapi_sha256": "63b8c96ced6c0ba0e412ec51024f2cec016675b116ffaf40c261cede676ab2a9",
-    "openapi_snapshot_sha256": "1fb4d7fde5ff51099effca37db457cae680352559d5e5fd139c2083e7497dd9e",
-    "openapi_version": "e87b36bf7b32469a3887e00693ba92ae2a8c3077",
-    "timestamp": "2026-06-13T08:31:02.566267+00:00"
+    "openapi_sha256": "79ed9a96c9742e538aa9aee8b9887b05f0d7fe3c7f12abc017f7dbe489995397",
+    "openapi_snapshot_sha256": "df768e9243b8f094321c8768326e726d90bdc1c80d12972d2af05d0afae6d583",
+    "openapi_version": "cde03f660fbe401f4986d03bd8ec16df4e22f67b",
+    "timestamp": "2026-07-02T08:24:40.487600+00:00"
   }
 }
