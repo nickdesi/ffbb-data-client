@@ -152,9 +152,14 @@ jobs:
         env:
           API_FFBB_APP_BEARER_TOKEN: ${{ secrets.API_FFBB_APP_BEARER_TOKEN }}
           MEILISEARCH_BEARER_TOKEN: ${{ secrets.MEILISEARCH_BEARER_TOKEN }}
-        run: >-
-          pipx run --python '${{ steps.setup-python.outputs.python-path }}'
-          tox --installpkg '${{ needs.build.outputs.wheel-distribution }}'
+          MATRIX_PYTHON: ${{ matrix.python }}
+        run: |
+          toxenv="py${MATRIX_PYTHON//./}"
+          pipx run --python '${{ steps.setup-python.outputs.python-path }}' \
+            tox -e "$toxenv" --installpkg '${{ needs.build.outputs.wheel-distribution }}'
+        # Only run the tox environment matching this matrix runner's Python.
+        # Without `-e`, tox executes the full envlist (py310..py314) on a
+        # single-version runner and fails on the missing interpreters.
 
       # ── Coveralls: upload partial report (parallel mode) ─────────────────
       # coverallsapp/github-action@v2 uses the Universal Coverage Reporter
