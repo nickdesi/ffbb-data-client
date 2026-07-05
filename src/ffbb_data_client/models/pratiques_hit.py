@@ -12,6 +12,7 @@ from ..utils.converter_utils import (
     from_list,
     from_obj,
     from_str,
+    to_dict_set,
 )
 from .affiche import Affiche
 from .cartographie import Cartographie
@@ -20,13 +21,13 @@ from .hit import Hit
 from .jour import Jour
 from .label import Label
 from .objectif import Objectif
-from .pratiques_hit_type import HitType
+from .pratiques_hit_type import PratiquesHitType
 
 
 @dataclass
 class PratiquesHit(Hit):
     titre: str | None = None
-    type: HitType | None = None
+    type: PratiquesHitType | None = None
     adresse: str | None = None
     description: str | None = None
     id: int | None = None
@@ -104,7 +105,7 @@ class PratiquesHit(Hit):
     def from_dict(obj: Any) -> PratiquesHit:
         assert isinstance(obj, dict)
         titre = from_str(obj, "titre")
-        type = from_enum(HitType, obj, "type")
+        type = from_enum(PratiquesHitType, obj, "type")
         adresse = from_str(obj, "adresse")
         description = from_str(obj, "description")
         id = from_int(obj, "id")
@@ -200,14 +201,11 @@ class PratiquesHit(Hit):
 
     def to_dict(self) -> dict:
         result: dict = {}
-        if self.titre is not None:
-            result["titre"] = self.titre
+        to_dict_set(result, "titre", self.titre)
         if self.type is not None:
             result["type"] = self.type.value
-        if self.adresse is not None:
-            result["adresse"] = self.adresse
-        if self.description is not None:
-            result["description"] = self.description
+        to_dict_set(result, "adresse", self.adresse)
+        to_dict_set(result, "description", self.description)
         if self.id is not None:
             result["id"] = str(self.id)
         if self.date_created is not None:
@@ -220,78 +218,49 @@ class PratiquesHit(Hit):
             result["date_fin"] = self.date_fin.isoformat()
         if self.date_updated is not None:
             result["date_updated"] = self.date_updated.isoformat()
-        if self.facebook is not None:
-            result["facebook"] = self.facebook
-        if self.site_web is not None:
-            result["site_web"] = self.site_web
-        if self.twitter is not None:
-            result["twitter"] = self.twitter
-        if self.action is not None:
-            result["action"] = self.action
-        if self.adresse_salle is not None:
-            result["adresse_salle"] = self.adresse_salle
-        if self.adresse_structure is not None:
-            result["adresse_structure"] = self.adresse_structure
-        if self.assurance is not None:
-            result["assurance"] = self.assurance
-        if self.code is not None:
-            result["code"] = self.code
-        if self.cp_salle is not None:
-            result["cp_salle"] = self.cp_salle
+        to_dict_set(result, "facebook", self.facebook)
+        to_dict_set(result, "site_web", self.site_web)
+        to_dict_set(result, "twitter", self.twitter)
+        to_dict_set(result, "action", self.action)
+        to_dict_set(result, "adresse_salle", self.adresse_salle)
+        to_dict_set(result, "adresse_structure", self.adresse_structure)
+        to_dict_set(result, "assurance", self.assurance)
+        to_dict_set(result, "code", self.code)
+        to_dict_set(result, "cp_salle", self.cp_salle)
         if self.date_inscription is not None:
             result["date_inscription"] = str(self.date_inscription)
-        if self.email is not None:
-            result["email"] = self.email
-        if self.engagement is not None:
-            result["engagement"] = self.engagement
-        if self.horaires_seances is not None:
-            result["horaires_seances"] = self.horaires_seances
-        if self.inscriptions is not None:
-            result["inscriptions"] = self.inscriptions
+        to_dict_set(result, "email", self.email)
+        to_dict_set(result, "engagement", self.engagement)
+        to_dict_set(result, "horaires_seances", self.horaires_seances)
+        to_dict_set(result, "inscriptions", self.inscriptions)
         if self.jours is not None:
             result["jours"] = [j.value for j in self.jours]
         if self.label is not None:
             result["label"] = self.label.value
-        if self.latitude is not None:
-            result["latitude"] = self.latitude
-        if self.longitude is not None:
-            result["longitude"] = self.longitude
-        if self.mail_demandeur is not None:
-            result["mail_demandeur"] = self.mail_demandeur
-        if self.mail_structure is not None:
-            result["mail_structure"] = self.mail_structure
-        if self.nom_demandeur is not None:
-            result["nom_demandeur"] = self.nom_demandeur
-        if self.nom_salle is not None:
-            result["nom_salle"] = self.nom_salle
-        if self.nom_structure is not None:
-            result["nom_structure"] = self.nom_structure
-        if self.nombre_personnes is not None:
-            result["nombre_personnes"] = self.nombre_personnes
-        if self.nombre_seances is not None:
-            result["nombre_seances"] = self.nombre_seances
+        to_dict_set(result, "latitude", self.latitude)
+        to_dict_set(result, "longitude", self.longitude)
+        to_dict_set(result, "mail_demandeur", self.mail_demandeur)
+        to_dict_set(result, "mail_structure", self.mail_structure)
+        to_dict_set(result, "nom_demandeur", self.nom_demandeur)
+        to_dict_set(result, "nom_salle", self.nom_salle)
+        to_dict_set(result, "nom_structure", self.nom_structure)
+        to_dict_set(result, "nombre_personnes", self.nombre_personnes)
+        to_dict_set(result, "nombre_seances", self.nombre_seances)
         if self.objectif is not None:
             result["objectif"] = self.objectif.value
-        if self.prenom_demandeur is not None:
-            result["prenom_demandeur"] = self.prenom_demandeur
-        if self.public is not None:
-            result["public"] = self.public
-        if self.telephone is not None:
-            result["telephone"] = self.telephone
-        if self.ville_salle is not None:
-            result["ville_salle"] = self.ville_salle
+        to_dict_set(result, "prenom_demandeur", self.prenom_demandeur)
+        to_dict_set(result, "public", self.public)
+        to_dict_set(result, "telephone", self.telephone)
+        to_dict_set(result, "ville_salle", self.ville_salle)
         if self.cartographie is not None:
             result["cartographie"] = self.cartographie.to_dict()
         if self.affiche is not None:
             result["affiche"] = self.affiche.to_dict()
         if self.geo is not None:
             result["_geo"] = self.geo.to_dict()
-        if self.date_debut_timestamp is not None:
-            result["date_debut_timestamp"] = self.date_debut_timestamp
-        if self.date_fin_timestamp is not None:
-            result["date_fin_timestamp"] = self.date_fin_timestamp
-        if self.thumbnail is not None:
-            result["thumbnail"] = self.thumbnail
+        to_dict_set(result, "date_debut_timestamp", self.date_debut_timestamp)
+        to_dict_set(result, "date_fin_timestamp", self.date_fin_timestamp)
+        to_dict_set(result, "thumbnail", self.thumbnail)
         return result
 
     def is_valid_for_query(self, query: str) -> bool:

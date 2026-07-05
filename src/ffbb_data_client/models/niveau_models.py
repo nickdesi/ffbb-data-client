@@ -1,9 +1,19 @@
 """Backward-compatibility re-export shim for niveau module."""
 
-from .categorie_type import CategorieType
-from .niveau_extractor import NiveauExtractor, get_niveau_from_idcompetition
-from .niveau_info import NiveauInfo
-from .niveau_type import NiveauType
+import warnings
+
+warnings.warn(  # noqa: E402
+    "Importing from 'niveau_models' is deprecated. "
+    "Import directly from 'niveau_type', 'niveau_info', 'niveau_extractor', "
+    "or 'categorie_type' instead.",
+    DeprecationWarning,
+    stacklevel=2,
+)
+
+from .categorie_type import CategorieType  # noqa: E402
+from .niveau_extractor import NiveauExtractor, get_niveau_from_idcompetition  # noqa: E402
+from .niveau_info import NiveauInfo  # noqa: E402
+from .niveau_type import NiveauType  # noqa: E402
 
 __all__ = [
     "CategorieType",

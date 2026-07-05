@@ -11,6 +11,7 @@ from ..utils.converter_utils import (
     from_list,
     from_obj,
     from_str,
+    to_dict_set,
 )
 from .cartographie import Cartographie
 from .commune import Commune
@@ -145,30 +146,22 @@ class TerrainsHit(Hit):
 
     def to_dict(self) -> dict:
         result: dict = {}
-        if self.nom is not None:
-            result["nom"] = self.nom
+        to_dict_set(result, "nom", self.nom)
         if self.sexe is not None:
             result["sexe"] = self.sexe.value
-        if self.adresse is not None:
-            result["adresse"] = self.adresse
-        if self.nom_organisateur is not None:
-            result["nomOrganisateur"] = self.nom_organisateur
-        if self.description is not None:
-            result["description"] = self.description
-        if self.site_choisi is not None:
-            result["siteChoisi"] = self.site_choisi
+        to_dict_set(result, "adresse", self.adresse)
+        to_dict_set(result, "nomOrganisateur", self.nom_organisateur)
+        to_dict_set(result, "description", self.description)
+        to_dict_set(result, "siteChoisi", self.site_choisi)
         if self.id is not None:
             result["id"] = str(self.id)
-        if self.code is not None:
-            result["code"] = self.code
+        to_dict_set(result, "code", self.code)
         if self.date_created is not None:
             result["date_created"] = self.date_created.isoformat()
         if self.date_updated is not None:
             result["date_updated"] = self.date_updated.isoformat()
-        if self.age_max is not None:
-            result["ageMax"] = self.age_max
-        if self.age_min is not None:
-            result["ageMin"] = self.age_min
+        to_dict_set(result, "ageMax", self.age_max)
+        to_dict_set(result, "ageMin", self.age_min)
         if self.categorie_championnat3_x3_id is not None:
             result["categorieChampionnat3x3Id"] = str(self.categorie_championnat3_x3_id)
         if self.categorie_championnat3_x3_libelle is not None:
@@ -179,18 +172,14 @@ class TerrainsHit(Hit):
             result["debut"] = self.debut.isoformat()
         if self.fin is not None:
             result["fin"] = self.fin.isoformat()
-        if self.mail_organisateur is not None:
-            result["mailOrganisateur"] = self.mail_organisateur
+        to_dict_set(result, "mailOrganisateur", self.mail_organisateur)
         if self.nb_participant_prevu is not None:
             result["nbParticipantPrevu"] = str(self.nb_participant_prevu)
         if self.tarif_organisateur is not None:
             result["tarifOrganisateur"] = str(self.tarif_organisateur)
-        if self.telephone_organisateur is not None:
-            result["telephoneOrganisateur"] = self.telephone_organisateur
-        if self.url_organisateur is not None:
-            result["urlOrganisateur"] = self.url_organisateur
-        if self.adresse_complement is not None:
-            result["adresseComplement"] = self.adresse_complement
+        to_dict_set(result, "telephoneOrganisateur", self.telephone_organisateur)
+        to_dict_set(result, "urlOrganisateur", self.url_organisateur)
+        to_dict_set(result, "adresseComplement", self.adresse_complement)
         if self.tournoi_types3_x3 is not None:
             result["tournoiTypes3x3"] = [t.to_dict() for t in self.tournoi_types3_x3]
         if self.cartographie is not None:
@@ -203,12 +192,9 @@ class TerrainsHit(Hit):
             result["tournoiType"] = self.tournoi_type.value
         if self.geo is not None:
             result["_geo"] = self.geo.to_dict()
-        if self.debut_timestamp is not None:
-            result["debut_timestamp"] = self.debut_timestamp
-        if self.fin_timestamp is not None:
-            result["fin_timestamp"] = self.fin_timestamp
-        if self.thumbnail is not None:
-            result["thumbnail"] = self.thumbnail
+        to_dict_set(result, "debut_timestamp", self.debut_timestamp)
+        to_dict_set(result, "fin_timestamp", self.fin_timestamp)
+        to_dict_set(result, "thumbnail", self.thumbnail)
         return result
 
     def is_valid_for_query(self, query: str) -> bool:

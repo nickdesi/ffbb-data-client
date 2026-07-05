@@ -298,7 +298,7 @@ class TestTournoisToDictCoverage(unittest.TestCase):
         from ffbb_data_client.models.geo import Geo
         from ffbb_data_client.models.nature_sol import NatureSol
         from ffbb_data_client.models.tournois_hit import TournoisHit
-        from ffbb_data_client.models.tournois_hit_type import HitType
+        from ffbb_data_client.models.tournois_hit_type import TournoisHitType
 
         now = datetime(2024, 6, 1, 12, 0, 0)
         commune = Commune.from_dict({"libelle": "Paris", "departement": "75"})
@@ -330,7 +330,7 @@ class TestTournoisToDictCoverage(unittest.TestCase):
             nature_sol=NatureSol.from_dict({"libelle": "Béton"}),
             geo=geo,
             thumbnail=None,
-            type=HitType.TERRAIN,
+            type=TournoisHitType.TERRAIN,
         )
         d = hit.to_dict()
         self.assertEqual(d["nom"], "Terrain A")

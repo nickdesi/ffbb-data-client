@@ -17,7 +17,7 @@ from .commune import Commune
 from .geo import Geo
 from .hit import Hit
 from .nature_sol import NatureSol
-from .tournois_hit_type import HitType
+from .tournois_hit_type import TournoisHitType
 
 
 @dataclass
@@ -36,7 +36,7 @@ class TournoisHit(Hit):
     nature_sol: NatureSol | None = None
     geo: Geo | None = None
     thumbnail: str | None = None
-    type: HitType | None = None
+    type: TournoisHitType | None = None
     lower_nom: str | None = field(init=False, default=None, repr=False)
     lower_rue: str | None = field(init=False, default=None, repr=False)
 
@@ -61,7 +61,7 @@ class TournoisHit(Hit):
         nature_sol = from_obj(NatureSol.from_dict, obj, "natureSol")
         geo = from_obj(Geo.from_dict, obj, "_geo")
         thumbnail = from_str(obj, "thumbnail")
-        type = from_enum(HitType, obj, "type")
+        type = from_enum(TournoisHitType, obj, "type")
         return TournoisHit(
             nom=nom,
             rue=rue,
