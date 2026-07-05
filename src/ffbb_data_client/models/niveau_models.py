@@ -11,7 +11,10 @@ warnings.warn(  # noqa: E402
 )
 
 from .categorie_type import CategorieType  # noqa: E402
-from .niveau_extractor import NiveauExtractor, get_niveau_from_idcompetition  # noqa: E402
+from .niveau_extractor import (  # noqa: E402
+    NiveauExtractor,
+    get_niveau_from_idcompetition,
+)
 from .niveau_info import NiveauInfo  # noqa: E402
 from .niveau_type import NiveauType  # noqa: E402
 
