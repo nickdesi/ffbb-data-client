@@ -1,5 +1,9 @@
 from enum import Enum
 
 
-class HitType(Enum):
+class TournoisHitType(Enum):
     TERRAIN = "Terrain"
+
+
+# Backward-compatible alias
+HitType = TournoisHitType

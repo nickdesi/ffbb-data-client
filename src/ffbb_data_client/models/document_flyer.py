@@ -14,6 +14,7 @@ from ..utils.converter_utils import (
     from_obj,
     from_str,
     from_uuid,
+    to_dict_set,
 )
 from .document_flyer_type import DocumentFlyerType
 from .facet_stats import FacetStats
@@ -136,14 +137,10 @@ class DocumentFlyer:
         result: dict = {}
         if self.id is not None:
             result["id"] = str(self.id)
-        if self.storage is not None:
-            result["storage"] = self.storage
-        if self.filename_disk is not None:
-            result["filename_disk"] = self.filename_disk
-        if self.filename_download is not None:
-            result["filename_download"] = self.filename_download
-        if self.title is not None:
-            result["title"] = self.title
+        to_dict_set(result, "storage", self.storage)
+        to_dict_set(result, "filename_disk", self.filename_disk)
+        to_dict_set(result, "filename_download", self.filename_download)
+        to_dict_set(result, "title", self.title)
         if self.type is not None:
             result["type"] = self.type.value
         if self.uploaded_on is not None:
@@ -152,54 +149,35 @@ class DocumentFlyer:
             result["modified_on"] = self.modified_on.isoformat()
         if self.filesize is not None:
             result["filesize"] = str(self.filesize)
-        if self.width is not None:
-            result["width"] = self.width
-        if self.height is not None:
-            result["height"] = self.height
+        to_dict_set(result, "width", self.width)
+        to_dict_set(result, "height", self.height)
         if self.metadata is not None:
             result["metadata"] = self.metadata.to_dict()
         if self.source is not None:
             result["source"] = self.source.value
-        if self.gradient_color is not None:
-            result["gradient_color"] = self.gradient_color
-        if self.md5 is not None:
-            result["md5"] = self.md5
-        if self.newsbridge_labels is not None:
-            result["newsbridge_labels"] = self.newsbridge_labels
-        if self.newsbridge_persons is not None:
-            result["newsbridge_persons"] = self.newsbridge_persons
+        to_dict_set(result, "gradient_color", self.gradient_color)
+        to_dict_set(result, "md5", self.md5)
+        to_dict_set(result, "newsbridge_labels", self.newsbridge_labels)
+        to_dict_set(result, "newsbridge_persons", self.newsbridge_persons)
         if self.folder is not None:
             result["folder"] = self.folder.to_dict()
-        if self.charset is not None:
-            result["charset"] = self.charset
-        if self.duration is not None:
-            result["duration"] = self.duration
-        if self.embed is not None:
-            result["embed"] = self.embed
-        if self.description is not None:
-            result["description"] = self.description
-        if self.location is not None:
-            result["location"] = self.location
-        if self.tags is not None:
-            result["tags"] = self.tags
-        if self.credits is not None:
-            result["credits"] = self.credits
-        if self.newsbridge_media_id is not None:
-            result["newsbridge_media_id"] = self.newsbridge_media_id
-        if self.newsbridge_metadatas is not None:
-            result["newsbridge_metadatas"] = self.newsbridge_metadatas
-        if self.newsbridge_name is not None:
-            result["newsbridge_name"] = self.newsbridge_name
+        to_dict_set(result, "charset", self.charset)
+        to_dict_set(result, "duration", self.duration)
+        to_dict_set(result, "embed", self.embed)
+        to_dict_set(result, "description", self.description)
+        to_dict_set(result, "location", self.location)
+        to_dict_set(result, "tags", self.tags)
+        to_dict_set(result, "credits", self.credits)
+        to_dict_set(result, "newsbridge_media_id", self.newsbridge_media_id)
+        to_dict_set(result, "newsbridge_metadatas", self.newsbridge_metadatas)
+        to_dict_set(result, "newsbridge_name", self.newsbridge_name)
         if self.newsbridge_recorded_at is not None:
             result["newsbridge_recorded_at"] = self.newsbridge_recorded_at.isoformat()
-        if self.focal_point_x is not None:
-            result["focal_point_x"] = self.focal_point_x
-        if self.focal_point_y is not None:
-            result["focal_point_y"] = self.focal_point_y
+        to_dict_set(result, "focal_point_x", self.focal_point_x)
+        to_dict_set(result, "focal_point_y", self.focal_point_y)
         if self.uploaded_by is not None:
             result["uploaded_by"] = str(self.uploaded_by)
         if self.modified_by is not None:
             result["modified_by"] = str(self.modified_by)
-        if self.newsbridge_mission is not None:
-            result["newsbridge_mission"] = self.newsbridge_mission
+        to_dict_set(result, "newsbridge_mission", self.newsbridge_mission)
         return result

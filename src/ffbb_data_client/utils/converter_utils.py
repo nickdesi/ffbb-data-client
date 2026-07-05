@@ -309,6 +309,12 @@ def from_timestamp(obj: dict, key: str) -> datetime | None:
     return None
 
 
+def to_dict_set(result: dict, key: str, value: Any) -> None:
+    """Add value to result dict if not None."""
+    if value is not None:
+        result[key] = value
+
+
 def from_phone(obj: dict, key: str) -> str | None:
     """Parse a phone number string (normalized format)."""
     x = obj.get(key)

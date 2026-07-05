@@ -12,6 +12,7 @@ from ..utils.converter_utils import (
     from_list,
     from_str,
     from_uuid,
+    to_dict_set,
 )
 from .formation_session import FormationSession
 from .hit import Hit
@@ -173,42 +174,24 @@ class FormationsHit(Hit):
 
     def to_dict(self) -> dict:
         result: dict = {}
-        if self.id is not None:
-            result["id"] = self.id
-        if self.title is not None:
-            result["title"] = self.title
-        if self.type is not None:
-            result["type"] = self.type
-        if self.mode is not None:
-            result["mode"] = self.mode
-        if self.domain is not None:
-            result["domain"] = self.domain
-        if self.theme is not None:
-            result["theme"] = self.theme
-        if self.description is not None:
-            result["description"] = self.description
-        if self.goals is not None:
-            result["goals"] = self.goals
-        if self.public is not None:
-            result["public"] = self.public
-        if self.prerequisites is not None:
-            result["prerequisites"] = self.prerequisites
-        if self.content is not None:
-            result["content"] = self.content
-        if self.pedagogy is not None:
-            result["pedagogy"] = self.pedagogy
-        if self.certification is not None:
-            result["certification"] = self.certification
-        if self.results is not None:
-            result["results"] = self.results
-        if self.modalities is not None:
-            result["modalities"] = self.modalities
-        if self.level is not None:
-            result["level"] = self.level
-        if self.reference is not None:
-            result["reference"] = self.reference
-        if self.program_id_fbi is not None:
-            result["programIdFbi"] = self.program_id_fbi
+        to_dict_set(result, "id", self.id)
+        to_dict_set(result, "title", self.title)
+        to_dict_set(result, "type", self.type)
+        to_dict_set(result, "mode", self.mode)
+        to_dict_set(result, "domain", self.domain)
+        to_dict_set(result, "theme", self.theme)
+        to_dict_set(result, "description", self.description)
+        to_dict_set(result, "goals", self.goals)
+        to_dict_set(result, "public", self.public)
+        to_dict_set(result, "prerequisites", self.prerequisites)
+        to_dict_set(result, "content", self.content)
+        to_dict_set(result, "pedagogy", self.pedagogy)
+        to_dict_set(result, "certification", self.certification)
+        to_dict_set(result, "results", self.results)
+        to_dict_set(result, "modalities", self.modalities)
+        to_dict_set(result, "level", self.level)
+        to_dict_set(result, "reference", self.reference)
+        to_dict_set(result, "programIdFbi", self.program_id_fbi)
         if self.duration_hours is not None:
             total_seconds = int(self.duration_hours.total_seconds())
             hours, remainder = divmod(total_seconds, 3600)
@@ -216,56 +199,34 @@ class FormationsHit(Hit):
             result["duration_hours"] = f"{hours}h{minutes:02d}"
         if self.sessions is not None:
             result["sessions"] = [s.to_dict() for s in self.sessions]
-        if self.files is not None:
-            result["files"] = self.files
-        if self.image is not None:
-            result["image"] = self.image
-        if self.thumbnail is not None:
-            result["thumbnail"] = self.thumbnail
-        if self.mode_hidden is not None:
-            result["mode_hidden"] = self.mode_hidden
-        if self.postal_codes is not None:
-            result["postal_codes"] = self.postal_codes
-        if self.places is not None:
-            result["places"] = self.places
-        if self.id_origin_hash is not None:
-            result["id_origin_hash"] = self.id_origin_hash
+        to_dict_set(result, "files", self.files)
+        to_dict_set(result, "image", self.image)
+        to_dict_set(result, "thumbnail", self.thumbnail)
+        to_dict_set(result, "mode_hidden", self.mode_hidden)
+        to_dict_set(result, "postal_codes", self.postal_codes)
+        to_dict_set(result, "places", self.places)
+        to_dict_set(result, "id_origin_hash", self.id_origin_hash)
         if self.date_end is not None:
             result["date_end"] = self.date_end.isoformat()
-        if self.date_end_formatted is not None:
-            result["date_end_formatted"] = self.date_end_formatted
+        to_dict_set(result, "date_end_formatted", self.date_end_formatted)
         if self.date_start is not None:
             result["date_start"] = self.date_start.isoformat()
-        if self.date_start_formatted is not None:
-            result["date_start_formatted"] = self.date_start_formatted
-        if self.entity is not None:
-            result["entity"] = self.entity
-        if self.formation_domain is not None:
-            result["formation_domain"] = self.formation_domain
-        if self.formation_duration_hours is not None:
-            result["formation_duration_hours"] = self.formation_duration_hours
+        to_dict_set(result, "date_start_formatted", self.date_start_formatted)
+        to_dict_set(result, "entity", self.entity)
+        to_dict_set(result, "formation_domain", self.formation_domain)
+        to_dict_set(result, "formation_duration_hours", self.formation_duration_hours)
         if self.formation_id is not None:
             result["formation_id"] = str(self.formation_id)
-        if self.formation_image is not None:
-            result["formation_image"] = self.formation_image
-        if self.formation_mode is not None:
-            result["formation_mode"] = self.formation_mode
-        if self.formation_theme is not None:
-            result["formation_theme"] = self.formation_theme
-        if self.formation_thumbnail is not None:
-            result["formation_thumbnail"] = self.formation_thumbnail
-        if self.formation_title is not None:
-            result["formation_title"] = self.formation_title
-        if self.place is not None:
-            result["place"] = self.place
-        if self.postal_code is not None:
-            result["postal_code"] = self.postal_code
-        if self.reference_hidden is not None:
-            result["reference_hidden"] = self.reference_hidden
-        if self.subscribe_btn is not None:
-            result["subscribeBtn"] = self.subscribe_btn
-        if self.subscribe_button is not None:
-            result["subscribe_button"] = self.subscribe_button
+        to_dict_set(result, "formation_image", self.formation_image)
+        to_dict_set(result, "formation_mode", self.formation_mode)
+        to_dict_set(result, "formation_theme", self.formation_theme)
+        to_dict_set(result, "formation_thumbnail", self.formation_thumbnail)
+        to_dict_set(result, "formation_title", self.formation_title)
+        to_dict_set(result, "place", self.place)
+        to_dict_set(result, "postal_code", self.postal_code)
+        to_dict_set(result, "reference_hidden", self.reference_hidden)
+        to_dict_set(result, "subscribeBtn", self.subscribe_btn)
+        to_dict_set(result, "subscribe_button", self.subscribe_button)
         return result
 
     def is_valid_for_query(self, query: str) -> bool:
