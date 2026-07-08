@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import asyncio
 from collections.abc import Sequence
+from concurrent.futures import ThreadPoolExecutor
+from dataclasses import replace
 
 import httpx
 from httpx import Client
@@ -9,7 +12,14 @@ from ..clients.meilisearch_client import MeilisearchClient
 from ..models.multi_search_query import MultiSearchQuery
 from ..models.multi_search_results_class import MultiSearchResults
 
-_MAX_PAGINATION_ITERATIONS = 20
+# Meilisearch plafonne le nombre de hits renvoyés par requête (maxTotalHits,
+# défaut 1000). On découpe la pagination en pages de cette taille pour pouvoir
+# les exécuter en parallèle au lieu d'enchaîner les allers-retours réseau.
+_PAGE_SIZE_CAP = 1000
+
+# Nombre maximal de sous-requêtes par appel multi_search (reste sous la limite
+# par défaut de Meilisearch) et borne la concurrence globale.
+_BATCH_SIZE = 10
 
 
 def _apply_query_filters(
@@ -26,52 +36,63 @@ def _apply_query_filters(
     return results
 
 
-def _collect_next_pagination_queries(
+def _build_pagination_jobs(
     queries: Sequence[MultiSearchQuery],
     result: MultiSearchResults,
-) -> tuple[list[MultiSearchQuery], list[int]]:
-    """Calcule les requêtes de pagination restantes et leurs indices."""
-    next_queries: list[MultiSearchQuery] = []
-    query_indices: list[int] = []
-    if not result.results:
-        return next_queries, query_indices
+) -> list[tuple[int, int, MultiSearchQuery]]:
+    """Construit les pages de pagination restantes (requêtes clonées, non mutées).
 
-    for i, (querie, query_result) in enumerate(
+    Renvoie une liste de ``(index_original, offset, requête_clonée)``. Chaque
+    page est découpée à ``_PAGE_SIZE_CAP`` pour respecter la limite Meilisearch
+    et peut être exécutée indépendamment des autres.
+    """
+    jobs: list[tuple[int, int, MultiSearchQuery]] = []
+    if not result.results:
+        return jobs
+
+    for i, (query, query_result) in enumerate(
         zip(queries, result.results, strict=True)
     ):
-        nb_hits = len(query_result.hits) if query_result.hits else 0
-        querie_offset = querie.offset or 0
-        querie_limit = querie.limit or 10
+        if query_result.hits is None:
+            continue
+        estimated = query_result.estimated_total_hits
+        if estimated is None:
+            continue
 
-        if query_result.estimated_total_hits is not None and nb_hits < (
-            query_result.estimated_total_hits - querie_offset
-        ):
-            querie.offset = querie_offset + querie_limit
-            querie.limit = query_result.estimated_total_hits - nb_hits
-            next_queries.append(querie)
-            query_indices.append(i)
+        initial_offset = query.offset or 0
+        already = len(query_result.hits)
+        ceiling = (
+            estimated  # on récupère tout le jeu de résultats (sémantique historique)
+        )
+        offset = initial_offset + already
+        while offset < ceiling:
+            take = min(_PAGE_SIZE_CAP, ceiling - offset)
+            page_query = replace(query, offset=offset, limit=take)
+            jobs.append((i, offset, page_query))
+            offset += take
 
-    return next_queries, query_indices
+    return jobs
 
 
-def _merge_pagination_hits(
+def _single_result(multi: MultiSearchResults, index: int) -> MultiSearchResults:
+    """Isole le i-ème sous-résultat d'un multi_search dans un MultiSearchResults
+    à un élément, pour une fusion cohérente avec ``_merge_page``."""
+    assert multi.results is not None
+    return MultiSearchResults(results=[multi.results[index]])
+
+
+def _merge_page(
     result: MultiSearchResults,
-    query_indices: list[int],
-    new_result: MultiSearchResults | None,
-) -> bool:
-    """Fusionne les hits paginés dans result. Retourne True si la boucle
-    doit continuer, False si elle doit s'arrêter."""
-    if not (new_result and new_result.results):
-        return False
-    target_results = result.results
-    if target_results is None:
-        return False
-    for orig_idx, query_result in zip(query_indices, new_result.results, strict=True):
-        orig_result = target_results[orig_idx]
-        hits_list = orig_result.hits
-        if query_result.hits and hits_list is not None:
-            hits_list.extend(query_result.hits)
-    return True
+    orig_idx: int,
+    page_result: MultiSearchResults | None,
+) -> None:
+    """Fusionne les hits d'une page dans le résultat original (par index)."""
+    if result.results is None or page_result is None or page_result.results is None:
+        return
+    target = result.results[orig_idx]
+    src = page_result.results[0]
+    if src.hits and target.hits is not None:
+        target.hits.extend(src.hits)
 
 
 class MeilisearchClientExtension(MeilisearchClient):
@@ -108,6 +129,35 @@ class MeilisearchClientExtension(MeilisearchClient):
             queries, await self.multi_search_async(queries, cached_session)
         )
 
+    def _fetch_batch_sync(
+        self,
+        batch: list[tuple[int, int, MultiSearchQuery]],
+        cached_session: Client | None,
+    ) -> list[tuple[int, int, MultiSearchResults | None]]:
+        """Exécute un lot de pages dans un seul multi_search et associe chaque
+        résultat à son index/offset d'origine."""
+        batch_queries = [pq for _, _, pq in batch]
+        new_result = self.smart_multi_search(batch_queries, cached_session)
+        out: list[tuple[int, int, MultiSearchResults | None]] = []
+        if new_result and new_result.results:
+            for k, (orig_idx, offset, _q) in enumerate(batch):
+                out.append((orig_idx, offset, _single_result(new_result, k)))
+        return out
+
+    async def _fetch_batch_async(
+        self,
+        batch: list[tuple[int, int, MultiSearchQuery]],
+        cached_session: httpx.AsyncClient | None,
+    ) -> list[tuple[int, int, MultiSearchResults | None]]:
+        """Variante asynchrone de ``_fetch_batch_sync``."""
+        batch_queries = [pq for _, _, pq in batch]
+        new_result = await self.smart_multi_search_async(batch_queries, cached_session)
+        out: list[tuple[int, int, MultiSearchResults | None]] = []
+        if new_result and new_result.results:
+            for k, (orig_idx, offset, _q) in enumerate(batch):
+                out.append((orig_idx, offset, _single_result(new_result, k)))
+        return out
+
     def recursive_smart_multi_search(
         self,
         queries: Sequence[MultiSearchQuery] | None = None,
@@ -117,15 +167,26 @@ class MeilisearchClientExtension(MeilisearchClient):
         if not result or not queries or not result.results:
             return result
 
-        for _ in range(_MAX_PAGINATION_ITERATIONS):
-            next_queries, query_indices = _collect_next_pagination_queries(
-                queries, result
-            )
-            if not next_queries:
-                break
-            new_result = self.smart_multi_search(next_queries, cached_session)
-            if not _merge_pagination_hits(result, query_indices, new_result):
-                break
+        jobs = _build_pagination_jobs(queries, result)
+        if not jobs:
+            return result
+
+        # Découpe en lots et exécution concurrente (pool de threads) pour
+        # réduire la latence réseau cumulée de la pagination.
+        batches = [jobs[s : s + _BATCH_SIZE] for s in range(0, len(jobs), _BATCH_SIZE)]
+        workers = min(8, len(batches))
+        with ThreadPoolExecutor(max_workers=workers) as executor:
+            pages = [
+                page
+                for batch_pages in executor.map(
+                    self._fetch_batch_sync, batches, [cached_session] * len(batches)
+                )
+                for page in batch_pages
+            ]
+
+        pages.sort(key=lambda x: (x[0], x[1]))
+        for orig_idx, _offset, page_result in pages:
+            _merge_page(result, orig_idx, page_result)
 
         return result
 
@@ -138,19 +199,20 @@ class MeilisearchClientExtension(MeilisearchClient):
         if not result or not queries or not result.results:
             return result
 
-        # Pagination itérative : on collecte les requêtes restantes par itération
-        # et on les récupère en un seul multi_search, jusqu'à épuisement.
-        for _ in range(_MAX_PAGINATION_ITERATIONS):
-            next_queries, query_indices = _collect_next_pagination_queries(
-                queries, result
-            )
-            if not next_queries:
-                break
-            new_result = await self.smart_multi_search_async(
-                next_queries, cached_session
-            )
-            if not _merge_pagination_hits(result, query_indices, new_result):
-                break
+        jobs = _build_pagination_jobs(queries, result)
+        if not jobs:
+            return result
+
+        batches = [jobs[s : s + _BATCH_SIZE] for s in range(0, len(jobs), _BATCH_SIZE)]
+        # asyncio.gather exécute tous les lots en parallèle (bound par _BATCH_SIZE).
+        gathered = await asyncio.gather(
+            *(self._fetch_batch_async(batch, cached_session) for batch in batches)
+        )
+        pages = [page for batch_pages in gathered for page in batch_pages]
+
+        pages.sort(key=lambda x: (x[0], x[1]))
+        for orig_idx, _offset, page_result in pages:
+            _merge_page(result, orig_idx, page_result)
 
         return result
 

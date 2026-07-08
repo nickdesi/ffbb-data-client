@@ -132,8 +132,9 @@ class TestTargetedMeilisearchExtensionCoverage(unittest.IsolatedAsyncioTestCase)
 
         self.assertIs(result, first)
         self.assertEqual(len(first.results[0].hits), 3)  # type: ignore[index,union-attr,arg-type]
-        self.assertEqual(query.offset, 1)
-        self.assertEqual(query.limit, 2)
+        # La requête d'origine du caller ne doit PAS être mutée par la pagination.
+        self.assertEqual(query.offset, 0)
+        self.assertEqual(query.limit, 1)
 
     async def test_recursive_search_async_extends_hits(self) -> None:
         client = self._client()

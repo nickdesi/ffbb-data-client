@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- **Performance**: `recursive_smart_multi_search` / `recursive_smart_multi_search_async`
+  exécutent désormais la pagination Meilisearch en **parallèle** (lots de 10 pages,
+  `asyncio.gather` en async / `ThreadPoolExecutor` en sync) au lieu d'enchaîner les
+  allers-retours réseau un par un — divisant la latence de pagination par le nombre de pages.
+- Les requêtes de pagination sont désormais **clonées** (`dataclasses.replace`) au lieu de
+  muter les objets `MultiSearchQuery` du caller, supprimant une fuite d'état entre appels.
+
 ## [2.3.0] - 2026-05-24
 
 ### Added
