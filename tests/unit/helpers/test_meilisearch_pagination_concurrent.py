@@ -7,11 +7,13 @@ import pytest
 from ffbb_data_client.helpers.meilisearch_client_extension import (
     MeilisearchClientExtension,
 )
-from ffbb_data_client.models.multi_search_query import MultiSearchQuery
 from ffbb_data_client.models.multi_search_result_competitions import (
     CompetitionsMultiSearchResult,
 )
 from ffbb_data_client.models.multi_search_results_class import MultiSearchResults
+from ffbb_data_client.models.organismes_multi_search_query import (
+    OrganismesMultiSearchQuery,
+)
 
 
 class _ConcurrentFake(MeilisearchClientExtension):
@@ -44,7 +46,9 @@ class _ConcurrentFake(MeilisearchClientExtension):
 
 def test_concurrent_pagination_sync_collects_all_hits_in_order():
     client = _ConcurrentFake()
-    query = MultiSearchQuery(index_uid="competitions", limit=20, offset=0)
+    # Sous-classe réelle de MultiSearchQuery pour couvrir le clonage via copy.copy
+    # (dataclasses.replace échoue sur le __init__ restrictif des sous-classes).
+    query = OrganismesMultiSearchQuery(q="Paris", limit=20, offset=0)
 
     result = client.recursive_smart_multi_search([query])
 
@@ -60,9 +64,10 @@ def test_concurrent_pagination_sync_collects_all_hits_in_order():
 
 
 @pytest.mark.asyncio
+@pytest.mark.asyncio
 async def test_concurrent_pagination_async_collects_all_hits_in_order():
     client = _ConcurrentFake()
-    query = MultiSearchQuery(index_uid="competitions", limit=20, offset=0)
+    query = OrganismesMultiSearchQuery(q="Paris", limit=20, offset=0)
 
     result = await client.recursive_smart_multi_search_async([query])
 

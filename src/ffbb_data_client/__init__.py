@@ -5,6 +5,7 @@ A Python client library for the French Basketball Federation (FFBB) API,
 providing access to clubs, competitions, matches, and other basketball data.
 """
 
+from .clients._search_facade import SearchSpec
 from .clients.api_ffbb_app_client import ApiFFBBAppClient
 from .clients.ffbb_data_client import FFBBDataClient
 from .clients.meilisearch_client import MeilisearchClient
@@ -78,6 +79,8 @@ __all__ = [
     "MeilisearchClientExtension",
     "generate_queries",
     "QueryFieldsManager",
+    # Search
+    "SearchSpec",
     # Query
     "MultiSearchQuery",
     "FieldSet",

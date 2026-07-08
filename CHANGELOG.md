@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Recherche parallèle** : `search_many` / `search_many_async` exécutent plusieurs recherches Meilisearch indépendantes concurrentement (`asyncio.gather`) et renvoient les résultats dans l'ordre. Chaque `SearchSpec` est dispatché vers la méthode `search_multiple_<resource>_async` correspondante.
+
 ### Changed
 - **Performance**: `recursive_smart_multi_search` / `recursive_smart_multi_search_async`
   exécutent désormais la pagination Meilisearch en **parallèle** (lots de 10 pages,

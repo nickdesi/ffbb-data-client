@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import asyncio
+import copy
 from collections.abc import Sequence
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import replace
 
 import httpx
 from httpx import Client
@@ -67,7 +67,12 @@ def _build_pagination_jobs(
         offset = initial_offset + already
         while offset < ceiling:
             take = min(_PAGE_SIZE_CAP, ceiling - offset)
-            page_query = replace(query, offset=offset, limit=take)
+            # copy superficielle (pas de __init__) : les sous-classes de
+            # MultiSearchQuery (ex. OrganismesMultiSearchQuery) ont un __init__
+            # restrictif, donc dataclasses.replace échouerait ici.
+            page_query = copy.copy(query)
+            page_query.offset = offset
+            page_query.limit = take
             jobs.append((i, offset, page_query))
             offset += take
 

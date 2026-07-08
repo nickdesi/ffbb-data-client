@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import asyncio
 from collections.abc import Sequence
-from typing import cast
+from dataclasses import dataclass
+from typing import Any, cast
 
 from httpx import Client
 
@@ -41,6 +43,7 @@ from ..models.salles_multi_search_query import SallesMultiSearchQuery
 from ..models.terrains_multi_search_query import TerrainsMultiSearchQuery
 from ..models.tournois_multi_search_query import TournoisMultiSearchQuery
 from ..utils.input_validation import validate_search_query
+from ._helpers import run_async
 from .api_ffbb_app_client import ApiFFBBAppClient
 from .meilisearch_ffbb_client import MeilisearchFFBBClient
 
@@ -1044,3 +1047,97 @@ class _SearchFacade:
         return (
             cast(list[GaleriesMultiSearchResult], results.results) if results else None
         )
+
+
+# Ressources adossées à une méthode search_multiple_<resource>_async existante.
+_SEARCH_MANY_RESOURCES = frozenset(
+    {
+        "competitions",
+        "organismes",
+        "pratiques",
+        "rencontres",
+        "salles",
+        "terrains",
+        "tournois",
+        "engagements",
+        "formations",
+        "news",
+        "youtube_videos",
+        "rss",
+        "galeries",
+    }
+)
+
+
+@dataclass
+class SearchSpec:
+    """Spécification d'une recherche Meilisearch pour ``search_many``.
+
+    Chaque spec est dispatché vers la méthode ``search_multiple_<resource>_async``
+    correspondante, ce qui réutilise intégralement la logique de pagination et de
+    filtrage déjà testée. ``rencontres`` accepte un ``categorie`` optionnel.
+    """
+
+    resource: str
+    name: str | None = None
+    names: list[str | None] | None = None
+    filter: list[str] | None = None
+    sort: list[str] | None = None
+    limit: int = 10
+    categorie: str | None = None
+
+    def _resolve_names(self) -> list[str | None] | None:
+        if self.names is not None:
+            return self.names
+        if self.name is not None:
+            return [self.name]
+        return None
+
+
+async def _dispatch_search_async(self, spec: SearchSpec) -> Any | None:
+    resource = spec.resource
+    if resource not in _SEARCH_MANY_RESOURCES:
+        raise ValueError(
+            f"Ressource de recherche inconnue : {resource!r}. "
+            f"Attendu l'une de : {sorted(_SEARCH_MANY_RESOURCES)}"
+        )
+    names = spec._resolve_names()
+    method = getattr(self, f"search_multiple_{resource}_async")
+    if resource == "rencontres":
+        return await method(names, spec.categorie)
+    return await method(names, spec.filter, spec.sort, spec.limit)
+
+
+def search_many(self, searches: list[SearchSpec]) -> list[Any]:
+    """Exécute plusieurs recherches Meilisearch indépendantes en parallèle
+    (variante synchrone).
+
+    Les recherches sont dispatchées vers leurs méthodes ``search_multiple_*_async``
+    respectives puis exécutées de façon concurrente. Les résultats sont renvoyés
+    dans le **même ordre** que ``searches``.
+
+    Returns:
+        list[Any | None]: un résultat (list[MultiSearchResult] | None) par spec.
+    """
+    return run_async(self.search_many_async(searches))
+
+
+async def search_many_async(self, searches: list[SearchSpec]) -> list[Any]:
+    """Exécute plusieurs recherches Meilisearch indépendantes en parallèle.
+
+    Les recherches sont dispatchées vers leurs méthodes ``search_multiple_*_async``
+    respectives puis exécutées de façon concurrente (``asyncio.gather``). Les
+    résultats sont renvoyés dans le **même ordre** que ``searches``.
+
+    Returns:
+        list[Any | None]: un résultat (list[MultiSearchResult] | None) par spec.
+    """
+    if not searches:
+        return []
+    return await asyncio.gather(*(self._dispatch_search_async(s) for s in searches))
+
+
+# Liaison des méthodes à la façade (définies hors-classe pour lisibilité).
+_SearchFacade.search_many = search_many  # type: ignore[attr-defined]
+_SearchFacade.search_many_async = search_many_async  # type: ignore[attr-defined]
+_SearchFacade._dispatch_search_async = _dispatch_search_async  # type: ignore[attr-defined]
