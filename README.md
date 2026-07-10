@@ -4,12 +4,17 @@
 
 **SDK Python moderne, typé et asynchrone pour exploiter les données publiques FFBB : clubs, compétitions, rencontres, classements, salles, officiels et recherche Meilisearch.**
 
-[![PyPI](https://img.shields.io/pypi/v/ffbb-data-client?color=blue&label=PyPI&logo=python)](https://pypi.org/project/ffbb-data-client/)
-[![Python](https://img.shields.io/pypi/pyversions/ffbb-data-client?logo=python)](https://pypi.org/project/ffbb-data-client/)
+[![PyPI](https://img.shields.io/pypi/v/ffbb-data-client?color=blue&label=PyPI&logo=python&logoColor=white)](https://pypi.org/project/ffbb-data-client/)
+[![Python](https://img.shields.io/pypi/pyversions/ffbb-data-client?logo=python&logoColor=white)](https://pypi.org/project/ffbb-data-client/)
 [![CI](https://github.com/nickdesi/ffbb-data-client/actions/workflows/ci.yml/badge.svg)](https://github.com/nickdesi/ffbb-data-client/actions/workflows/ci.yml)
-[![Coverage Status](https://coveralls.io/repos/github/nickdesi/ffbb-data-client/badge.svg?branch=master)](https://coveralls.io/github/nickdesi/ffbb-data-client?branch=master)
+[![Coverage](https://coveralls.io/repos/github/nickdesi/ffbb-data-client/badge.svg?branch=master)](https://coveralls.io/github/nickdesi/ffbb-data-client?branch=master)
 [![License](https://img.shields.io/pypi/l/ffbb-data-client?color=green)](LICENSE.txt)
-[![MCP-Ready](https://img.shields.io/badge/MCP-Ready-orange.svg?logo=modelcontextprotocol)](https://github.com/nickdesi/FFBB-MCP-Server)
+[![MCP-Ready](https://img.shields.io/badge/MCP-Ready-orange.svg?logo=modelcontextprotocol&logoColor=white)](https://github.com/nickdesi/FFBB-MCP-Server)
+[![Security Policy](https://img.shields.io/badge/Security-Policy-blue.svg)](SECURITY.md)
+[![Stars](https://img.shields.io/github/stars/nickdesi/ffbb-data-client?style=social)](https://github.com/nickdesi/ffbb-data-client/stargazers)
+[![Last Commit](https://img.shields.io/github/last-commit/nickdesi/ffbb-data-client)](https://github.com/nickdesi/ffbb-data-client/commits/master)
+[![Issues](https://img.shields.io/github/issues/nickdesi/ffbb-data-client)](https://github.com/nickdesi/ffbb-data-client/issues)
+[![PRs](https://img.shields.io/github/issues-pr/nickdesi/ffbb-data-client)](https://github.com/nickdesi/ffbb-data-client/pulls)
 
 [Installation](#-installation) •
 [Démarrage rapide](#-démarrage-rapide) •
@@ -306,6 +311,18 @@ Les contributions sont bienvenues :
 ## 📄 Licence
 
 Distribué sous licence Apache-2.0. Voir [`LICENSE.txt`](LICENSE.txt).
+
+---
+
+## 📌 Recommandations GitHub
+
+**Description suggérée :**
+
+> 🏀 Modern async & typed Python SDK for FFBB public data (clubs, competitions, standings, lives) and Meilisearch search — the data layer behind the FFBB MCP Server.
+
+**Topics suggérés (≤ 20) :**
+
+`python` · `api-client` · `ffbb` · `open-data` · `basketball` · `mcp` · `model-context-protocol` · `async` · `pydantic` · `meilisearch` · `sdk` · `ai` · `llm` · `sports` · `rest-api` · `httpx` · `france` · `data` · `cache` · `typed`
 
 ---
 
