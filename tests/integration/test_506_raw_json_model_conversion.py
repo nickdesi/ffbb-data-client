@@ -27,7 +27,7 @@ from ffbb_data_client.config import (
     MEILISEARCH_ENDPOINT_MULTI_SEARCH,
 )
 from ffbb_data_client.models.configuration_models import GetConfigurationResponse
-from ffbb_data_client.models.game_stats_models import GameStatsModel
+from ffbb_data_client.models.game_stats_model import GameStatsModel
 from ffbb_data_client.models.get_competition_response import GetCompetitionResponse
 from ffbb_data_client.models.get_organisme_response import GetOrganismeResponse
 from ffbb_data_client.models.lives import Clock, Live, lives_from_dict
