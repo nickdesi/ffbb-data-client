@@ -4,7 +4,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
-from .niveau_models import NiveauInfo, get_niveau_from_idcompetition
+from .niveau_extractor import get_niveau_from_idcompetition
+from .niveau_info import NiveauInfo
 
 
 @dataclass

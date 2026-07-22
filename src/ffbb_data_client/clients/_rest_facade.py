@@ -29,10 +29,10 @@ from ..models.get_rencontre_response import GetRencontreResponse
 from ..models.get_salle_response import GetSalleResponse
 from ..models.get_terrain_response import GetTerrainResponse
 from ..models.get_tournoi_response import GetTournoiResponse
+from ..models.get_poule_response import GetPouleResponse
+from ..models.get_saisons_response import GetSaisonsResponse
 from ..models.lives import Live
-from ..models.poules_models import GetPouleResponse
-from ..models.rankings_models import TeamRanking
-from ..models.saisons_models import GetSaisonsResponse
+from ..models.team_ranking import TeamRanking
 from ..utils.input_validation import (
     validate_filter_criteria,
     validate_offset,
