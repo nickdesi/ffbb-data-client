@@ -24,13 +24,13 @@ from ..models.get_entraineur_response import GetEntraineurResponse
 from ..models.get_formation_response import GetFormationResponse
 from ..models.get_officiel_response import GetOfficielResponse
 from ..models.get_organisme_response import GetOrganismeResponse
+from ..models.get_poule_response import GetPouleResponse
 from ..models.get_pratique_response import GetPratiqueResponse
 from ..models.get_rencontre_response import GetRencontreResponse
+from ..models.get_saisons_response import GetSaisonsResponse
 from ..models.get_salle_response import GetSalleResponse
 from ..models.get_terrain_response import GetTerrainResponse
 from ..models.get_tournoi_response import GetTournoiResponse
-from ..models.get_poule_response import GetPouleResponse
-from ..models.get_saisons_response import GetSaisonsResponse
 from ..models.lives import Live
 from ..models.team_ranking import TeamRanking
 from ..utils.input_validation import (

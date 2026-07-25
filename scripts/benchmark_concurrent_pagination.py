@@ -22,8 +22,8 @@ from dataclasses import dataclass, field
 
 from ffbb_data_client import SearchSpec
 from ffbb_data_client.clients._search_facade import (
-    _SearchFacade,
     _dispatch_search_async,
+    _SearchFacade,
     search_many_async,
 )
 from ffbb_data_client.helpers.meilisearch_client_extension import (
