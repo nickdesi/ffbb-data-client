@@ -62,3 +62,6 @@ data/type_discovery_raw.json
 prof/
 .agent/
 graphify-out/
+
+# Local Agent Customizations
+.agents/
