@@ -1,0 +1,39 @@
+name: Keep FFBB API Discovery Alive
+
+on:
+  schedule:
+    # Safety net: GitHub may silently stop firing the main schedule.
+    # Check every 6h that the discovery workflow ran in the last 22h and
+    # trigger it manually if not, guaranteeing at least one run per day.
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  actions: write
+
+jobs:
+  ensure-daily-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check last discovery run
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          last_ts=$(gh api repos/${{ github.repository }}/actions/workflows/update-ffbb-api-discovery.yml/runs \
+            --jq -r '.workflow_runs[0].created_at' 2>/dev/null || echo "1970-01-01T00:00:00Z")
+          echo "last_run=$last_ts"
+          cutoff=$(date -u -d '-22 hours' +%Y-%m-%dT%H:%M:%SZ)
+          echo "cutoff=$cutoff"
+          if [[ "$last_ts" < "$cutoff" ]]; then
+            echo "STALE: last run $last_ts is older than 22h, triggering discovery now"
+            gh workflow run update-ffbb-api-discovery.yml
+            echo "triggered=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "OK: discovery ran at $last_ts, no action needed"
+            echo "triggered=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Report outcome
+        run: |
+          echo "triggered=${{ steps.check.outputs.triggered }}"
