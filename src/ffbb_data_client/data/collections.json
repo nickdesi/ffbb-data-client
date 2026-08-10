@@ -122,8 +122,6 @@
     "ffbbsite_faq_ffbbsite_faq_categories",
     "ffbbsite_faq_ffbbsite_faq_categories_1",
     "ffbbsite_forms",
-    "ffbbsite_forms_entries",
-    "ffbbsite_forms_entries_directus_files",
     "ffbbsite_forms_fields",
     "ffbbsite_globals",
     "ffbbsite_jobs",
@@ -288,8 +286,6 @@
     "items/ffbbsite_faq_ffbbsite_faq_categories",
     "items/ffbbsite_faq_ffbbsite_faq_categories_1",
     "items/ffbbsite_forms",
-    "items/ffbbsite_forms_entries",
-    "items/ffbbsite_forms_entries_directus_files",
     "items/ffbbsite_forms_fields",
     "items/ffbbsite_globals",
     "items/ffbbsite_jobs",
@@ -332,9 +328,9 @@
     "items/youtube_videos_youtube_tags"
   ],
   "metadata": {
-    "openapi_version": "9be33d74bfb480282da91c53c8dfa29804914c96",
+    "openapi_version": "e5f76d83e876077e80ab344bbb4fc03606f63ca4",
     "source": "https://api.ffbb.app/server/specs/oas",
-    "timestamp": "2026-05-24T11:03:51.034202+00:00"
+    "timestamp": "2026-08-10T19:59:19.080946+00:00"
   },
   "paths": {
     "items/configuration": [
@@ -1071,24 +1067,6 @@
     ],
     "items/ffbbsite_forms/{id}": [
       "get"
-    ],
-    "items/ffbbsite_forms_entries": [
-      "get",
-      "patch",
-      "post"
-    ],
-    "items/ffbbsite_forms_entries/{id}": [
-      "get",
-      "patch"
-    ],
-    "items/ffbbsite_forms_entries_directus_files": [
-      "get",
-      "patch",
-      "post"
-    ],
-    "items/ffbbsite_forms_entries_directus_files/{id}": [
-      "get",
-      "patch"
     ],
     "items/ffbbsite_forms_fields": [
       "get"
