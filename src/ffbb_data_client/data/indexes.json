@@ -40,7 +40,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 158,
+      "estimatedTotalHits": 253,
       "indexUid": "ffbbnational_pratiques",
       "sampleKeys": [
         "_geo",
@@ -52,6 +52,7 @@
         "assurance",
         "cartographie",
         "code",
+        "code_structure",
         "cp_salle",
         "date_created",
         "date_debut",
@@ -61,6 +62,8 @@
         "date_fin_timestamp",
         "date_inscription",
         "date_updated",
+        "date_validation_ffbb",
+        "date_validation_ffbb_timestamp",
         "description",
         "email",
         "engagement",
@@ -94,7 +97,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 4032,
+      "estimatedTotalHits": 4104,
       "indexUid": "ffbbnational_rss",
       "sampleKeys": [
         "categories",
@@ -124,7 +127,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 5000,
+      "estimatedTotalHits": 571,
       "indexUid": "ffbbserver_competitions",
       "sampleKeys": [
         "age",
@@ -204,7 +207,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 128,
+      "estimatedTotalHits": 144,
       "indexUid": "ffbbserver_formations",
       "sampleKeys": [
         "certification",
@@ -239,7 +242,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 4605,
+      "estimatedTotalHits": 4642,
       "indexUid": "ffbbserver_organismes",
       "sampleKeys": [
         "_geo",
@@ -274,13 +277,11 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 41,
+      "estimatedTotalHits": 96,
       "indexUid": "ffbbserver_rencontres",
       "sampleKeys": [
         "_geo",
         "competitionId",
-        "competition_orgine",
-        "competition_origine",
         "creation_timestamp",
         "date",
         "dateSaisieResultat_timestamp",
@@ -290,7 +291,6 @@
         "gsId",
         "handicap1",
         "handicap2",
-        "horaire",
         "id",
         "idEngagementEquipe1",
         "idEngagementEquipe2",
@@ -298,27 +298,22 @@
         "idOrganismeEquipe2",
         "idPoule",
         "joue",
-        "logo",
         "modification_timestamp",
         "niveau",
         "niveau_nb",
         "nomEquipe1",
         "nomEquipe2",
-        "nomExtended",
         "numeroJournee",
         "officiels",
         "officiels_string",
         "organisateur",
         "pratique",
-        "pro",
         "rematch_videos",
         "resultatEquipe1",
         "resultatEquipe2",
         "saison",
         "salle",
-        "sexe",
         "thumbnail",
-        "typeCompetitionGenerique",
         "uniqueKey",
         "url_competition"
       ],
@@ -374,7 +369,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 26,
+      "estimatedTotalHits": 19,
       "indexUid": "ffbbserver_tournois",
       "sampleKeys": [
         "_geo",
@@ -413,7 +408,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 6034,
+      "estimatedTotalHits": 6106,
       "indexUid": "ffbbsite_news",
       "sampleKeys": [
         "author",
@@ -442,7 +437,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 1836,
+      "estimatedTotalHits": 1842,
       "indexUid": "youtube_videos",
       "sampleKeys": [
         "channelId",
@@ -475,7 +470,7 @@
   ],
   "metadata": {
     "source": "https://meilisearch-prod.ffbb.app/multi-search",
-    "timestamp": "2026-07-10T08:39:38.074062+00:00"
+    "timestamp": "2026-08-10T19:59:19.080946+00:00"
   },
   "unavailable_indexes": [
     {

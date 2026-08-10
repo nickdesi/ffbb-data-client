@@ -123,8 +123,6 @@
       "ffbbsite_faq_ffbbsite_faq_categories",
       "ffbbsite_faq_ffbbsite_faq_categories_1",
       "ffbbsite_forms",
-      "ffbbsite_forms_entries",
-      "ffbbsite_forms_entries_directus_files",
       "ffbbsite_forms_fields",
       "ffbbsite_globals",
       "ffbbsite_jobs",
@@ -289,8 +287,6 @@
       "items/ffbbsite_faq_ffbbsite_faq_categories",
       "items/ffbbsite_faq_ffbbsite_faq_categories_1",
       "items/ffbbsite_forms",
-      "items/ffbbsite_forms_entries",
-      "items/ffbbsite_forms_entries_directus_files",
       "items/ffbbsite_forms_fields",
       "items/ffbbsite_globals",
       "items/ffbbsite_jobs",
@@ -333,9 +329,9 @@
       "items/youtube_videos_youtube_tags"
     ],
     "metadata": {
-      "openapi_version": "9afed510c0de68e1360fcbfa99f2f838eeac53a2",
+      "openapi_version": "e5f76d83e876077e80ab344bbb4fc03606f63ca4",
       "source": "https://api.ffbb.app/server/specs/oas",
-      "timestamp": "2026-07-10T08:39:38.074062+00:00"
+      "timestamp": "2026-08-10T19:59:19.080946+00:00"
     },
     "paths": {
       "items/configuration": [
@@ -1073,24 +1069,6 @@
       "items/ffbbsite_forms/{id}": [
         "get"
       ],
-      "items/ffbbsite_forms_entries": [
-        "get",
-        "patch",
-        "post"
-      ],
-      "items/ffbbsite_forms_entries/{id}": [
-        "get",
-        "patch"
-      ],
-      "items/ffbbsite_forms_entries_directus_files": [
-        "get",
-        "patch",
-        "post"
-      ],
-      "items/ffbbsite_forms_entries_directus_files/{id}": [
-        "get",
-        "patch"
-      ],
       "items/ffbbsite_forms_fields": [
         "get"
       ],
@@ -1375,23 +1353,42 @@
   "drift": {
     "directus_openapi": {
       "added_schemas": [],
-      "modified_schemas": {},
-      "removed_schemas": []
+      "modified_schemas": {
+        "ItemsFfbbnationalPratiques": {
+          "added_properties": [
+            "code_structure",
+            "date_validation_ffbb"
+          ],
+          "modified_properties": {},
+          "removed_properties": []
+        }
+      },
+      "removed_schemas": [
+        "ItemsFfbbsiteFormsEntries",
+        "ItemsFfbbsiteFormsEntriesDirectusFiles"
+      ]
     },
     "meilisearch_indexes": {
-      "ffbbserver_rencontres": {
+      "ffbbnational_pratiques": {
         "added": [
+          "code_structure",
+          "date_validation_ffbb",
+          "date_validation_ffbb_timestamp"
+        ],
+        "removed": []
+      },
+      "ffbbserver_rencontres": {
+        "added": [],
+        "removed": [
           "competition_orgine",
           "competition_origine",
           "horaire",
           "logo",
           "nomExtended",
-          "officiels_string",
           "pro",
           "sexe",
           "typeCompetitionGenerique"
-        ],
-        "removed": []
+        ]
       }
     }
   },
@@ -1437,7 +1434,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 158,
+        "estimatedTotalHits": 253,
         "indexUid": "ffbbnational_pratiques",
         "sampleKeys": [
           "_geo",
@@ -1449,6 +1446,7 @@
           "assurance",
           "cartographie",
           "code",
+          "code_structure",
           "cp_salle",
           "date_created",
           "date_debut",
@@ -1458,6 +1456,8 @@
           "date_fin_timestamp",
           "date_inscription",
           "date_updated",
+          "date_validation_ffbb",
+          "date_validation_ffbb_timestamp",
           "description",
           "email",
           "engagement",
@@ -1491,7 +1491,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 4032,
+        "estimatedTotalHits": 4104,
         "indexUid": "ffbbnational_rss",
         "sampleKeys": [
           "categories",
@@ -1521,7 +1521,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 5000,
+        "estimatedTotalHits": 571,
         "indexUid": "ffbbserver_competitions",
         "sampleKeys": [
           "age",
@@ -1601,7 +1601,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 128,
+        "estimatedTotalHits": 144,
         "indexUid": "ffbbserver_formations",
         "sampleKeys": [
           "certification",
@@ -1636,7 +1636,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 4605,
+        "estimatedTotalHits": 4642,
         "indexUid": "ffbbserver_organismes",
         "sampleKeys": [
           "_geo",
@@ -1671,13 +1671,11 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 41,
+        "estimatedTotalHits": 96,
         "indexUid": "ffbbserver_rencontres",
         "sampleKeys": [
           "_geo",
           "competitionId",
-          "competition_orgine",
-          "competition_origine",
           "creation_timestamp",
           "date",
           "dateSaisieResultat_timestamp",
@@ -1687,7 +1685,6 @@
           "gsId",
           "handicap1",
           "handicap2",
-          "horaire",
           "id",
           "idEngagementEquipe1",
           "idEngagementEquipe2",
@@ -1695,27 +1692,22 @@
           "idOrganismeEquipe2",
           "idPoule",
           "joue",
-          "logo",
           "modification_timestamp",
           "niveau",
           "niveau_nb",
           "nomEquipe1",
           "nomEquipe2",
-          "nomExtended",
           "numeroJournee",
           "officiels",
           "officiels_string",
           "organisateur",
           "pratique",
-          "pro",
           "rematch_videos",
           "resultatEquipe1",
           "resultatEquipe2",
           "saison",
           "salle",
-          "sexe",
           "thumbnail",
-          "typeCompetitionGenerique",
           "uniqueKey",
           "url_competition"
         ],
@@ -1771,7 +1763,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 26,
+        "estimatedTotalHits": 19,
         "indexUid": "ffbbserver_tournois",
         "sampleKeys": [
           "_geo",
@@ -1810,7 +1802,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 6034,
+        "estimatedTotalHits": 6106,
         "indexUid": "ffbbsite_news",
         "sampleKeys": [
           "author",
@@ -1839,7 +1831,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 1836,
+        "estimatedTotalHits": 1842,
         "indexUid": "youtube_videos",
         "sampleKeys": [
           "channelId",
@@ -1872,7 +1864,7 @@
     ],
     "metadata": {
       "source": "https://meilisearch-prod.ffbb.app/multi-search",
-      "timestamp": "2026-07-10T08:39:38.074062+00:00"
+      "timestamp": "2026-08-10T19:59:19.080946+00:00"
     },
     "unavailable_indexes": [
       {
@@ -1908,9 +1900,9 @@
   "metadata": {
     "api_base_url": "https://api.ffbb.app/",
     "meilisearch_base_url": "https://meilisearch-prod.ffbb.app/",
-    "openapi_sha256": "ca4e7a2b5140ec6adb83be9505cdd9c34eadcf41e9e327dd6236208fd8479ef4",
-    "openapi_snapshot_sha256": "60c86b368d2ba313e65dd3fe271c4f0683c31f4c5fea661e4fc3c84da6eb99bb",
-    "openapi_version": "9afed510c0de68e1360fcbfa99f2f838eeac53a2",
-    "timestamp": "2026-07-10T08:39:38.074062+00:00"
+    "openapi_sha256": "d42e75cfb86a35bd5e17f12cc75785563d25a33ac9885ffa1ac0996c0140ff31",
+    "openapi_snapshot_sha256": "8a7b1fa7c2e9b499a050bcf7a7d9282c3daa7805f2d43ab61d5dc14d1686ed4d",
+    "openapi_version": "e5f76d83e876077e80ab344bbb4fc03606f63ca4",
+    "timestamp": "2026-08-10T19:59:19.080946+00:00"
   }
 }
