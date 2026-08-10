@@ -40,17 +40,9 @@
 
 ---
 
-## 🚀 Version v2.3.1 — Juin 2026
+## 🚀 Nouveautés
 
-Principales évolutions récentes :
-
-- **détection de drift API** : surveillance des changements de schéma Directus (propriétés/types/nullabilité) ;
-- **détection de drift Meilisearch** : agrégation robuste des attributs (`sampleKeys`) sur plusieurs hits ;
-- **automatisation CI/CD** : ouverture automatique de PR lorsqu'un drift est détecté ;
-- **fiabilité outillage** : alignement pyupgrade/isort/pre-commit pour des runs CI reproductibles ;
-- **qualité/sécurité** : corrections CodeQL et nettoyage des alertes d'analyse statique.
-
-Voir aussi : [CHANGELOG.md](https://github.com/nickdesi/ffbb-data-client/blob/master/CHANGELOG.md) et [RELEASE_NOTES.md](https://github.com/nickdesi/ffbb-data-client/blob/master/RELEASE_NOTES.md).
+Les évolutions de chaque version sont documentées dans les [GitHub Releases](https://github.com/nickdesi/ffbb-data-client/releases), ainsi que dans [CHANGELOG.md](https://github.com/nickdesi/ffbb-data-client/blob/master/CHANGELOG.md) et [RELEASE_NOTES.md](https://github.com/nickdesi/ffbb-data-client/blob/master/RELEASE_NOTES.md).
 
 ---
 

@@ -1,6 +1,66 @@
 # Release Notes - FFBB API Client V2
 
-## Version 2.2.0 (Latest Release)
+## Version 2.3.3 (Latest Release)
+
+### 🚀 New Features
+- **`search_many` / `search_many_async`**: run multiple independent Meilisearch searches concurrently (`asyncio.gather`) and return results in order — each `SearchSpec` is dispatched to the matching `search_multiple_<resource>_async` method
+- **Keepalive workflow**: new `keep-ffbb-api-discovery-alive` workflow guarantees a daily FFBB API discovery run (auto-triggers when no run happened in the last 22 h)
+- **Unit tests** for the FFBB API discovery script (`scripts/discover_endpoints.py`)
+
+### ⚡ Performance
+- **Concurrent Meilisearch pagination**: `recursive_smart_multi_search` / `recursive_smart_multi_search_async` now fetch pages in parallel (batches of 10, `asyncio.gather` async / `ThreadPoolExecutor` sync) instead of sequential round-trips — dividing pagination latency by the number of pages
+- **Non-mutating queries**: pagination requests are now cloned (`dataclasses.replace`) instead of mutating the caller's `MultiSearchQuery` objects, removing cross-call state leaks
+- **Slimmer wheel + HTTP connection reuse** + Meilisearch query deduplication
+
+### 🏗 Refactor
+- `api_ffbb_app_client.py` split into mixins (2408 → 113 lines)
+
+### 🐛 Bug Fixes
+- Codebase inconsistencies: `HitType` collision, deprecated `_models` imports replaced with direct submodules
+- isort formatting in `niveau_models.py`
+- CI: only run the matrix-matching tox env in the test job
+- CodeQL alerts (imports) and isort ordering in `http_requests_utils`
+
+### 📦 Misc
+- Docs: improved README, rewrote SECURITY.md, added FUNDING.yml
+- CI: AI PR reviewer migrated to `.cjs` (pagination + retry), simplified PR conflict resolution, refreshed FFBB API discovery artefacts (#57)
+- Dependency bumps (checkout v7, CodeQL 4.37, setuptools ≥83, attest 4.1.1, cache v6, softprops/action-gh-release 3.0.1)
+
+---
+
+## Version 2.3.2
+
+### 🐛 Bug Fixes
+- Resolved token manager import cycle and synced tooling files
+- CodeQL import and empty-except alerts
+- Pre-commit fixes applied to pass CI
+
+### 📦 Misc
+- Updated PyPI README version block to 2.3.1
+- Reverted invalid `workflows: write` permission on release-after-discovery-merge workflow
+
+---
+
+## Version 2.3.1
+
+### ⚡ Performance
+- Replaced Pydantic `TypeAdapter` with native parsers for faster deserialization
+- Optimized HTTP connection reuse and parallel cache warming
+
+### 🔒 Security & Quality
+- Fixed code-scanning alerts (`md5` usage, unused global variables, Ruff S105 false positives)
+- Resolved cyclic import between `token_manager` and `http_requests_utils`
+
+### 🚀 CI/CD
+- **AI Pull Request Reviewer** workflow added (static analysis, automatic comments, `bolt.md` conflict auto-resolver)
+- Node.js 24 opt-in for all JavaScript actions
+- GitHub Actions pipeline optimized with pip cache and tox
+- Action upgrades: `actions/checkout` 4→6, `actions/setup-node` 4→6, `upload-artifact` v7 / `download-artifact` v8, `github/codeql-action` 4.35.5→4.36.x
+- `hishel` dependency bumped to ≥1.3.0
+
+---
+
+## Version 2.2.0 (Previous Release)
 
 ### 🏗 Architecture Refactor
 

@@ -7,8 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.3] - 2026-08-10
+
 ### Added
-- **Recherche parallèle** : `search_many` / `search_many_async` exécutent plusieurs recherches Meilisearch indépendantes concurrentement (`asyncio.gather`) et renvoient les résultats dans l'ordre. Chaque `SearchSpec` est dispatché vers la méthode `search_multiple_<resource>_async` correspondante.
+- **Recherche parallèle**: `search_many` / `search_many_async` exécutent plusieurs recherches Meilisearch indépendantes concurrentement (`asyncio.gather`) et renvoient les résultats dans l'ordre. Chaque `SearchSpec` est dispatché vers la méthode `search_multiple_<resource>_async` correspondante.
+- **Keepalive CI**: nouveau workflow `keep-ffbb-api-discovery-alive` garantissant une exécution quotidienne de la discovery automatique des artefacts API (relance si aucun run depuis 22 h).
+- **Unit tests** pour le script de discovery FFBB API (`scripts/discover_endpoints.py`).
 
 ### Changed
 - **Performance**: `recursive_smart_multi_search` / `recursive_smart_multi_search_async`
@@ -17,6 +21,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   allers-retours réseau un par un — divisant la latence de pagination par le nombre de pages.
 - Les requêtes de pagination sont désormais **clonées** (`dataclasses.replace`) au lieu de
   muter les objets `MultiSearchQuery` du caller, supprimant une fuite d'état entre appels.
+- **Refactor**: `api_ffbb_app_client.py` découpé en mixins (2408 → 113 lignes).
+- **Performance**: réutilisation des connexions HTTP, wheel allégée et déduplication des recherches Meilisearch.
+- **CI**: migration du AI PR reviewer (`.js` → `.cjs`), pagination et retry; simplification de la résolution de conflits de PR.
+
+### Fixed
+- Incohérences de la codebase : collision `HitType`, imports `_models` dépréciés remplacés par les sous-modules directs.
+- CI : exécution uniquement de l'environnement tox correspondant à la matrice dans le job de test.
+- Alertes CodeQL (imports) et ordre d'imports isort dans `http_requests_utils`.
+
+## [2.3.2] - 2026-06-13
+
+### Fixed
+- Résolution du cycle d'imports du token manager et alignement des fichiers d'outillage (`fix: resolve token manager import cycle and sync tooling files`).
+- Alertes CodeQL (imports et `empty-except`).
+- Corrections pre-commit appliquées pour passer la CI.
+
+## [2.3.1] - 2026-06-13
+
+### Added
+- **AI Pull Request Reviewer**: workflow d'analyse automatique des PR (analyse statique, commentaires automatiques, résolution de conflits `bolt.md`).
+
+### Changed
+- **Performance**: suppression de `TypeAdapter` de Pydantic au profit des parseurs natifs; optimisation de la réutilisation des connexions HTTP et du cache warming parallèle.
+- **CI**: cache pip et tox dans la pipeline GitHub Actions; opt-in Node.js 24 pour toutes les actions JavaScript; upgrade `actions/checkout` (4→6), `actions/setup-node` (4→6), `upload-artifact`/`download-artifact` (v7/v8), `github/codeql-action` (4.35.5→4.36.x); permission `workflows: write` ajoutée puis revertée sur `release-after-discovery-merge`.
+
+### Fixed
+- Alertes de code scanning (`md5`, variables globales inutilisées, faux positifs Ruff S105).
+- Cycle d'imports entre `token_manager` et `http_requests_utils`.
+- Ordre d'imports (isort) et corrections flake8 pour le pre-commit de mise à jour des artefacts.
 
 ## [2.3.0] - 2026-05-24
 
@@ -291,3 +324,10 @@ organisme = client.get_organisme(999999)
 if organisme is None:
     print("Organization not found or error occurred")
 ```
+
+[Unreleased]: https://github.com/nickdesi/ffbb-data-client/compare/v2.3.3...master
+[2.3.3]: https://github.com/nickdesi/ffbb-data-client/compare/v2.3.2...v2.3.3
+[2.3.2]: https://github.com/nickdesi/ffbb-data-client/compare/v2.3.1...v2.3.2
+[2.3.1]: https://github.com/nickdesi/ffbb-data-client/compare/v2.3.0...v2.3.1
+[2.3.0]: https://github.com/nickdesi/ffbb-data-client/compare/v2.2.0...v2.3.0
+[2.2.0]: https://github.com/nickdesi/ffbb-data-client/compare/v2.1.0...v2.2.0
