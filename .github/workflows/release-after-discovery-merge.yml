@@ -9,6 +9,7 @@ on:
 permissions:
   contents: write
   pull-requests: read
+  actions: write
 
 concurrency:
   group: release-after-discovery-${{ github.event.workflow_run.head_sha }}
@@ -89,3 +90,10 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git tag -a "$NEXT_TAG" -m "Release $NEXT_TAG after FFBB API discovery PR #$PR_NUMBER"
           git push origin "$NEXT_TAG"
+
+      - name: Dispatch publish workflow
+        if: steps.pr.outputs.release == 'true'
+        env:
+          NEXT_TAG: ${{ steps.version.outputs.tag }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run publish.yml --ref "$NEXT_TAG"
