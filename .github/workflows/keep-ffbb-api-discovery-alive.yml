@@ -21,7 +21,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           last_ts=$(gh api repos/${{ github.repository }}/actions/workflows/268964669/runs \
-            --jq -r '.workflow_runs[0].created_at' || echo "1970-01-01T00:00:00Z")
+            --jq '.workflow_runs[0].created_at' | tr -d '"' || echo "1970-01-01T00:00:00Z")
           echo "last_run=$last_ts"
           cutoff=$(date -u -d '-22 hours' +%Y-%m-%dT%H:%M:%SZ)
           echo "cutoff=$cutoff"
