@@ -20,14 +20,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          last_ts=$(gh api repos/${{ github.repository }}/actions/workflows/update-ffbb-api-discovery.yml/runs \
-            --jq -r '.workflow_runs[0].created_at' 2>/dev/null || echo "1970-01-01T00:00:00Z")
+          last_ts=$(gh api repos/${{ github.repository }}/actions/workflows/268964669/runs \
+            --jq -r '.workflow_runs[0].created_at' || echo "1970-01-01T00:00:00Z")
           echo "last_run=$last_ts"
           cutoff=$(date -u -d '-22 hours' +%Y-%m-%dT%H:%M:%SZ)
           echo "cutoff=$cutoff"
           if [[ "$last_ts" < "$cutoff" ]]; then
             echo "STALE: last run $last_ts is older than 22h, triggering discovery now"
-            gh workflow run update-ffbb-api-discovery.yml
+            gh workflow run 268964669 --repo ${{ github.repository }} --ref master
             echo "triggered=true" >> "$GITHUB_OUTPUT"
           else
             echo "OK: discovery ran at $last_ts, no action needed"
