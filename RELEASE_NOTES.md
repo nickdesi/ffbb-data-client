@@ -1,4 +1,4 @@
-# Release Notes - FFBB API Client V2
+# Release Notes - FFBB Data Client
 
 ## Version 2.3.3 (Latest Release)
 
