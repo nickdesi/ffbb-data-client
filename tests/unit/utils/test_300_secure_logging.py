@@ -91,10 +91,10 @@ class Test012SecureLogging(unittest.TestCase):
         logger.debug("Bearer token123 in message")
 
         # Verify that the message was masked before logging
-        mock_logger.debug.assert_called_once()
-        call_args = mock_logger.debug.call_args[0]
-        self.assertIn("***MASKED***", call_args[0])
-        self.assertNotIn("token123", call_args[0])
+        mock_logger.log.assert_called_once()
+        call_args = mock_logger.log.call_args[0]
+        self.assertIn("***MASKED***", call_args[1])
+        self.assertNotIn("token123", call_args[1])
 
     @patch("ffbb_data_client.utils.secure_logging.logging")
     def test_secure_logger_info(self, mock_logging):
@@ -106,10 +106,25 @@ class Test012SecureLogging(unittest.TestCase):
         logger.info("API call with token: abcdef123456")
 
         # Verify that the message was masked before logging
-        mock_logger.info.assert_called_once()
-        call_args = mock_logger.info.call_args[0]
-        self.assertIn("***MASKED***", call_args[0])
-        self.assertNotIn("abcdef123456", call_args[0])
+        mock_logger.log.assert_called_once()
+        call_args = mock_logger.log.call_args[0]
+        self.assertIn("***MASKED***", call_args[1])
+        self.assertNotIn("abcdef123456", call_args[1])
+
+    @patch("ffbb_data_client.utils.secure_logging.logging")
+    def test_secure_logger_masks_format_args(self, mock_logging):
+        """Test that format args are masked before logging."""
+        mock_logger = MagicMock()
+        mock_logging.getLogger.return_value = mock_logger
+
+        long_token = "a" * 40
+        logger = SecureLogger("test")
+        logger.info("token: %s", long_token)
+
+        call_args = mock_logger.log.call_args[0]
+        self.assertEqual(call_args[1], "token: %s")
+        self.assertIn("MASKED", call_args[2])
+        self.assertNotIn(long_token, call_args[2])
 
     def test_no_sensitive_data_unchanged(self):
         """Test that messages without sensitive data remain unchanged."""

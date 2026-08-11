@@ -83,35 +83,38 @@ class SecureLogger:
 
         return masked_message
 
+    def _log(self, level: int, message: str, *args, **kwargs):
+        """Log with sensitive data masked in the message and its format args."""
+        masked_message = self._mask_sensitive_data(message)
+        masked_args = tuple(
+            self._mask_sensitive_data(arg) if isinstance(arg, str) else arg
+            for arg in args
+        )
+        self.logger.log(level, masked_message, *masked_args, **kwargs)
+
     def debug(self, message: str, *args, **kwargs):
         """Log a debug message with sensitive data masked."""
-        masked_message = self._mask_sensitive_data(message)
-        self.logger.debug(masked_message, *args, **kwargs)
+        self._log(logging.DEBUG, message, *args, **kwargs)
 
     def info(self, message: str, *args, **kwargs):
         """Log an info message with sensitive data masked."""
-        masked_message = self._mask_sensitive_data(message)
-        self.logger.info(masked_message, *args, **kwargs)
+        self._log(logging.INFO, message, *args, **kwargs)
 
     def warning(self, message: str, *args, **kwargs):
         """Log a warning message with sensitive data masked."""
-        masked_message = self._mask_sensitive_data(message)
-        self.logger.warning(masked_message, *args, **kwargs)
+        self._log(logging.WARNING, message, *args, **kwargs)
 
     def error(self, message: str, *args, **kwargs):
         """Log an error message with sensitive data masked."""
-        masked_message = self._mask_sensitive_data(message)
-        self.logger.error(masked_message, *args, **kwargs)
+        self._log(logging.ERROR, message, *args, **kwargs)
 
     def critical(self, message: str, *args, **kwargs):
         """Log a critical message with sensitive data masked."""
-        masked_message = self._mask_sensitive_data(message)
-        self.logger.critical(masked_message, *args, **kwargs)
+        self._log(logging.CRITICAL, message, *args, **kwargs)
 
     def log(self, level: int, message: str, *args, **kwargs):
         """Log a message at the specified level with sensitive data masked."""
-        masked_message = self._mask_sensitive_data(message)
-        self.logger.log(level, masked_message, *args, **kwargs)
+        self._log(level, message, *args, **kwargs)
 
 
 # Global secure logger instance
