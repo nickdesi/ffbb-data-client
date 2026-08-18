@@ -3,29 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="ffbb-data-client est le SDK Python moderne, typé (Pydantic v2), asynchrone et prêt pour l'IA pour manipuler toutes les données officielles de la Fédération Française de BasketBall (FFBB).">
-    <meta name="keywords" content="FFBB API, Python SDK, Basketball API, FFBB MCP, Pydantic v2, Meilisearch, Sports Data, AI Agents, Basket France, Statistiques FFBB, Open Data Basket">
+    <meta name="description" content="ffbb-data-client est le SDK Python moderne, typé avec Pydantic v2 et asynchrone pour exploiter l'intégralité des données publiques de la Fédération Française de BasketBall (FFBB).">
+    <meta name="keywords" content="Google Design, FFBB API, Python SDK, Basketball API, FFBB MCP, Pydantic v2, Meilisearch, Sports Data, AI Agents, Basket France, Open Data Basket">
     <meta name="author" content="Nicolas De Simone">
     <meta name="robots" content="index, follow, max-image-preview:large">
     <meta name="google-site-verification" content="TEp_bPvybWrZe459iOjSpw6Wixrfol9tAeqlJ4TYw1w" />
     <link rel="canonical" href="https://nickdesi.github.io/ffbb-data-client/" />
-    <meta name="theme-color" content="#06080e">
+    <meta name="theme-color" content="#090a0f">
 
-    <title>ffbb-data-client — Le SDK Python Moderne & Asynchrone pour l'API FFBB</title>
+    <title>ffbb-data-client — Le SDK Python Moderne pour l'API FFBB</title>
 
     <!-- Open Graph / Social Media -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="ffbb-data-client">
     <meta property="og:title" content="ffbb-data-client — SDK Python moderne & asynchrone pour la FFBB">
-    <meta property="og:description" content="Type-safe avec Pydantic v2, asynchrone natif, cache persistant et moteur de recherche Meilisearch ultra-rapide (<15ms).">
+    <meta property="og:description" content="Architecture type-safe avec Pydantic v2, asynchrone natif, cache persistant et moteur de recherche Meilisearch (<15ms).">
     <meta property="og:url" content="https://nickdesi.github.io/ffbb-data-client/">
     <meta property="og:image" content="https://nickdesi.github.io/ffbb-data-client/assets/logo.webp">
     <meta property="og:locale" content="fr_FR">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="ffbb-data-client — SDK Python pour les données FFBB">
-    <meta name="twitter:description" content="Clubs, compétitions, classements, calendriers, rencontres et scores live FFBB en Python avec Pydantic v2 et asyncio.">
+    <meta name="twitter:title" content="ffbb-data-client — SDK Python pour la FFBB">
+    <meta name="twitter:description" content="Clubs, compétitions, classements, calendriers, rencontres et scores live FFBB en Python.">
     <meta name="twitter:image" content="https://nickdesi.github.io/ffbb-data-client/assets/logo.webp">
 
     <link rel="icon" type="image/webp" href="assets/logo.webp">
@@ -33,10 +33,10 @@
     <!-- Google Fonts Preconnect & Stylesheets -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 
-    <!-- Software Schema.org JSON-LD -->
+    <!-- Software & FAQ Schema.org JSON-LD -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -113,29 +113,27 @@
     </script>
 </head>
 <body>
-    <!-- Ambient Background Effects -->
-    <div class="ambient-mesh">
-        <div class="mesh-orb orb-primary"></div>
-        <div class="mesh-orb orb-secondary"></div>
-        <div class="mesh-orb orb-accent"></div>
-        <div class="grid-overlay"></div>
+    <!-- Ambient Canvas Glow -->
+    <div class="ambient-canvas">
+        <div class="canvas-glow glow-orange"></div>
+        <div class="canvas-glow glow-indigo"></div>
     </div>
 
-    <!-- Header Navigation -->
-    <header class="site-header" id="header">
-        <div class="container nav-wrapper">
-            <a href="#" class="brand">
-                <img src="assets/logo.webp" alt="Logo ffbb-data-client" class="brand-logo" width="40" height="40">
+    <!-- Navigation Header -->
+    <header class="site-nav" id="navbar">
+        <div class="container nav-container">
+            <a href="#" class="nav-brand">
+                <img src="assets/logo.webp" alt="Logo" width="40" height="40">
                 <span>ffbb-data-client</span>
             </a>
-            <ul class="nav-links">
-                <li><a href="#features" class="nav-link">Fonctionnalités</a></li>
-                <li><a href="#code" class="nav-link">Code & Exemples</a></li>
-                <li><a href="#mcp" class="nav-link">Serveur MCP IA</a></li>
+            <ul class="nav-menu">
+                <li><a href="#spotlight" class="nav-link">Spotlight</a></li>
+                <li><a href="#features" class="nav-link">Architecture</a></li>
+                <li><a href="#code" class="nav-link">Exemples de Code</a></li>
                 <li><a href="#faq" class="nav-link">FAQ</a></li>
             </ul>
             <div class="nav-actions">
-                <a href="https://pypi.org/project/ffbb-data-client/" target="_blank" rel="noopener" class="btn btn-glass btn-sm">📦 PyPI</a>
+                <a href="https://pypi.org/project/ffbb-data-client/" target="_blank" rel="noopener" class="chip chip-interactive">📦 PyPI</a>
                 <a href="https://github.com/nickdesi/ffbb-data-client" target="_blank" rel="noopener" class="btn btn-primary btn-sm">⭐ GitHub</a>
             </div>
         </div>
@@ -145,159 +143,204 @@
         <!-- Hero Section -->
         <section class="hero">
             <div class="container hero-grid">
-                <div class="hero-content">
-                    <div class="hero-badge">
-                        <span class="badge-pulse"></span>
-                        <span>v2.1.0 • Python 3.10+ • Pydantic v2 • Asyncio</span>
+                <div>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                        <span class="chip chip-orange">● V2.1.0 RELEASE</span>
+                        <span class="chip chip-mint">Pydantic v2</span>
+                        <span class="chip chip-indigo">100% Async / Sync</span>
                     </div>
                     <h1 class="hero-title">
-                        Le SDK Python <span class="text-gradient">Moderne & Asynchrone</span> pour l'API FFBB.
+                        Le code comme matériau pour les <span class="text-gradient">données du basket</span>.
                     </h1>
-                    <p class="hero-lead">
-                        Exploitez toutes les données officielles du basketball français avec une façade fluide, un typage strict, du cache intelligent et un moteur de recherche Meilisearch instantané.
+                    <p class="hero-desc">
+                        Explorez l'intégralité des compétitions, clubs, calendriers et scores live de la FFBB avec une API Python expressive, typée et ultra-performante.
                     </p>
-                    <div class="hero-cta">
-                        <a href="#code" class="btn btn-primary btn-lg">🚀 Démarrage Rapide</a>
-                        <a href="https://github.com/nickdesi/FFBB-MCP-Server" target="_blank" rel="noopener" class="btn btn-glass btn-lg">🤖 Serveur MCP pour IA</a>
+                    <div class="hero-actions">
+                        <a href="#code" class="btn btn-primary btn-lg">🚀 Démarrer en 3 lignes</a>
+                        <a href="https://ffbb.desimone.fr" target="_blank" rel="noopener" class="btn btn-surface btn-lg">🤖 Serveur MCP pour IA</a>
                     </div>
-                    <div class="hero-stats">
-                        <div class="stat-item">
-                            <span class="stat-value">&lt; 15ms</span>
-                            <span class="stat-label">Recherche Meili</span>
+                    <div class="hero-metrics">
+                        <div class="metric-card">
+                            <span class="metric-val">&lt;15ms</span>
+                            <span class="metric-label">Meilisearch</span>
                         </div>
-                        <div class="stat-item">
-                            <span class="stat-value">695+</span>
-                            <span class="stat-label">Tests Unitaires</span>
+                        <div class="metric-card">
+                            <span class="metric-val">695+</span>
+                            <span class="metric-label">Tests validés</span>
                         </div>
-                        <div class="stat-item">
-                            <span class="stat-value">100%</span>
-                            <span class="stat-label">Async / Sync</span>
+                        <div class="metric-card">
+                            <span class="metric-val">0 Config</span>
+                            <span class="metric-label">Tokens Auto</span>
                         </div>
-                        <div class="stat-item">
-                            <span class="stat-value">0 Config</span>
-                            <span class="stat-label">Auth Tokens</span>
+                        <div class="metric-card">
+                            <span class="metric-val">100%</span>
+                            <span class="metric-label">Type-Safe</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Interactive Hero Terminal -->
-                <div class="hero-visual">
-                    <div class="terminal-card">
-                        <div class="terminal-header">
-                            <div class="terminal-dots">
-                                <span class="dot dot-red"></span>
-                                <span class="dot dot-yellow"></span>
-                                <span class="dot dot-green"></span>
-                            </div>
-                            <span class="terminal-title">quickstart.py</span>
-                            <button class="terminal-copy-btn" onclick="copySnippet('pip install ffbb-data-client')">📋 Copier</button>
+                <!-- Interactive Playground Widget -->
+                <div class="playground-card">
+                    <div class="playground-header">
+                        <div class="window-dots">
+                            <span class="w-dot w-red"></span>
+                            <span class="w-dot w-yellow"></span>
+                            <span class="w-dot w-green"></span>
                         </div>
-                        <div class="terminal-body">
-                            <span class="code-line"><span class="code-comment"># 1. Installation</span></span>
-                            <span class="code-line"><span class="code-prompt">$</span>pip install <span class="code-hl">ffbb-data-client</span></span>
-                            <span class="code-line">&nbsp;</span>
-                            <span class="code-line"><span class="code-comment"># 2. Utilisation en 3 lignes</span></span>
-                            <span class="code-line"><span class="code-keyword">from</span> ffbb_data_client <span class="code-keyword">import</span> <span class="code-const">FFBBDataClient</span></span>
-                            <span class="code-line">client = <span class="code-const">FFBBDataClient</span>.<span class="code-func">create</span>()</span>
-                            <span class="code-line">&nbsp;</span>
-                            <span class="code-line"><span class="code-comment"># Recherche universelle multi-index</span></span>
-                            <span class="code-line">results = client.<span class="code-func">multi_search</span>(<span class="code-str">"Pau Orthez"</span>)</span>
-                            <span class="code-line"><span class="code-comment"># Scores live en direct</span></span>
-                            <span class="code-line">lives = client.<span class="code-func">get_lives</span>()</span>
-                        </div>
+                        <span class="window-title">quickstart.py</span>
+                        <button class="chip chip-interactive" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="copyCode('pip install ffbb-data-client')">📋 Copier</button>
+                    </div>
+                    <div class="code-container">
+                        <div style="color: var(--text-muted); margin-bottom: 0.5rem;"># 1. Installation du SDK</div>
+                        <div><span style="color: var(--color-ffbb-orange); user-select: none;">$ </span>pip install <span class="code-h">ffbb-data-client</span></div>
+                        <br>
+                        <div style="color: var(--text-muted); margin-bottom: 0.5rem;"># 2. Recherche & Live en direct</div>
+                        <div><span class="code-k">from</span> ffbb_data_client <span class="code-k">import</span> <span class="code-v">FFBBDataClient</span></div>
+                        <div>client = <span class="code-v">FFBBDataClient</span>.<span class="code-f">create</span>()</div>
+                        <br>
+                        <div>results = client.<span class="code-f">multi_search</span>(<span class="code-s">"Pau Orthez"</span>)</div>
+                        <div>lives = client.<span class="code-f">get_lives</span>()</div>
+                        <div style="color: var(--color-mint); margin-top: 0.5rem;">✨ Directus OpenAPI + 13 Index Meilisearch</div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Live Sync & Discovery Banner -->
-        <section style="padding: 0 0 4rem 0;">
+        <!-- Spotlight / Lead Story Block (Google Design style) -->
+        <section id="spotlight" style="padding-top: 2rem;">
             <div class="container">
-                <div class="sync-banner-card">
-                    <div class="sync-info">
-                        <div class="sync-icon-box">📡</div>
-                        <div class="sync-text">
-                            <h3>Surveillance & Découverte Continue d'API</h3>
-                            <p>Le workflow quotidien scrute automatiquement l'OpenAPI Directus et les index Meilisearch pour prévenir tout changement de schéma.</p>
+                <div class="story-block">
+                    <div class="story-content">
+                        <span class="chip chip-orange">SPOTLIGHT</span>
+                        <h3>Cartographie API & Synchronisation Continue</h3>
+                        <p>
+                            Un workflow de découverte automatique scrute quotidiennement le schéma OpenAPI Directus et les index Meilisearch pour cartographier et détecter immédiatement toute évolution d'endpoint ou de champ.
+                        </p>
+                        <div class="story-metrics-grid">
+                            <div class="story-metric-box">
+                                <strong>34 Collections</strong>
+                                <span>Directus OpenAPI surveillées</span>
+                            </div>
+                            <div class="story-metric-box">
+                                <strong>13 Index</strong>
+                                <span>Meilisearch synchronisés</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="sync-badges">
-                        <span class="pill-badge active">● API LIVE DISCOVERY</span>
-                        <span class="pill-badge">34 Collections OpenAPI</span>
-                        <span class="pill-badge">13 Index Meilisearch</span>
+                    <div>
+                        <div class="playground-card">
+                            <div class="playground-header">
+                                <span class="window-title">discovery_metrics.json</span>
+                                <span class="chip chip-mint" style="padding: 0.15rem 0.5rem; font-size: 0.7rem;">LIVE SYNC</span>
+                            </div>
+                            <div class="code-container" style="font-size: 0.85rem;">
+                                <div>{</div>
+                                <div style="padding-left: 1rem;"><span class="code-s">"status"</span>: <span class="code-h">"synchronized"</span>,</div>
+                                <div style="padding-left: 1rem;"><span class="code-s">"collections"</span>: <span class="code-v">34</span>,</div>
+                                <div style="padding-left: 1rem;"><span class="code-s">"indexes"</span>: <span class="code-v">13</span>,</div>
+                                <div style="padding-left: 1rem;"><span class="code-s">"auto_bump_ci"</span>: <span class="code-k">true</span></div>
+                                <div>}</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Bento Grid Features Section -->
+        <!-- Architecture & Features (Google Design Cards) -->
         <section id="features">
             <div class="container">
                 <div class="section-header">
-                    <span class="section-tag">Architecture & Puissance</span>
-                    <h2 class="section-title">Conçu pour les Développeurs Exigeants & les <span class="text-gradient">Agents IA</span></h2>
-                    <p class="section-desc">Chaque module a été réécrit pour offrir des performances maximales, une résilience sans faille et une compatibilité immédiate.</p>
+                    <span class="chip chip-indigo">ARCHITECTURE</span>
+                    <h2 class="section-title">Pensé pour la performance & la robustesse</h2>
+                    <p class="section-desc">Une conception rigoureuse alliant typage strict, exécution asynchrone non-bloquante et résilience automatique.</p>
                 </div>
 
-                <div class="bento-grid">
-                    <!-- Feature 1: Async & Type Safety -->
-                    <div class="bento-card span-2">
-                        <div class="card-icon">⚡</div>
-                        <h3 class="card-title">Architecture Double Async/Sync & Typage Pydantic v2</h3>
-                        <p class="card-desc">Toutes les méthodes exposent une implémentation native <code>*_async()</code> basée sur <code>httpx</code> et <code>asyncio</code>, ainsi qu'une version synchrone fluide. Les réponses sont validées et encapsulées dans des modèles Pydantic v2 avec autocomplétion IDE complète.</p>
-                        <div class="card-tags">
-                            <span class="tag">Pydantic v2</span>
-                            <span class="tag">Asyncio / FastAPI</span>
-                            <span class="tag">Type Annotations</span>
-                            <span class="tag">Zero Any Types</span>
+                <div class="features-grid">
+                    <!-- Feature 1 -->
+                    <div class="feature-card">
+                        <div class="card-top">
+                            <div class="feature-icon-box">⚡</div>
+                            <span class="chip chip-orange">Asyncio</span>
+                        </div>
+                        <h3>Double API Sync & Async</h3>
+                        <p>Toutes les méthodes de la façade exposent une version <code>*_async()</code> basée sur <code>httpx</code> et optimisée pour FastAPI et les boucles asyncio concurrentes.</p>
+                        <div class="feature-chips">
+                            <span class="chip">httpx</span>
+                            <span class="chip">async/await</span>
+                            <span class="chip">concurrency</span>
                         </div>
                     </div>
 
-                    <!-- Feature 2: Meilisearch Engine -->
-                    <div class="bento-card">
-                        <div class="card-icon">🔍</div>
-                        <h3 class="card-title">Moteur Multi-Search Meilisearch</h3>
-                        <p class="card-desc">Recherche ultra-rapide (&lt;15ms) sur 13 index simultanés : clubs, compétitions, rencontres, salles, terrains, pratiques 3x3, formations et tournois.</p>
-                        <div class="card-tags">
-                            <span class="tag">Multi-Index</span>
-                            <span class="tag">Fuzzy Search</span>
-                            <span class="tag">Géolocalisation</span>
+                    <!-- Feature 2 -->
+                    <div class="feature-card">
+                        <div class="card-top">
+                            <div class="feature-icon-box">🛡️</div>
+                            <span class="chip chip-mint">Type-Safe</span>
+                        </div>
+                        <h3>Typage Strict Pydantic v2</h3>
+                        <p>Validation à l'exécution et modèles typés exhaustifs pour chaque entité (clubs, poules, matchs, arbitres). Aucune annotation <code>Any</code> résiduelle.</p>
+                        <div class="feature-chips">
+                            <span class="chip">Pydantic v2</span>
+                            <span class="chip">IDE Autocomplete</span>
                         </div>
                     </div>
 
-                    <!-- Feature 3: Token Manager -->
-                    <div class="bento-card">
-                        <div class="card-icon">🔑</div>
-                        <h3 class="card-title">Token Manager & Résolution Zero-Config</h3>
-                        <p class="card-desc">Résolution automatique des clés d'API Directus (<code>key_dh</code>) et Meilisearch (<code>key_ms</code>). Rafraîchissement transparent sans interruption de service.</p>
-                        <div class="card-tags">
-                            <span class="tag">Auto-Renew</span>
-                            <span class="tag">Env Overrides</span>
-                            <span class="tag">Secure Masking</span>
+                    <!-- Feature 3 -->
+                    <div class="feature-card">
+                        <div class="card-top">
+                            <div class="feature-icon-box">🔍</div>
+                            <span class="chip chip-cyan">Search Engine</span>
+                        </div>
+                        <h3>Moteur Meilisearch Intégré</h3>
+                        <p>Recherche multi-index fulgurante en moins de 15ms : organismes, compétitions, salles, terrains, pratiques 3x3 et géolocalisation par rayon.</p>
+                        <div class="feature-chips">
+                            <span class="chip">13 Index</span>
+                            <span class="chip">Fuzzy Search</span>
+                            <span class="chip">Géo-filtre</span>
                         </div>
                     </div>
 
-                    <!-- Feature 4: Caching -->
-                    <div class="bento-card">
-                        <div class="card-icon">💾</div>
-                        <h3 class="card-title">Cache HTTP & Persistance SQLite</h3>
-                        <p class="card-desc">Système de cache multi-niveaux (mémoire, Hishel HTTP cache, SQLite persistant) avec respect des TTL et gestion intelligente de la mémoire.</p>
-                        <div class="card-tags">
-                            <span class="tag">Hishel Cache</span>
-                            <span class="tag">SQLite Separate DBs</span>
-                            <span class="tag">TTL Configurable</span>
+                    <!-- Feature 4 -->
+                    <div class="feature-card">
+                        <div class="card-top">
+                            <div class="feature-icon-box">🔑</div>
+                            <span class="chip chip-indigo">Zero-Config</span>
+                        </div>
+                        <h3>TokenManager Intelligent</h3>
+                        <p>Résolution et renouvellement transparents des clés d'API publiques Directus et Meilisearch en arrière-plan sans action requise.</p>
+                        <div class="feature-chips">
+                            <span class="chip">Auto-Renew</span>
+                            <span class="chip">Masquage Logs</span>
                         </div>
                     </div>
 
-                    <!-- Feature 5: Données Complètes -->
-                    <div class="bento-card">
-                        <div class="card-icon">🏀</div>
-                        <h3 class="card-title">Couverture Complète du Basket Français</h3>
-                        <p class="card-desc">Clubs, poules, classements détaillés, calendriers multi-phases, feuilles de match, arbitres, officiels et scores live actualisés en continu.</p>
-                        <div class="card-tags">
-                            <span class="tag">Directus API</span>
-                            <span class="tag">Toutes Divisions</span>
-                            <span class="tag">Stats Live</span>
+                    <!-- Feature 5 -->
+                    <div class="feature-card">
+                        <div class="card-top">
+                            <div class="feature-icon-box">💾</div>
+                            <span class="chip chip-orange">Storage</span>
+                        </div>
+                        <h3>Cache Multi-Niveaux & SQLite</h3>
+                        <p>Cache mémoire court terme pour les scores live (30s) et persistance SQLite avec séparation propre des bases pour un contrôle total.</p>
+                        <div class="feature-chips">
+                            <span class="chip">Hishel</span>
+                            <span class="chip">SQLite</span>
+                            <span class="chip">TTL Rules</span>
+                        </div>
+                    </div>
+
+                    <!-- Feature 6 -->
+                    <div class="feature-card">
+                        <div class="card-top">
+                            <div class="feature-icon-box">🤖</div>
+                            <span class="chip chip-mint">AI Ready</span>
+                        </div>
+                        <h3>Moteur du Serveur MCP</h3>
+                        <p>La brique technique officielle qui alimente <strong>FFBB MCP Server</strong> pour connecter Claude, Cursor et GitHub Copilot au basket français.</p>
+                        <div class="feature-chips">
+                            <span class="chip">MCP Protocol</span>
+                            <span class="chip">AI Tools</span>
                         </div>
                     </div>
                 </div>
@@ -308,163 +351,134 @@
         <section id="code">
             <div class="container">
                 <div class="section-header">
-                    <span class="section-tag">Exemples Concrets</span>
-                    <h2 class="section-title">Une API <span class="text-cyan-gradient">Intuitive & Expressive</span></h2>
-                    <p class="section-desc">Quelques lignes suffisent pour bâtir des applications sportives, des bots Discord ou des intégrations IA avancées.</p>
+                    <span class="chip chip-cyan">EXEMPLES</span>
+                    <h2 class="section-title">Quelques lignes de code suffisent</h2>
+                    <p class="section-desc">Choisissez un cas d'usage pour visualiser la simplicité de l'API.</p>
                 </div>
 
-                <div class="showcase-wrapper">
-                    <div class="tabs-nav">
-                        <button class="tab-btn active" onclick="switchTab(event, 'tab-search')">🔍 Multi-Search Meili</button>
-                        <button class="tab-btn" onclick="switchTab(event, 'tab-club')">🗓️ Calendrier & Classement</button>
-                        <button class="tab-btn" onclick="switchTab(event, 'tab-lives')">🔴 Scores Live</button>
-                        <button class="tab-btn" onclick="switchTab(event, 'tab-async')">⚡ Mode Asynchrone</button>
+                <div class="interactive-showcase">
+                    <div class="chips-bar">
+                        <button class="chip chip-interactive chip-active" onclick="showTab(event, 'tab-1')">🔍 Recherche Multi-Index</button>
+                        <button class="chip chip-interactive" onclick="showTab(event, 'tab-2')">🗓️ Club & Classement</button>
+                        <button class="chip chip-interactive" onclick="showTab(event, 'tab-3')">🔴 Scores Live</button>
+                        <button class="chip chip-interactive" onclick="showTab(event, 'tab-4')">⚡ Exécution Asynchrone</button>
                     </div>
 
-                    <!-- Tab 1: Search -->
-                    <div id="tab-search" class="tab-content active">
-                        <button class="code-copy-float" onclick="copySnippet('from ffbb_data_client import FFBBDataClient\n\nclient = FFBBDataClient.create()\n\n# Recherche globale sur tous les index FFBB\nresults = client.multi_search(\"Clermont\")\nfor group in results:\n    print(f\"Index {group.index_uid}: {len(group.hits)} résultats\")')">📋 Copier</button>
-                        <pre class="code-box"><code><span class="code-keyword">from</span> ffbb_data_client <span class="code-keyword">import</span> <span class="code-const">FFBBDataClient</span>
+                    <div id="tab-1" class="code-viewport tab-pane" style="display: block;">
+                        <button class="copy-btn-float" onclick="copyCode('from ffbb_data_client import FFBBDataClient\n\nclient = FFBBDataClient.create()\nresults = client.multi_search(\"Clermont\")\nfor group in results:\n    print(f\"Index {group.index_uid}: {len(group.hits)} résultats\")')">📋 Copier</button>
+                        <pre><code><span class="code-k">from</span> ffbb_data_client <span class="code-k">import</span> <span class="code-v">FFBBDataClient</span>
 
-client = <span class="code-const">FFBBDataClient</span>.<span class="code-func">create</span>()
+client = <span class="code-v">FFBBDataClient</span>.<span class="code-f">create</span>()
 
-<span class="code-comment"># Recherche globale multi-index (organismes, compétitions, salles...)</span>
-results = client.<span class="code-func">multi_search</span>(<span class="code-str">"Clermont"</span>)
+<span class="code-c"># Recherche globale multi-index (organismes, compétitions, salles...)</span>
+results = client.<span class="code-f">multi_search</span>(<span class="code-s">"Clermont"</span>)
 
-<span class="code-keyword">for</span> group <span class="code-keyword">in</span> results <span class="code-keyword">or</span> []:
-    <span class="code-func">print</span>(<span class="code-str">f"Index {group.index_uid} : {len(group.hits)} résultats trouvés"</span>)
+<span class="code-k">for</span> group <span class="code-k">in</span> results <span class="code-k">or</span> []:
+    <span class="code-f">print</span>(<span class="code-s">f"Index {group.index_uid} : {len(group.hits)} résultats trouvés"</span>)
 
-<span class="code-comment"># Recherche géographique de clubs dans un rayon de 25 km</span>
-clubs = client.<span class="code-func">search_organismes_by_geo</span>(lat=<span class="code-hl">45.7772</span>, lng=<span class="code-hl">3.0870</span>, radius_km=<span class="code-hl">25</span>)</code></pre>
+<span class="code-c"># Recherche géographique de clubs dans un rayon de 25 km</span>
+clubs = client.<span class="code-f">search_organismes_by_geo</span>(lat=<span class="code-h">45.7772</span>, lng=<span class="code-h">3.0870</span>, radius_km=<span class="code-h">25</span>)</code></pre>
                     </div>
 
-                    <!-- Tab 2: Club -->
-                    <div id="tab-club" class="tab-content">
-                        <button class="code-copy-float" onclick="copySnippet('from ffbb_data_client import FFBBDataClient\n\nclient = FFBBDataClient.create()\n\n# Récupérer les informations et équipes d\'un club\nclub = client.get_organisme(id=\"12345\")\nprint(club.nom, club.codePostal)\n\n# Récupérer les classements de la poule\nclassement = client.get_classement(id_poule=\"98765\")')">📋 Copier</button>
-                        <pre class="code-box"><code><span class="code-keyword">from</span> ffbb_data_client <span class="code-keyword">import</span> <span class="code-const">FFBBDataClient</span>
+                    <div id="tab-2" class="code-viewport tab-pane" style="display: none;">
+                        <button class="copy-btn-float" onclick="copyCode('from ffbb_data_client import FFBBDataClient\n\nclient = FFBBDataClient.create()\nclub = client.get_organisme(id=\"12345\")\nclassement = client.get_classement(id_poule=\"98765\")')">📋 Copier</button>
+                        <pre><code><span class="code-k">from</span> ffbb_data_client <span class="code-k">import</span> <span class="code-v">FFBBDataClient</span>
 
-client = <span class="code-const">FFBBDataClient</span>.<span class="code-func">create</span>()
+client = <span class="code-v">FFBBDataClient</span>.<span class="code-f">create</span>()
 
-<span class="code-comment"># Fiche détaillée d'un club / organisme</span>
-club = client.<span class="code-func">get_organisme</span>(id=<span class="code-str">"12345"</span>)
-<span class="code-func">print</span>(<span class="code-str">f"Club : {club.nom} ({club.codePostal})"</span>)
+<span class="code-c"># Fiche détaillée d'un club / organisme</span>
+club = client.<span class="code-f">get_organisme</span>(id=<span class="code-s">"12345"</span>)
+<span class="code-f">print</span>(<span class="code-s">f"Club : {club.nom} ({club.codePostal})"</span>)
 
-<span class="code-comment"># Classement officiel d'une poule</span>
-classement = client.<span class="code-func">get_classement</span>(id_poule=<span class="code-str">"98765"</span>)
-<span class="code-keyword">for</span> team <span class="code-keyword">in</span> classement:
-    <span class="code-func">print</span>(<span class="code-str">f"#{team.position} {team.nom} - {team.points} pts (Diff: {team.difference})"</span>)</code></pre>
+<span class="code-c"># Classement officiel de la poule</span>
+classement = client.<span class="code-f">get_classement</span>(id_poule=<span class="code-s">"98765"</span>)
+<span class="code-k">for</span> team <span class="code-k">in</span> classement:
+    <span class="code-f">print</span>(<span class="code-s">f"#{team.position} {team.nom} - {team.points} pts (Diff: {team.difference})"</span>)</code></pre>
                     </div>
 
-                    <!-- Tab 3: Lives -->
-                    <div id="tab-lives" class="tab-content">
-                        <button class="code-copy-float" onclick="copySnippet('from ffbb_data_client import FFBBDataClient\n\nclient = FFBBDataClient.create()\n\n# Récupération des scores live en direct\nlives = client.get_lives()\nfor match in lives:\n    print(f\"{match.equipe1} {match.score1} - {match.score2} {match.equipe2} ({match.statut})\")')">📋 Copier</button>
-                        <pre class="code-box"><code><span class="code-keyword">from</span> ffbb_data_client <span class="code-keyword">import</span> <span class="code-const">FFBBDataClient</span>
+                    <div id="tab-3" class="code-viewport tab-pane" style="display: none;">
+                        <button class="copy-btn-float" onclick="copyCode('from ffbb_data_client import FFBBDataClient\n\nclient = FFBBDataClient.create()\nlives = client.get_lives()\nfor match in lives:\n    print(f\"{match.equipe1} {match.score1} - {match.score2} {match.equipe2}\")')">📋 Copier</button>
+                        <pre><code><span class="code-k">from</span> ffbb_data_client <span class="code-k">import</span> <span class="code-v">FFBBDataClient</span>
 
-client = <span class="code-const">FFBBDataClient</span>.<span class="code-func">create</span>()
+client = <span class="code-v">FFBBDataClient</span>.<span class="code-f">create</span>()
 
-<span class="code-comment"># Récupération en temps réel des matchs en cours (cache 30s)</span>
-lives = client.<span class="code-func">get_lives</span>()
+<span class="code-c"># Scores en direct des rencontres en cours (cache 30s)</span>
+lives = client.<span class="code-f">get_lives</span>()
 
-<span class="code-keyword">for</span> match <span class="code-keyword">in</span> lives:
-    <span class="code-func">print</span>(<span class="code-str">f"🏀 {match.equipe1} [{match.score1}] vs [{match.score2}] {match.equipe2} - {match.statut}"</span>)</code></pre>
+<span class="code-k">for</span> match <span class="code-k">in</span> lives:
+    <span class="code-f">print</span>(<span class="code-s">f"🏀 {match.equipe1} [{match.score1}] vs [{match.score2}] {match.equipe2} - {match.statut}"</span>)</code></pre>
                     </div>
 
-                    <!-- Tab 4: Async -->
-                    <div id="tab-async" class="tab-content">
-                        <button class="code-copy-float" onclick="copySnippet('import asyncio\nfrom ffbb_data_client import FFBBDataClient\n\nasync def main():\n    client = FFBBDataClient.create()\n    # Exécution asynchrone non-bloquante\n    saisons, lives = await asyncio.gather(\n        client.get_saisons_async(active_only=True),\n        client.get_lives_async()\n    )\n    print(\"Saison active:\", saisons[0].libelle)\n\nasyncio.run(main())')">📋 Copier</button>
-                        <pre class="code-box"><code><span class="code-keyword">import</span> asyncio
-<span class="code-keyword">from</span> ffbb_data_client <span class="code-keyword">import</span> <span class="code-const">FFBBDataClient</span>
+                    <div id="tab-4" class="code-viewport tab-pane" style="display: none;">
+                        <button class="copy-btn-float" onclick="copyCode('import asyncio\nfrom ffbb_data_client import FFBBDataClient\n\nasync def main():\n    client = FFBBDataClient.create()\n    saisons, lives = await asyncio.gather(\n        client.get_saisons_async(active_only=True),\n        client.get_lives_async()\n    )\n    print(\"Saison active:\", saisons[0].libelle)\n\nasyncio.run(main())')">📋 Copier</button>
+                        <pre><code><span class="code-k">import</span> asyncio
+<span class="code-k">from</span> ffbb_data_client <span class="code-k">import</span> <span class="code-v">FFBBDataClient</span>
 
-<span class="code-keyword">async def</span> <span class="code-func">main</span>():
-    client = <span class="code-const">FFBBDataClient</span>.<span class="code-func">create</span>()
+<span class="code-k">async def</span> <span class="code-f">main</span>():
+    client = <span class="code-v">FFBBDataClient</span>.<span class="code-f">create</span>()
 
-    <span class="code-comment"># Appels concurrents ultra-rapides avec asyncio.gather</span>
-    saisons, lives = <span class="code-keyword">await</span> asyncio.<span class="code-func">gather</span>(
-        client.<span class="code-func">get_saisons_async</span>(active_only=<span class="code-hl">True</span>),
-        client.<span class="code-func">get_lives_async</span>()
+    <span class="code-c"># Appels concurrents non-bloquants</span>
+    saisons, lives = <span class="code-k">await</span> asyncio.<span class="code-f">gather</span>(
+        client.<span class="code-f">get_saisons_async</span>(active_only=<span class="code-h">True</span>),
+        client.<span class="code-f">get_lives_async</span>()
     )
 
-    <span class="code-func">print</span>(<span class="code-str">f"Saison active : {saisons[0].libelle}"</span>)
-    <span class="code-func">print</span>(<span class="code-str">f"Matchs en direct : {len(lives)}"</span>)
+    <span class="code-f">print</span>(<span class="code-s">f"Saison active : {saisons[0].libelle}"</span>)
+    <span class="code-f">print</span>(<span class="code-s">f"Matchs en direct : {len(lives)}"</span>)
 
-asyncio.<span class="code-func">run</span>(main())</code></pre>
+asyncio.<span class="code-f">run</span>(main())</code></pre>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- MCP Integration Section -->
-        <section id="mcp">
-            <div class="container">
-                <div class="mcp-spotlight-card">
-                    <div class="mcp-content">
-                        <span class="section-tag">Écosystème IA</span>
-                        <h3>Le Moteur Officiel du FFBB MCP Server</h3>
-                        <p>
-                            <code>ffbb-data-client</code> est la brique fondamentale qui propulse <strong>FFBB MCP Server</strong>, permettant à Claude, Cursor, GitHub Copilot et Google Antigravity d'interagir nativement en langage naturel avec toutes les données du basket français.
-                        </p>
-                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                            <a href="https://ffbb.desimone.fr" target="_blank" rel="noopener" class="btn btn-primary">🌐 Découvrir le Serveur MCP</a>
-                            <a href="https://github.com/nickdesi/FFBB-MCP-Server" target="_blank" rel="noopener" class="btn btn-glass">⭐ Repo FFBB-MCP-Server</a>
-                        </div>
-                    </div>
-                    <div class="mcp-card-visual">
-                        <span class="code-comment"># Exemple de prompt IA</span><br>
-                        <span class="code-str">« Quel est le classement de l'équipe 1 de mon club et leur prochain match ce week-end ? »</span><br><br>
-                        <span class="code-hl">➔ MCP Tool: ffbb_team_summary</span><br>
-                        <span class="code-secondary">Données agrégées via ffbb-data-client en 1 seul appel sans surcharge de tokens.</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- FAQ Section -->
+        <!-- FAQ Section (Google Design Grid Cards) -->
         <section id="faq">
             <div class="container">
                 <div class="section-header">
-                    <span class="section-tag">Questions Fréquentes</span>
-                    <h2 class="section-title">Tout ce que vous devez savoir</h2>
-                    <p class="section-desc">Retrouvez les réponses aux questions les plus courantes sur le SDK et son intégration.</p>
+                    <span class="chip chip-mint">FAQ</span>
+                    <h2 class="section-title">Questions Fréquentes</h2>
+                    <p class="section-desc">Tout ce que vous devez savoir sur le SDK et son utilisation.</p>
                 </div>
 
-                <div class="faq-list">
-                    <div class="faq-item active">
-                        <button class="faq-question" onclick="toggleFaq(this)">
+                <div class="faq-grid">
+                    <div class="faq-card open" onclick="toggleCard(this)">
+                        <div class="faq-q">
                             <span>Qu'est-ce que ffbb-data-client ?</span>
-                            <span class="faq-icon">+</span>
-                        </button>
-                        <div class="faq-answer">
-                            <p>C'est le SDK Python moderne, asynchrone et typé (Pydantic v2) pour interagir avec les APIs publiques de la Fédération Française de BasketBall (FFBB). Il permet de récupérer facilement calendriers, classements, statistiques, scores live et fiches de clubs.</p>
+                            <span class="faq-toggle">+</span>
+                        </div>
+                        <div class="faq-a">
+                            <p>C'est le SDK Python moderne, asynchrone et typé (Pydantic v2) pour interagir avec les APIs publiques de la Fédération Française de BasketBall (FFBB). Il permet de manipuler calendriers, classements, statistiques et scores live avec une simplicité maximale.</p>
                         </div>
                     </div>
 
-                    <div class="faq-item">
-                        <button class="faq-question" onclick="toggleFaq(this)">
-                            <span>Dois-je créer un compte ou fournir un token d'API ?</span>
-                            <span class="faq-icon">+</span>
-                        </button>
-                        <div class="faq-answer">
-                            <p>Non. Le TokenManager intégré résout et renouvelle automatiquement les clés publiques nécessaires en toute transparence. Aucune configuration préalable n'est requise.</p>
+                    <div class="faq-card" onclick="toggleCard(this)">
+                        <div class="faq-q">
+                            <span>Faut-il une clé d'API ou un compte ?</span>
+                            <span class="faq-toggle">+</span>
+                        </div>
+                        <div class="faq-a">
+                            <p>Non. Le TokenManager intégré résout et renouvelle automatiquement les clés publiques nécessaires en toute transparence. Aucune configuration manuelle n'est requise.</p>
                         </div>
                     </div>
 
-                    <div class="faq-item">
-                        <button class="faq-question" onclick="toggleFaq(this)">
-                            <span>Le SDK est-il compatible avec FastAPI et les applications async ?</span>
-                            <span class="faq-icon">+</span>
-                        </button>
-                        <div class="faq-answer">
-                            <p>Absolument. 100% des méthodes de la façade disposent d'une version <code>*_async()</code> basée sur <code>httpx</code>, parfaitement adaptée aux architectures asynchrones à fort trafic.</p>
+                    <div class="faq-card" onclick="toggleCard(this)">
+                        <div class="faq-q">
+                            <span>Est-ce compatible avec FastAPI et async ?</span>
+                            <span class="faq-toggle">+</span>
+                        </div>
+                        <div class="faq-a">
+                            <p>Oui, absolument. 100% des méthodes de la façade disposent d'un équivalent <code>*_async()</code> basé sur <code>httpx</code>, parfaitement adapté aux architectures asynchrones à fort trafic.</p>
                         </div>
                     </div>
 
-                    <div class="faq-item">
-                        <button class="faq-question" onclick="toggleFaq(this)">
-                            <span>Quelle est la différence entre ffbb-data-client et FFBB MCP Server ?</span>
-                            <span class="faq-icon">+</span>
-                        </button>
-                        <div class="faq-answer">
-                            <p><code>ffbb-data-client</code> est la bibliothèque Python (SDK) d'accès aux données. <code>FFBB MCP Server</code> est le serveur de contexte IA (Model Context Protocol) qui expose ces données sous forme d'outils et de ressources pour les LLM (Claude, Copilot, Cursor).</p>
+                    <div class="faq-card" onclick="toggleCard(this)">
+                        <div class="faq-q">
+                            <span>Quelle relation avec le Serveur MCP ?</span>
+                            <span class="faq-toggle">+</span>
+                        </div>
+                        <div class="faq-a">
+                            <p><code>ffbb-data-client</code> est la bibliothèque Python (SDK) d'accès aux données. <code>FFBB MCP Server</code> est le serveur de contexte IA (Model Context Protocol) qui expose ces données sous forme d'outils et de ressources pour les LLM (Claude, Cursor, Copilot).</p>
                         </div>
                     </div>
                 </div>
@@ -477,8 +491,8 @@ asyncio.<span class="code-func">run</span>(main())</code></pre>
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-brand">
-                    <a href="#" class="brand">
-                        <img src="assets/logo.webp" alt="Logo" class="brand-logo" width="36" height="36">
+                    <a href="#" class="nav-brand">
+                        <img src="assets/logo.webp" alt="Logo" width="36" height="36">
                         <span>ffbb-data-client</span>
                     </a>
                     <p>SDK Python officiel communautaire pour l'exploitation des données ouvertes du basketball français.</p>
@@ -488,7 +502,7 @@ asyncio.<span class="code-func">run</span>(main())</code></pre>
                     <ul class="footer-links">
                         <li><a href="https://pypi.org/project/ffbb-data-client/" target="_blank" rel="noopener">Package PyPI</a></li>
                         <li><a href="https://github.com/nickdesi/ffbb-data-client" target="_blank" rel="noopener">Code Source GitHub</a></li>
-                        <li><a href="https://github.com/nickdesi/ffbb-data-client/releases" target="_blank" rel="noopener">Releases & Changelog</a></li>
+                        <li><a href="https://github.com/nickdesi/ffbb-data-client/releases" target="_blank" rel="noopener">Releases & Notes</a></li>
                         <li><a href="https://github.com/nickdesi/ffbb-data-client/issues" target="_blank" rel="noopener">Signaler un Bug</a></li>
                     </ul>
                 </div>
@@ -518,49 +532,41 @@ asyncio.<span class="code-func">run</span>(main())</code></pre>
 
     <!-- Client-Side Scripts -->
     <script>
-        // Header scroll effect
+        // Sticky Header
         window.addEventListener('scroll', () => {
-            const header = document.getElementById('header');
+            const nav = document.getElementById('navbar');
             if (window.scrollY > 30) {
-                header.classList.add('scrolled');
+                nav.classList.add('scrolled');
             } else {
-                header.classList.remove('scrolled');
+                nav.classList.remove('scrolled');
             }
         });
 
-        // Tab Switching
-        function switchTab(evt, tabId) {
-            const tabs = document.querySelectorAll('.tab-content');
-            const btns = document.querySelectorAll('.tab-btn');
+        // Tabs switcher
+        function showTab(event, tabId) {
+            document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
+            document.querySelectorAll('.chips-bar .chip').forEach(c => c.classList.remove('chip-active'));
 
-            tabs.forEach(tab => tab.classList.remove('active'));
-            btns.forEach(btn => btn.classList.remove('active'));
-
-            document.getElementById(tabId).classList.add('active');
-            evt.currentTarget.classList.add('active');
+            document.getElementById(tabId).style.display = 'block';
+            event.currentTarget.classList.add('chip-active');
         }
 
-        // Copy to clipboard snippet
-        function copySnippet(text) {
+        // Copy button feedback
+        function copyCode(text) {
             navigator.clipboard.writeText(text).then(() => {
                 const btn = event.target;
                 const orig = btn.innerText;
                 btn.innerText = '✅ Copié !';
                 setTimeout(() => { btn.innerText = orig; }, 2000);
-            }).catch(err => {
-                console.error('Erreur copie:', err);
             });
         }
 
-        // Accordion toggle
-        function toggleFaq(button) {
-            const item = button.parentElement;
-            const isActive = item.classList.contains('active');
-
-            document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
-
-            if (!isActive) {
-                item.classList.add('active');
+        // FAQ Toggle
+        function toggleCard(card) {
+            const isOpen = card.classList.contains('open');
+            document.querySelectorAll('.faq-card').forEach(c => c.classList.remove('open'));
+            if (!isOpen) {
+                card.classList.add('open');
             }
         }
     </script>
