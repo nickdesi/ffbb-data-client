@@ -306,18 +306,6 @@ Distribué sous licence Apache-2.0. Voir [`LICENSE.txt`](LICENSE.txt).
 
 ---
 
-## 📌 Recommandations GitHub
-
-**Description suggérée :**
-
-> 🏀 Modern async & typed Python SDK for FFBB public data (clubs, competitions, standings, lives) and Meilisearch search — the data layer behind the FFBB MCP Server.
-
-**Topics suggérés (≤ 20) :**
-
-`python` · `api-client` · `ffbb` · `open-data` · `basketball` · `mcp` · `model-context-protocol` · `async` · `pydantic` · `meilisearch` · `sdk` · `ai` · `llm` · `sports` · `rest-api` · `httpx` · `france` · `data` · `cache` · `typed`
-
----
-
 <div align="center">
 
 **Si ce projet vous aide, une étoile est appréciée. ⭐**
