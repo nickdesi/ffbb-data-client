@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -509,8 +510,9 @@ def _build_change_summary(
     return "\n".join(lines) + "\n"
 
 
-
-def _update_readme_discovery_metrics(collections_count: int, indexes_count: int) -> bool:
+def _update_readme_discovery_metrics(
+    collections_count: int, indexes_count: int
+) -> bool:
     readme_path = PROJECT_ROOT / "README.md"
     if not readme_path.exists():
         return False
@@ -521,13 +523,14 @@ def _update_readme_discovery_metrics(collections_count: int, indexes_count: int)
     new_block = (
         block_start
         + nl
-        + f"> 🔄 **Cartographie API synchronisée** : `{collections_count}` collections Directus OpenAPI cartographiées, `{indexes_count}` index Meilisearch surveillés."
-        + nl
-        + block_end
+        + f"> 🔄 **Cartographie API synchronisée** : `{collections_count}` collections Directus OpenAPI cartographiées, "
+        f"`{indexes_count}` index Meilisearch surveillés." + nl + block_end
     )
 
     if block_start in text and block_end in text:
-        pattern = re.compile(rf"{re.escape(block_start)}.*?{re.escape(block_end)}", re.DOTALL)
+        pattern = re.compile(
+            rf"{re.escape(block_start)}.*?{re.escape(block_end)}", re.DOTALL
+        )
         updated = pattern.sub(new_block, text)
     else:
         needle = "---" + nl + nl + "## 📌 À propos"
