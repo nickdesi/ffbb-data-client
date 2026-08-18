@@ -1,256 +1,568 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" style="color-scheme: dark;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="La refonte totale (réécrite de A à Z) de l'ancien client FFBB (V2). ffbb-data-client est le SDK Python moderne, async, et prêt pour l'IA (MCP) pour exploiter les statistiques de Basket France.">
-    <meta name="keywords" content="FFBB API, Python SDK, Basketball API, FFBB MCP, Pydantic, Meilisearch, Scraping Basket, Sports Data, AI Agents, Basket France, Statistiques FFBB">
-    <meta name="author" content="nickdesi">
-    <meta name="robots" content="index, follow">
+    <meta name="description" content="ffbb-data-client est le SDK Python moderne, typé (Pydantic v2), asynchrone et prêt pour l'IA pour manipuler toutes les données officielles de la Fédération Française de BasketBall (FFBB).">
+    <meta name="keywords" content="FFBB API, Python SDK, Basketball API, FFBB MCP, Pydantic v2, Meilisearch, Sports Data, AI Agents, Basket France, Statistiques FFBB, Open Data Basket">
+    <meta name="author" content="Nicolas De Simone">
+    <meta name="robots" content="index, follow, max-image-preview:large">
     <meta name="google-site-verification" content="TEp_bPvybWrZe459iOjSpw6Wixrfol9tAeqlJ4TYw1w" />
+    <link rel="canonical" href="https://nickdesi.github.io/ffbb-data-client/" />
+    <meta name="theme-color" content="#06080e">
 
-    <title>ffbb-data-client | Le SDK Python pour l'API FFBB</title>
+    <title>ffbb-data-client — Le SDK Python Moderne & Asynchrone pour l'API FFBB</title>
 
-    <!-- Open Graph Data -->
-    <meta property="og:title" content="ffbb-data-client | Python SDK pour la FFBB">
-    <meta property="og:description" content="Type-safe, async, cache implicite et recherche multi-index. L'outil ultime pour manipuler les données du basketball français.">
+    <!-- Open Graph / Social Media -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://nickdesi.github.io/ffbb-data-client/"> <!-- Replace with true URL if needed -->
-    <meta property="og:image" content="assets/logo.webp">
+    <meta property="og:site_name" content="ffbb-data-client">
+    <meta property="og:title" content="ffbb-data-client — SDK Python moderne & asynchrone pour la FFBB">
+    <meta property="og:description" content="Type-safe avec Pydantic v2, asynchrone natif, cache persistant et moteur de recherche Meilisearch ultra-rapide (<15ms).">
+    <meta property="og:url" content="https://nickdesi.github.io/ffbb-data-client/">
+    <meta property="og:image" content="https://nickdesi.github.io/ffbb-data-client/assets/logo.webp">
+    <meta property="og:locale" content="fr_FR">
 
-    <!-- Fonts -->
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="ffbb-data-client — SDK Python pour les données FFBB">
+    <meta name="twitter:description" content="Clubs, compétitions, classements, calendriers, rencontres et scores live FFBB en Python avec Pydantic v2 et asyncio.">
+    <meta name="twitter:image" content="https://nickdesi.github.io/ffbb-data-client/assets/logo.webp">
+
+    <link rel="icon" type="image/webp" href="assets/logo.webp">
+
+    <!-- Google Fonts Preconnect & Stylesheets -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-
-    <!-- CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 
     <!-- Software Schema.org JSON-LD -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "ffbb-data-client",
-      "applicationCategory": "DeveloperApplication",
-      "developer": {
-        "@type": "Person",
-        "name": "Nicolas",
-        "url": "https://github.com/nickdesi"
-      },
-      "dateModified": "2026-04-20T17:00:00+00:00",
-      "description": "La refonte totale et moderne pour interagir avec les APIs de la Fédération Française de BasketBall (FFBB), incluant Pydantic, support asynchrone natif, et Serveur MCP pour l'IA.",
-      "operatingSystem": "All",
-      "softwareVersion": "1.5.6",
-      "url": "https://github.com/nickdesi/ffbb-data-client",
-      "offers": {
-        "@type": "Offer",
-        "price": "0.00",
-        "priceCurrency": "EUR"
-      }
-    }
-    </script>
-
-    <!-- FAQ Schema.org JSON-LD -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [{
-        "@type": "Question",
-        "name": "Qu'est-ce que ffbb-data-client ?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "C'est le SDK Python moderne, asynchrone et activement maintenu pour s'interfacer avec les API publiques de la Fédération Française de BasketBall (FFBB). La refonte totale permet de récupérer salles, calendriers, classements et statistiques avec une fiabilité totale."
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://nickdesi.github.io/ffbb-data-client/#website",
+          "url": "https://nickdesi.github.io/ffbb-data-client/",
+          "name": "ffbb-data-client",
+          "description": "SDK Python moderne, typé et asynchrone pour exploiter les données publiques de la FFBB.",
+          "inLanguage": "fr-FR"
+        },
+        {
+          "@type": "SoftwareApplication",
+          "@id": "https://nickdesi.github.io/ffbb-data-client/#software",
+          "name": "ffbb-data-client",
+          "applicationCategory": "DeveloperApplication",
+          "operatingSystem": "All (Python 3.10+)",
+          "softwareVersion": "2.1.0",
+          "description": "SDK Python officiel communautaire pour interagir avec les APIs et index Meilisearch de la Fédération Française de BasketBall (FFBB). Type-safe avec Pydantic v2, support async natif et moteur sous-jacent du FFBB MCP Server.",
+          "url": "https://github.com/nickdesi/ffbb-data-client",
+          "image": "https://nickdesi.github.io/ffbb-data-client/assets/logo.webp",
+          "author": {
+            "@type": "Person",
+            "name": "Nicolas De Simone",
+            "url": "https://github.com/nickdesi"
+          },
+          "offers": {
+            "@type": "Offer",
+            "price": "0.00",
+            "priceCurrency": "EUR"
+          }
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://nickdesi.github.io/ffbb-data-client/#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Qu'est-ce que ffbb-data-client ?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "ffbb-data-client est un SDK Python moderne, typé avec Pydantic v2 et entièrement asynchrone pour interroger les API Directus et les index Meilisearch de la Fédération Française de BasketBall (FFBB)."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Comment ffbb-data-client gère-t-il l'authentification et les tokens FFBB ?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Le TokenManager intégré résout et renouvelle automatiquement les clés publiques d'API Directus et Meilisearch en arrière-plan sans aucune configuration manuelle requise."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Le SDK supporte-t-il les appels asynchrones (async/await) ?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Oui, 100% des méthodes disposent d'un équivalent asynchrone natif (ex: get_lives_async, multi_search_async, get_organisme_async) optimisé pour asyncio et FastAPI."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Quelle est la relation entre ffbb-data-client et FFBB MCP Server ?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "ffbb-data-client est la couche d'accès aux données (data layer) sous-jacente qui alimente le serveur FFBB MCP utilisé par Claude, Cursor et GitHub Copilot."
+              }
+            }
+          ]
         }
-      }, {
-        "@type": "Question",
-        "name": "Est-ce que ffbb-data-client supporte l'asynchrone (asyncio) ?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Oui. Absolument toutes les fonctions exposent un équivalent _async() optimisé pour asyncio et FastAPI."
-        }
-      }, {
-        "@type": "Question",
-        "name": "ffbb-data-client est-il compatible avec l'IA et les Agents (MCP) ?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Oui. Son architecture type-safe via Pydantic v2 a été pensée pour piloter le FFBB MCP Server officiel, exploitable par Claude, Cursor ou Copilot."
-        }
-      }]
+      ]
     }
     </script>
 </head>
 <body>
-    <div class="background-effects">
-        <div class="glow-orb orb-1"></div>
-        <div class="glow-orb orb-2"></div>
+    <!-- Ambient Background Effects -->
+    <div class="ambient-mesh">
+        <div class="mesh-orb orb-primary"></div>
+        <div class="mesh-orb orb-secondary"></div>
+        <div class="mesh-orb orb-accent"></div>
+        <div class="grid-overlay"></div>
     </div>
 
-    <header class="glass-header">
-        <div class="container header-container">
-            <div class="logo-area">
-                <img src="assets/logo.webp" alt="ffbb-data-client Logo" class="brand-logo" width="48" height="48">
-                <span class="brand-text">ffbb-data-client</span>
+    <!-- Header Navigation -->
+    <header class="site-header" id="header">
+        <div class="container nav-wrapper">
+            <a href="#" class="brand">
+                <img src="assets/logo.webp" alt="Logo ffbb-data-client" class="brand-logo" width="40" height="40">
+                <span>ffbb-data-client</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#features" class="nav-link">Fonctionnalités</a></li>
+                <li><a href="#code" class="nav-link">Code & Exemples</a></li>
+                <li><a href="#mcp" class="nav-link">Serveur MCP IA</a></li>
+                <li><a href="#faq" class="nav-link">FAQ</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="https://pypi.org/project/ffbb-data-client/" target="_blank" rel="noopener" class="btn btn-glass btn-sm">📦 PyPI</a>
+                <a href="https://github.com/nickdesi/ffbb-data-client" target="_blank" rel="noopener" class="btn btn-primary btn-sm">⭐ GitHub</a>
             </div>
-            <nav class="main-nav">
-                <a href="#features">Fonctionnalités</a>
-                <a href="#code">Documentation</a>
-                <a href="https://github.com/nickdesi/FFBB-MCP-Server" target="_blank" class="nav-glow">✨ MCP IA</a>
-                <a href="https://github.com/nickdesi/ffbb-data-client" class="btn btn-outline" target="_blank">GitHub</a>
-            </nav>
         </div>
     </header>
 
     <main>
-        <section class="hero container">
-            <div class="hero-content">
-                <h1 class="hero-title">
-                    Les données <span class="text-gradient">FFBB</span>.<br>
-                    Maintenant accessibles.
-                </h1>
-                <p class="hero-subtitle">
-                    La refonte totale pour remplacer l'ancienne V2 obsolète.
-                    <strong>Ne gérez plus les tokens à la main.</strong> Découvrez le SDK Python asynchrone, 100% type-safe via Pydantic v2 et prêt pour la production.
-                </p>
-                <div class="hero-ctas">
-                    <div class="terminal-install">
-                        <span class="prompt">$</span> pip install ffbb-data-client
-                        <button class="copy-btn" onclick="navigator.clipboard.writeText('pip install ffbb-data-client')">Copier</button>
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container hero-grid">
+                <div class="hero-content">
+                    <div class="hero-badge">
+                        <span class="badge-pulse"></span>
+                        <span>v2.1.0 • Python 3.10+ • Pydantic v2 • Asyncio</span>
                     </div>
-                    <a href="#code" class="btn btn-primary">Explorer le code</a>
+                    <h1 class="hero-title">
+                        Le SDK Python <span class="text-gradient">Moderne & Asynchrone</span> pour l'API FFBB.
+                    </h1>
+                    <p class="hero-lead">
+                        Exploitez toutes les données officielles du basketball français avec une façade fluide, un typage strict, du cache intelligent et un moteur de recherche Meilisearch instantané.
+                    </p>
+                    <div class="hero-cta">
+                        <a href="#code" class="btn btn-primary btn-lg">🚀 Démarrage Rapide</a>
+                        <a href="https://github.com/nickdesi/FFBB-MCP-Server" target="_blank" rel="noopener" class="btn btn-glass btn-lg">🤖 Serveur MCP pour IA</a>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <span class="stat-value">&lt; 15ms</span>
+                            <span class="stat-label">Recherche Meili</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">695+</span>
+                            <span class="stat-label">Tests Unitaires</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">100%</span>
+                            <span class="stat-label">Async / Sync</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">0 Config</span>
+                            <span class="stat-label">Auth Tokens</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="badges">
-                    <img src="https://img.shields.io/pypi/v/ffbb-data-client?color=blue&label=PyPI&logo=python" alt="PyPI version">
-                    <img src="https://img.shields.io/pypi/dm/ffbb-data-client?label=downloads%2Fmonth&color=orange" alt="Downloads">
-                    <img src="https://img.shields.io/github/stars/nickdesi/ffbb-data-client?style=social" alt="Github Stars">
+
+                <!-- Interactive Hero Terminal -->
+                <div class="hero-visual">
+                    <div class="terminal-card">
+                        <div class="terminal-header">
+                            <div class="terminal-dots">
+                                <span class="dot dot-red"></span>
+                                <span class="dot dot-yellow"></span>
+                                <span class="dot dot-green"></span>
+                            </div>
+                            <span class="terminal-title">quickstart.py</span>
+                            <button class="terminal-copy-btn" onclick="copySnippet('pip install ffbb-data-client')">📋 Copier</button>
+                        </div>
+                        <div class="terminal-body">
+                            <span class="code-line"><span class="code-comment"># 1. Installation</span></span>
+                            <span class="code-line"><span class="code-prompt">$</span>pip install <span class="code-hl">ffbb-data-client</span></span>
+                            <span class="code-line">&nbsp;</span>
+                            <span class="code-line"><span class="code-comment"># 2. Utilisation en 3 lignes</span></span>
+                            <span class="code-line"><span class="code-keyword">from</span> ffbb_data_client <span class="code-keyword">import</span> <span class="code-const">FFBBDataClient</span></span>
+                            <span class="code-line">client = <span class="code-const">FFBBDataClient</span>.<span class="code-func">create</span>()</span>
+                            <span class="code-line">&nbsp;</span>
+                            <span class="code-line"><span class="code-comment"># Recherche universelle multi-index</span></span>
+                            <span class="code-line">results = client.<span class="code-func">multi_search</span>(<span class="code-str">"Pau Orthez"</span>)</span>
+                            <span class="code-line"><span class="code-comment"># Scores live en direct</span></span>
+                            <span class="code-line">lives = client.<span class="code-func">get_lives</span>()</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="hero-visual">
-                <img src="assets/logo.webp" alt="Visuel ffbb-data-client" class="floating-logo" loading="lazy">
             </div>
         </section>
 
-        <section id="features" class="container features-section">
-            <div class="section-heading text-center">
-                <h2>Oubliez les <code>dict</code> bruts.</h2>
-                <p>Un SDK conçu pour le confort des développeurs, l'intégrité de la donnée et l'efficience.</p>
-            </div>
-
-            <div class="grid features-grid">
-                <article class="feature-card glass-panel">
-                    <div class="feature-icon">🛡️</div>
-                    <h3>Zéro Erreur de Type</h3>
-                    <p>Validation Pydantic v2 complète. Plus de 60 modèles garantissant des autocomplétions parfaites dans votre IDE. Dites adieu aux KeyError.</p>
-                </article>
-                <article class="feature-card glass-panel">
-                    <div class="feature-icon">🔍</div>
-                    <h3>Meilisearch Multi-Index</h3>
-                    <p>Un seul appel réseau pour interroger 9 index (Clubs, Rencontres, Terrains, Salles...). Filtres <code>filter</code>, <code>sort</code>, <code>limit</code> natifs intégrés.</p>
-                </article>
-                <article class="feature-card glass-panel">
-                    <div class="feature-icon">⚡</div>
-                    <h3>Async First & Cache</h3>
-                    <p>Routines asynchrones (`async/await`), réutilisation persistante des connexions (Keep-Alive) et cache HTTP Hishel avec préchauffage concurrent ultra-rapide.</p>
-                </article>
-                <article class="feature-card glass-panel">
-                    <div class="feature-icon">🤖</div>
-                    <h3>Prêt pour les Agents IA</h3>
-                    <p>Compatible nativement avec le standard MCP. ffbb-data-client propulse le serveur officiel <strong>FFBB MCP Server</strong> pour Claude, Cursor et Copilot.</p>
-                </article>
+        <!-- Live Sync & Discovery Banner -->
+        <section style="padding: 0 0 4rem 0;">
+            <div class="container">
+                <div class="sync-banner-card">
+                    <div class="sync-info">
+                        <div class="sync-icon-box">📡</div>
+                        <div class="sync-text">
+                            <h3>Surveillance & Découverte Continue d'API</h3>
+                            <p>Le workflow quotidien scrute automatiquement l'OpenAPI Directus et les index Meilisearch pour prévenir tout changement de schéma.</p>
+                        </div>
+                    </div>
+                    <div class="sync-badges">
+                        <span class="pill-badge active">● API LIVE DISCOVERY</span>
+                        <span class="pill-badge">34 Collections OpenAPI</span>
+                        <span class="pill-badge">13 Index Meilisearch</span>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <section id="code" class="code-section container">
-            <div class="code-wrapper glass-panel">
-                <div class="code-header">
-                    <div class="mac-buttons">
-                        <span></span><span></span><span></span>
-                    </div>
-                    <div class="file-name">example.py</div>
+        <!-- Bento Grid Features Section -->
+        <section id="features">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-tag">Architecture & Puissance</span>
+                    <h2 class="section-title">Conçu pour les Développeurs Exigeants & les <span class="text-gradient">Agents IA</span></h2>
+                    <p class="section-desc">Chaque module a été réécrit pour offrir des performances maximales, une résilience sans faille et une compatibilité immédiate.</p>
                 </div>
-                <pre><code class="language-python">from ffbb_data_client import FFBBDataClient, TokenManager
-import asyncio
 
-# Les tokens publics FFBB sont générés & renouvelés automatiquement
-tokens = TokenManager.get_tokens()
-client = FFBBDataClient.create(
-    api_bearer_token=tokens.api_token,
-    meilisearch_bearer_token=tokens.meilisearch_token,
-)
+                <div class="bento-grid">
+                    <!-- Feature 1: Async & Type Safety -->
+                    <div class="bento-card span-2">
+                        <div class="card-icon">⚡</div>
+                        <h3 class="card-title">Architecture Double Async/Sync & Typage Pydantic v2</h3>
+                        <p class="card-desc">Toutes les méthodes exposent une implémentation native <code>*_async()</code> basée sur <code>httpx</code> et <code>asyncio</code>, ainsi qu'une version synchrone fluide. Les réponses sont validées et encapsulées dans des modèles Pydantic v2 avec autocomplétion IDE complète.</p>
+                        <div class="card-tags">
+                            <span class="tag">Pydantic v2</span>
+                            <span class="tag">Asyncio / FastAPI</span>
+                            <span class="tag">Type Annotations</span>
+                            <span class="tag">Zero Any Types</span>
+                        </div>
+                    </div>
 
-async def detect_talents():
-    # Retourne des objets typés (Models Pydantic), fini les dicts !
-    clubs = await client.search_organismes_async("Pau")
-    print(f"Club trouvé : {clubs.hits[0].nom}")
+                    <!-- Feature 2: Meilisearch Engine -->
+                    <div class="bento-card">
+                        <div class="card-icon">🔍</div>
+                        <h3 class="card-title">Moteur Multi-Search Meilisearch</h3>
+                        <p class="card-desc">Recherche ultra-rapide (&lt;15ms) sur 13 index simultanés : clubs, compétitions, rencontres, salles, terrains, pratiques 3x3, formations et tournois.</p>
+                        <div class="card-tags">
+                            <span class="tag">Multi-Index</span>
+                            <span class="tag">Fuzzy Search</span>
+                            <span class="tag">Géolocalisation</span>
+                        </div>
+                    </div>
 
-    # Recherche ultra rapide avec filtre MeiliSearch natif
-    comps = await client.search_competitions_async(
-        "Pro A", sort=["libelle:asc"], limit=5
+                    <!-- Feature 3: Token Manager -->
+                    <div class="bento-card">
+                        <div class="card-icon">🔑</div>
+                        <h3 class="card-title">Token Manager & Résolution Zero-Config</h3>
+                        <p class="card-desc">Résolution automatique des clés d'API Directus (<code>key_dh</code>) et Meilisearch (<code>key_ms</code>). Rafraîchissement transparent sans interruption de service.</p>
+                        <div class="card-tags">
+                            <span class="tag">Auto-Renew</span>
+                            <span class="tag">Env Overrides</span>
+                            <span class="tag">Secure Masking</span>
+                        </div>
+                    </div>
+
+                    <!-- Feature 4: Caching -->
+                    <div class="bento-card">
+                        <div class="card-icon">💾</div>
+                        <h3 class="card-title">Cache HTTP & Persistance SQLite</h3>
+                        <p class="card-desc">Système de cache multi-niveaux (mémoire, Hishel HTTP cache, SQLite persistant) avec respect des TTL et gestion intelligente de la mémoire.</p>
+                        <div class="card-tags">
+                            <span class="tag">Hishel Cache</span>
+                            <span class="tag">SQLite Separate DBs</span>
+                            <span class="tag">TTL Configurable</span>
+                        </div>
+                    </div>
+
+                    <!-- Feature 5: Données Complètes -->
+                    <div class="bento-card">
+                        <div class="card-icon">🏀</div>
+                        <h3 class="card-title">Couverture Complète du Basket Français</h3>
+                        <p class="card-desc">Clubs, poules, classements détaillés, calendriers multi-phases, feuilles de match, arbitres, officiels et scores live actualisés en continu.</p>
+                        <div class="card-tags">
+                            <span class="tag">Directus API</span>
+                            <span class="tag">Toutes Divisions</span>
+                            <span class="tag">Stats Live</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Code Showcase Section -->
+        <section id="code">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-tag">Exemples Concrets</span>
+                    <h2 class="section-title">Une API <span class="text-cyan-gradient">Intuitive & Expressive</span></h2>
+                    <p class="section-desc">Quelques lignes suffisent pour bâtir des applications sportives, des bots Discord ou des intégrations IA avancées.</p>
+                </div>
+
+                <div class="showcase-wrapper">
+                    <div class="tabs-nav">
+                        <button class="tab-btn active" onclick="switchTab(event, 'tab-search')">🔍 Multi-Search Meili</button>
+                        <button class="tab-btn" onclick="switchTab(event, 'tab-club')">🗓️ Calendrier & Classement</button>
+                        <button class="tab-btn" onclick="switchTab(event, 'tab-lives')">🔴 Scores Live</button>
+                        <button class="tab-btn" onclick="switchTab(event, 'tab-async')">⚡ Mode Asynchrone</button>
+                    </div>
+
+                    <!-- Tab 1: Search -->
+                    <div id="tab-search" class="tab-content active">
+                        <button class="code-copy-float" onclick="copySnippet('from ffbb_data_client import FFBBDataClient\n\nclient = FFBBDataClient.create()\n\n# Recherche globale sur tous les index FFBB\nresults = client.multi_search(\"Clermont\")\nfor group in results:\n    print(f\"Index {group.index_uid}: {len(group.hits)} résultats\")')">📋 Copier</button>
+                        <pre class="code-box"><code><span class="code-keyword">from</span> ffbb_data_client <span class="code-keyword">import</span> <span class="code-const">FFBBDataClient</span>
+
+client = <span class="code-const">FFBBDataClient</span>.<span class="code-func">create</span>()
+
+<span class="code-comment"># Recherche globale multi-index (organismes, compétitions, salles...)</span>
+results = client.<span class="code-func">multi_search</span>(<span class="code-str">"Clermont"</span>)
+
+<span class="code-keyword">for</span> group <span class="code-keyword">in</span> results <span class="code-keyword">or</span> []:
+    <span class="code-func">print</span>(<span class="code-str">f"Index {group.index_uid} : {len(group.hits)} résultats trouvés"</span>)
+
+<span class="code-comment"># Recherche géographique de clubs dans un rayon de 25 km</span>
+clubs = client.<span class="code-func">search_organismes_by_geo</span>(lat=<span class="code-hl">45.7772</span>, lng=<span class="code-hl">3.0870</span>, radius_km=<span class="code-hl">25</span>)</code></pre>
+                    </div>
+
+                    <!-- Tab 2: Club -->
+                    <div id="tab-club" class="tab-content">
+                        <button class="code-copy-float" onclick="copySnippet('from ffbb_data_client import FFBBDataClient\n\nclient = FFBBDataClient.create()\n\n# Récupérer les informations et équipes d\'un club\nclub = client.get_organisme(id=\"12345\")\nprint(club.nom, club.codePostal)\n\n# Récupérer les classements de la poule\nclassement = client.get_classement(id_poule=\"98765\")')">📋 Copier</button>
+                        <pre class="code-box"><code><span class="code-keyword">from</span> ffbb_data_client <span class="code-keyword">import</span> <span class="code-const">FFBBDataClient</span>
+
+client = <span class="code-const">FFBBDataClient</span>.<span class="code-func">create</span>()
+
+<span class="code-comment"># Fiche détaillée d'un club / organisme</span>
+club = client.<span class="code-func">get_organisme</span>(id=<span class="code-str">"12345"</span>)
+<span class="code-func">print</span>(<span class="code-str">f"Club : {club.nom} ({club.codePostal})"</span>)
+
+<span class="code-comment"># Classement officiel d'une poule</span>
+classement = client.<span class="code-func">get_classement</span>(id_poule=<span class="code-str">"98765"</span>)
+<span class="code-keyword">for</span> team <span class="code-keyword">in</span> classement:
+    <span class="code-func">print</span>(<span class="code-str">f"#{team.position} {team.nom} - {team.points} pts (Diff: {team.difference})"</span>)</code></pre>
+                    </div>
+
+                    <!-- Tab 3: Lives -->
+                    <div id="tab-lives" class="tab-content">
+                        <button class="code-copy-float" onclick="copySnippet('from ffbb_data_client import FFBBDataClient\n\nclient = FFBBDataClient.create()\n\n# Récupération des scores live en direct\nlives = client.get_lives()\nfor match in lives:\n    print(f\"{match.equipe1} {match.score1} - {match.score2} {match.equipe2} ({match.statut})\")')">📋 Copier</button>
+                        <pre class="code-box"><code><span class="code-keyword">from</span> ffbb_data_client <span class="code-keyword">import</span> <span class="code-const">FFBBDataClient</span>
+
+client = <span class="code-const">FFBBDataClient</span>.<span class="code-func">create</span>()
+
+<span class="code-comment"># Récupération en temps réel des matchs en cours (cache 30s)</span>
+lives = client.<span class="code-func">get_lives</span>()
+
+<span class="code-keyword">for</span> match <span class="code-keyword">in</span> lives:
+    <span class="code-func">print</span>(<span class="code-str">f"🏀 {match.equipe1} [{match.score1}] vs [{match.score2}] {match.equipe2} - {match.statut}"</span>)</code></pre>
+                    </div>
+
+                    <!-- Tab 4: Async -->
+                    <div id="tab-async" class="tab-content">
+                        <button class="code-copy-float" onclick="copySnippet('import asyncio\nfrom ffbb_data_client import FFBBDataClient\n\nasync def main():\n    client = FFBBDataClient.create()\n    # Exécution asynchrone non-bloquante\n    saisons, lives = await asyncio.gather(\n        client.get_saisons_async(active_only=True),\n        client.get_lives_async()\n    )\n    print(\"Saison active:\", saisons[0].libelle)\n\nasyncio.run(main())')">📋 Copier</button>
+                        <pre class="code-box"><code><span class="code-keyword">import</span> asyncio
+<span class="code-keyword">from</span> ffbb_data_client <span class="code-keyword">import</span> <span class="code-const">FFBBDataClient</span>
+
+<span class="code-keyword">async def</span> <span class="code-func">main</span>():
+    client = <span class="code-const">FFBBDataClient</span>.<span class="code-func">create</span>()
+
+    <span class="code-comment"># Appels concurrents ultra-rapides avec asyncio.gather</span>
+    saisons, lives = <span class="code-keyword">await</span> asyncio.<span class="code-func">gather</span>(
+        client.<span class="code-func">get_saisons_async</span>(active_only=<span class="code-hl">True</span>),
+        client.<span class="code-func">get_lives_async</span>()
     )
 
-asyncio.run(detect_talents())</code></pre>
-            </div>
-            <div class="code-content text-left">
-                <h2>L'expérience développeur ultime</h2>
-                <p>Créer un script ne prend plus que 30 secondes. Ne perdez plus de temps à faire la rétro-ingénierie des endpoints, nous l'avons fait pour vous.</p>
-                <ul class="check-list">
-                    <li>✔️ Autocomplétion (IntelliSense)</li>
-                    <li>✔️ Gestion des erreurs HTTP packagée</li>
-                    <li>✔️ Support complet des matchs en direct (Lives)</li>
-                </ul>
+    <span class="code-func">print</span>(<span class="code-str">f"Saison active : {saisons[0].libelle}"</span>)
+    <span class="code-func">print</span>(<span class="code-str">f"Matchs en direct : {len(lives)}"</span>)
+
+asyncio.<span class="code-func">run</span>(main())</code></pre>
+                    </div>
+                </div>
             </div>
         </section>
 
+        <!-- MCP Integration Section -->
+        <section id="mcp">
+            <div class="container">
+                <div class="mcp-spotlight-card">
+                    <div class="mcp-content">
+                        <span class="section-tag">Écosystème IA</span>
+                        <h3>Le Moteur Officiel du FFBB MCP Server</h3>
+                        <p>
+                            <code>ffbb-data-client</code> est la brique fondamentale qui propulse <strong>FFBB MCP Server</strong>, permettant à Claude, Cursor, GitHub Copilot et Google Antigravity d'interagir nativement en langage naturel avec toutes les données du basket français.
+                        </p>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <a href="https://ffbb.desimone.fr" target="_blank" rel="noopener" class="btn btn-primary">🌐 Découvrir le Serveur MCP</a>
+                            <a href="https://github.com/nickdesi/FFBB-MCP-Server" target="_blank" rel="noopener" class="btn btn-glass">⭐ Repo FFBB-MCP-Server</a>
+                        </div>
+                    </div>
+                    <div class="mcp-card-visual">
+                        <span class="code-comment"># Exemple de prompt IA</span><br>
+                        <span class="code-str">« Quel est le classement de l'équipe 1 de mon club et leur prochain match ce week-end ? »</span><br><br>
+                        <span class="code-hl">➔ MCP Tool: ffbb_team_summary</span><br>
+                        <span class="code-secondary">Données agrégées via ffbb-data-client en 1 seul appel sans surcharge de tokens.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section id="faq">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-tag">Questions Fréquentes</span>
+                    <h2 class="section-title">Tout ce que vous devez savoir</h2>
+                    <p class="section-desc">Retrouvez les réponses aux questions les plus courantes sur le SDK et son intégration.</p>
+                </div>
+
+                <div class="faq-list">
+                    <div class="faq-item active">
+                        <button class="faq-question" onclick="toggleFaq(this)">
+                            <span>Qu'est-ce que ffbb-data-client ?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>C'est le SDK Python moderne, asynchrone et typé (Pydantic v2) pour interagir avec les APIs publiques de la Fédération Française de BasketBall (FFBB). Il permet de récupérer facilement calendriers, classements, statistiques, scores live et fiches de clubs.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleFaq(this)">
+                            <span>Dois-je créer un compte ou fournir un token d'API ?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Non. Le TokenManager intégré résout et renouvelle automatiquement les clés publiques nécessaires en toute transparence. Aucune configuration préalable n'est requise.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleFaq(this)">
+                            <span>Le SDK est-il compatible avec FastAPI et les applications async ?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Absolument. 100% des méthodes de la façade disposent d'une version <code>*_async()</code> basée sur <code>httpx</code>, parfaitement adaptée aux architectures asynchrones à fort trafic.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleFaq(this)">
+                            <span>Quelle est la différence entre ffbb-data-client et FFBB MCP Server ?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p><code>ffbb-data-client</code> est la bibliothèque Python (SDK) d'accès aux données. <code>FFBB MCP Server</code> est le serveur de contexte IA (Model Context Protocol) qui expose ces données sous forme d'outils et de ressources pour les LLM (Claude, Copilot, Cursor).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
-    <section id="faq" class="container features-section" style="padding-top: 1rem;">
-        <div class="section-heading text-center">
-            <h2>Foire Aux Questions (FAQ)</h2>
-            <p>Les réponses techniques pour comprendre la révolution de cette V3.</p>
-        </div>
-        <div class="grid features-grid" style="grid-template-columns: 1fr; max-width: 800px; margin: 0 auto; gap: 1.5rem;">
-            <article class="feature-card glass-panel" style="padding: 1.5rem; text-align: left;">
-                <h3 style="margin-bottom: 0.5rem; font-size: 1.2rem;">Qu'est-ce que ffbb-data-client ?</h3>
-                <p style="opacity: 0.8; font-size: 0.95rem;">C'est le SDK Python moderne, asynchrone et activement maintenu pour s'interfacer avec les API publiques de la FFBB. Il remplace de A à Z l'ancienne V2 devenue obsolète.</p>
-            </article>
-            <article class="feature-card glass-panel" style="padding: 1.5rem; text-align: left;">
-                <h3 style="margin-bottom: 0.5rem; font-size: 1.2rem;">Est-ce que le client supporte l'asynchrone (asyncio) ?</h3>
-                <p style="opacity: 0.8; font-size: 0.95rem;">Oui. Absolument toutes les fonctions synchrones exposent un équivalent asynchrone <code>_async()</code>, idéal pour FastAPI et haut débit.</p>
-            </article>
-            <article class="feature-card glass-panel" style="padding: 1.5rem; text-align: left;">
-                <h3 style="margin-bottom: 0.5rem; font-size: 1.2rem;">Est-il compatible avec l'IA et les Agents (MCP) ?</h3>
-                <p style="opacity: 0.8; font-size: 0.95rem;">Oui, c'est sa force majeure. Son architecture strict via Pydantic v2 a été créée sur mesure pour propulser le Serveur MCP officiel pour Claude, Copilot et Cursor.</p>
-            </article>
-        </div>
-    </section>
-
-    <footer class="footer">
-        <div class="container text-center">
-            <p>Conçu pour la communauté basketball française par les passionnés, pour les développeurs.</p>
-            <p><small>Non affilié officiellement à la Fédération Française de BasketBall.</small></p>
-            <div class="footer-links">
-                <a href="https://pypi.org/project/ffbb-data-client/">PyPI</a>
-                <a href="https://github.com/nickdesi/ffbb-data-client">GitHub ffbb-data-client</a>
-                <a href="https://github.com/nickdesi/FFBB-MCP-Server">FFBB MCP Server</a>
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="#" class="brand">
+                        <img src="assets/logo.webp" alt="Logo" class="brand-logo" width="36" height="36">
+                        <span>ffbb-data-client</span>
+                    </a>
+                    <p>SDK Python officiel communautaire pour l'exploitation des données ouvertes du basketball français.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Ressources</h4>
+                    <ul class="footer-links">
+                        <li><a href="https://pypi.org/project/ffbb-data-client/" target="_blank" rel="noopener">Package PyPI</a></li>
+                        <li><a href="https://github.com/nickdesi/ffbb-data-client" target="_blank" rel="noopener">Code Source GitHub</a></li>
+                        <li><a href="https://github.com/nickdesi/ffbb-data-client/releases" target="_blank" rel="noopener">Releases & Changelog</a></li>
+                        <li><a href="https://github.com/nickdesi/ffbb-data-client/issues" target="_blank" rel="noopener">Signaler un Bug</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Écosystème</h4>
+                    <ul class="footer-links">
+                        <li><a href="https://ffbb.desimone.fr" target="_blank" rel="noopener">Serveur FFBB MCP</a></li>
+                        <li><a href="https://github.com/nickdesi/FFBB-MCP-Server" target="_blank" rel="noopener">Repo FFBB-MCP-Server</a></li>
+                        <li><a href="https://modelcontextprotocol.io" target="_blank" rel="noopener">Model Context Protocol</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Légal & Licence</h4>
+                    <ul class="footer-links">
+                        <li><a href="https://github.com/nickdesi/ffbb-data-client/blob/master/LICENSE.txt" target="_blank" rel="noopener">Licence Apache 2.0</a></li>
+                        <li><a href="https://github.com/nickdesi/ffbb-data-client/blob/master/SECURITY.md" target="_blank" rel="noopener">Sécurité</a></li>
+                        <li><a href="https://www.ffbb.com" target="_blank" rel="noopener">Site Officiel FFBB</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>© 2026 Nicolas De Simone. Projet open-source sous licence Apache-2.0.</span>
+                <span>Non affilié à la Fédération Française de BasketBall.</span>
             </div>
         </div>
     </footer>
 
-    <!-- Script for minimal interaction -->
+    <!-- Client-Side Scripts -->
     <script>
-        // Smooth reveal on scroll
-        const observerOptions = { root: null, threshold: 0.1, rootMargin: '0px' };
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('revealed');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, observerOptions);
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            if (window.scrollY > 30) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
 
-        document.querySelectorAll('section, .feature-card').forEach(el => observer.observe(el));
+        // Tab Switching
+        function switchTab(evt, tabId) {
+            const tabs = document.querySelectorAll('.tab-content');
+            const btns = document.querySelectorAll('.tab-btn');
+
+            tabs.forEach(tab => tab.classList.remove('active'));
+            btns.forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+
+        // Copy to clipboard snippet
+        function copySnippet(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = event.target;
+                const orig = btn.innerText;
+                btn.innerText = '✅ Copié !';
+                setTimeout(() => { btn.innerText = orig; }, 2000);
+            }).catch(err => {
+                console.error('Erreur copie:', err);
+            });
+        }
+
+        // Accordion toggle
+        function toggleFaq(button) {
+            const item = button.parentElement;
+            const isActive = item.classList.contains('active');
+
+            document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+
+            if (!isActive) {
+                item.classList.add('active');
+            }
+        }
     </script>
 </body>
 </html>
