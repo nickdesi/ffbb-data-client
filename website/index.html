@@ -3,29 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="ffbb-data-client est le SDK Python moderne, typé avec Pydantic v2 et asynchrone pour exploiter l'intégralité des données publiques de la Fédération Française de BasketBall (FFBB).">
-    <meta name="keywords" content="Google Design, FFBB API, Python SDK, Basketball API, FFBB MCP, Pydantic v2, Meilisearch, Sports Data, AI Agents, Basket France, Open Data Basket">
+    <meta name="description" content="Accédez à toutes les données officielles de la Fédération Française de BasketBall (FFBB) : résultats, classements, calendriers, fiches de clubs, gymnases et scores en direct pour vos applications, sites web et assistants IA.">
+    <meta name="keywords" content="FFBB API, Basket France, Résultats Basket, Classements FFBB, Scores Live Basket, Clubs Basketball France, Calendrier Matchs FFBB, Open Data Basketball, Python SDK">
     <meta name="author" content="Nicolas De Simone">
     <meta name="robots" content="index, follow, max-image-preview:large">
     <meta name="google-site-verification" content="TEp_bPvybWrZe459iOjSpw6Wixrfol9tAeqlJ4TYw1w" />
     <link rel="canonical" href="https://nickdesi.github.io/ffbb-data-client/" />
-    <meta name="theme-color" content="#090a0f">
+    <meta name="theme-color" content="#07090e">
 
-    <title>ffbb-data-client — Le SDK Python Moderne pour l'API FFBB</title>
+    <title>ffbb-data-client — Toutes les Données du Basket Français à Portée de Main</title>
 
     <!-- Open Graph / Social Media -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="ffbb-data-client">
-    <meta property="og:title" content="ffbb-data-client — SDK Python moderne & asynchrone pour la FFBB">
-    <meta property="og:description" content="Architecture type-safe avec Pydantic v2, asynchrone natif, cache persistant et moteur de recherche Meilisearch (<15ms).">
+    <meta property="og:title" content="ffbb-data-client — Les Données Officielles de la FFBB pour Tous">
+    <meta property="og:description" content="Résultats, calendriers, classements complets, fiches clubs et scores en direct du basketball français en quelques clics.">
     <meta property="og:url" content="https://nickdesi.github.io/ffbb-data-client/">
     <meta property="og:image" content="https://nickdesi.github.io/ffbb-data-client/assets/logo.webp">
     <meta property="og:locale" content="fr_FR">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="ffbb-data-client — SDK Python pour la FFBB">
-    <meta name="twitter:description" content="Clubs, compétitions, classements, calendriers, rencontres et scores live FFBB en Python.">
+    <meta name="twitter:title" content="ffbb-data-client — Données du Basket Français">
+    <meta name="twitter:description" content="Clubs, compétitions, classements, calendriers, rencontres et scores live FFBB.">
     <meta name="twitter:image" content="https://nickdesi.github.io/ffbb-data-client/assets/logo.webp">
 
     <link rel="icon" type="image/webp" href="assets/logo.webp">
@@ -33,7 +33,7 @@
     <!-- Google Fonts Preconnect & Stylesheets -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 
     <!-- Software & FAQ Schema.org JSON-LD -->
@@ -46,17 +46,17 @@
           "@id": "https://nickdesi.github.io/ffbb-data-client/#website",
           "url": "https://nickdesi.github.io/ffbb-data-client/",
           "name": "ffbb-data-client",
-          "description": "SDK Python moderne, typé et asynchrone pour exploiter les données publiques de la FFBB.",
+          "description": "Portail d'accès aux données publiques et statistiques officielles de la FFBB.",
           "inLanguage": "fr-FR"
         },
         {
           "@type": "SoftwareApplication",
           "@id": "https://nickdesi.github.io/ffbb-data-client/#software",
           "name": "ffbb-data-client",
-          "applicationCategory": "DeveloperApplication",
-          "operatingSystem": "All (Python 3.10+)",
+          "applicationCategory": "SportsApplication, DeveloperApplication",
+          "operatingSystem": "All",
           "softwareVersion": "2.1.0",
-          "description": "SDK Python officiel communautaire pour interagir avec les APIs et index Meilisearch de la Fédération Française de BasketBall (FFBB). Type-safe avec Pydantic v2, support async natif et moteur sous-jacent du FFBB MCP Server.",
+          "description": "SDK et passerelle de données pour explorer les clubs, classements, calendriers et scores live de la Fédération Française de BasketBall.",
           "url": "https://github.com/nickdesi/ffbb-data-client",
           "image": "https://nickdesi.github.io/ffbb-data-client/assets/logo.webp",
           "author": {
@@ -76,34 +76,34 @@
           "mainEntity": [
             {
               "@type": "Question",
-              "name": "Qu'est-ce que ffbb-data-client ?",
+              "name": "Quelles données de la FFBB sont disponibles ?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "ffbb-data-client est un SDK Python moderne, typé avec Pydantic v2 et entièrement asynchrone pour interroger les API Directus et les index Meilisearch de la Fédération Française de BasketBall (FFBB)."
+                "text": "Vous avez accès à l'ensemble des données publiques de la Fédération : fiches détaillées des clubs, compositions de poules, calendriers de toutes les divisions, classements officiels actualisés, coordonnées des gymnases, terrains 3x3 et scores en direct."
               }
             },
             {
               "@type": "Question",
-              "name": "Comment ffbb-data-client gère-t-il l'authentification et les tokens FFBB ?",
+              "name": "À qui s'adresse ce projet ?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "Le TokenManager intégré résout et renouvelle automatiquement les clés publiques d'API Directus et Meilisearch en arrière-plan sans aucune configuration manuelle requise."
+                "text": "Aux clubs et comités souhaitant afficher leurs résultats sur leur site web, aux passionnés et créateurs de bots (Discord, Twitter), aux développeurs d'applications mobiles sportives et aux utilisateurs d'assistants IA (Claude, Copilot)."
               }
             },
             {
               "@type": "Question",
-              "name": "Le SDK supporte-t-il les appels asynchrones (async/await) ?",
+              "name": "Est-ce gratuit et open-source ?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "Oui, 100% des méthodes disposent d'un équivalent asynchrone natif (ex: get_lives_async, multi_search_async, get_organisme_async) optimisé pour asyncio et FastAPI."
+                "text": "Oui, le projet est 100% open-source sous licence Apache 2.0 et mis à disposition gratuitement de la communauté basketball."
               }
             },
             {
               "@type": "Question",
-              "name": "Quelle est la relation entre ffbb-data-client et FFBB MCP Server ?",
+              "name": "Comment poser des questions en langage naturel sur le basket français ?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "ffbb-data-client est la couche d'accès aux données (data layer) sous-jacente qui alimente le serveur FFBB MCP utilisé par Claude, Cursor et GitHub Copilot."
+                "text": "Grâce au FFBB MCP Server connecté à ce SDK, vous pouvez interroger directement Claude, Cursor ou Copilot pour obtenir le bilan de votre équipe, le prochain match ou le classement en temps réel."
               }
             }
           ]
@@ -113,372 +113,348 @@
     </script>
 </head>
 <body>
-    <!-- Ambient Canvas Glow -->
-    <div class="ambient-canvas">
-        <div class="canvas-glow glow-orange"></div>
-        <div class="canvas-glow glow-indigo"></div>
+    <!-- Ambient Background Glow -->
+    <div class="ambient-glow">
+        <div class="glow-circle glow-1"></div>
+        <div class="glow-circle glow-2"></div>
     </div>
 
     <!-- Navigation Header -->
     <header class="site-nav" id="navbar">
-        <div class="container nav-container">
+        <div class="container nav-flex">
             <a href="#" class="nav-brand">
-                <img src="assets/logo.webp" alt="Logo" width="40" height="40">
+                <img src="assets/logo.webp" alt="Logo FFBB" width="40" height="40">
                 <span>ffbb-data-client</span>
             </a>
-            <ul class="nav-menu">
-                <li><a href="#spotlight" class="nav-link">Spotlight</a></li>
-                <li><a href="#features" class="nav-link">Architecture</a></li>
-                <li><a href="#code" class="nav-link">Exemples de Code</a></li>
-                <li><a href="#faq" class="nav-link">FAQ</a></li>
+            <ul class="nav-links">
+                <li><a href="#usages">Ce que vous pouvez faire</a></li>
+                <li><a href="#donnees">Données disponibles</a></li>
+                <li><a href="#ia">Assistant IA & MCP</a></li>
+                <li><a href="#devs">Espace Développeurs</a></li>
+                <li><a href="#faq">FAQ</a></li>
             </ul>
-            <div class="nav-actions">
-                <a href="https://pypi.org/project/ffbb-data-client/" target="_blank" rel="noopener" class="chip chip-interactive">📦 PyPI</a>
+            <div style="display: flex; gap: 0.75rem; align-items: center;">
+                <a href="https://pypi.org/project/ffbb-data-client/" target="_blank" rel="noopener" class="chip">📦 PyPI</a>
                 <a href="https://github.com/nickdesi/ffbb-data-client" target="_blank" rel="noopener" class="btn btn-primary btn-sm">⭐ GitHub</a>
             </div>
         </div>
     </header>
 
     <main>
-        <!-- Hero Section -->
+        <!-- Hero Section (User & Basketball Focused) -->
         <section class="hero">
             <div class="container hero-grid">
                 <div>
                     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
-                        <span class="chip chip-orange">● V2.1.0 RELEASE</span>
-                        <span class="chip chip-mint">Pydantic v2</span>
-                        <span class="chip chip-indigo">100% Async / Sync</span>
+                        <span class="chip chip-orange">🏀 OPEN DATA DU BASKETBALL</span>
+                        <span class="chip chip-live"><span class="live-pulse"></span> SCORES EN DIRECT</span>
                     </div>
                     <h1 class="hero-title">
-                        Le code comme matériau pour les <span class="text-gradient">données du basket</span>.
+                        Toutes les données du <span class="text-gradient">basket français</span>, enfin réunies.
                     </h1>
-                    <p class="hero-desc">
-                        Explorez l'intégralité des compétitions, clubs, calendriers et scores live de la FFBB avec une API Python expressive, typée et ultra-performante.
+                    <p class="hero-lead">
+                        Résultats, calendriers des matchs, classements de toutes les poules, fiches de clubs et scores live : explorez et intégrez facilement les données officielles de la FFBB dans vos sites, applications ou assistants IA.
                     </p>
                     <div class="hero-actions">
-                        <a href="#code" class="btn btn-primary btn-lg">🚀 Démarrer en 3 lignes</a>
-                        <a href="https://ffbb.desimone.fr" target="_blank" rel="noopener" class="btn btn-surface btn-lg">🤖 Serveur MCP pour IA</a>
+                        <a href="#usages" class="btn btn-primary btn-lg">🏀 Découvrir les usages</a>
+                        <a href="https://ffbb.desimone.fr" target="_blank" rel="noopener" class="btn btn-surface btn-lg">🤖 Poser des questions à l'IA</a>
                     </div>
-                    <div class="hero-metrics">
-                        <div class="metric-card">
-                            <span class="metric-val">&lt;15ms</span>
-                            <span class="metric-label">Meilisearch</span>
+                    <div class="hero-badges-row">
+                        <div class="hero-badge-item">
+                            <span class="hero-badge-val">4 500+</span>
+                            <span class="hero-badge-lbl">Clubs référencés</span>
                         </div>
-                        <div class="metric-card">
-                            <span class="metric-val">695+</span>
-                            <span class="metric-label">Tests validés</span>
+                        <div class="hero-badge-item">
+                            <span class="hero-badge-val">Toutes Divisions</span>
+                            <span class="hero-badge-lbl">Du Départemental à l'Élite</span>
                         </div>
-                        <div class="metric-card">
-                            <span class="metric-val">0 Config</span>
-                            <span class="metric-label">Tokens Auto</span>
-                        </div>
-                        <div class="metric-card">
-                            <span class="metric-val">100%</span>
-                            <span class="metric-label">Type-Safe</span>
+                        <div class="hero-badge-item">
+                            <span class="hero-badge-val">Live & 3x3</span>
+                            <span class="hero-badge-lbl">Salles, Terrains & Matchs</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Interactive Playground Widget -->
-                <div class="playground-card">
-                    <div class="playground-header">
-                        <div class="window-dots">
-                            <span class="w-dot w-red"></span>
-                            <span class="w-dot w-yellow"></span>
-                            <span class="w-dot w-green"></span>
-                        </div>
-                        <span class="window-title">quickstart.py</span>
-                        <button class="chip chip-interactive" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="copyCode('pip install ffbb-data-client')">📋 Copier</button>
+                <!-- Visual Basketball Match & Club Preview -->
+                <div class="basket-preview-card">
+                    <div class="preview-nav">
+                        <button class="preview-tab active" onclick="switchPreview('live')">🔴 Match en Direct</button>
+                        <button class="preview-tab" onclick="switchPreview('club')">🏆 Fiche Club & Équipe</button>
+                        <button class="preview-tab" onclick="switchPreview('salle')">📍 Salles & Terrains 3x3</button>
                     </div>
-                    <div class="code-container">
-                        <div style="color: var(--text-muted); margin-bottom: 0.5rem;"># 1. Installation du SDK</div>
-                        <div><span style="color: var(--color-ffbb-orange); user-select: none;">$ </span>pip install <span class="code-h">ffbb-data-client</span></div>
-                        <br>
-                        <div style="color: var(--text-muted); margin-bottom: 0.5rem;"># 2. Recherche & Live en direct</div>
-                        <div><span class="code-k">from</span> ffbb_data_client <span class="code-k">import</span> <span class="code-v">FFBBDataClient</span></div>
-                        <div>client = <span class="code-v">FFBBDataClient</span>.<span class="code-f">create</span>()</div>
-                        <br>
-                        <div>results = client.<span class="code-f">multi_search</span>(<span class="code-s">"Pau Orthez"</span>)</div>
-                        <div>lives = client.<span class="code-f">get_lives</span>()</div>
-                        <div style="color: var(--color-mint); margin-top: 0.5rem;">✨ Directus OpenAPI + 13 Index Meilisearch</div>
-                    </div>
-                </div>
-            </div>
-        </section>
 
-        <!-- Spotlight / Lead Story Block (Google Design style) -->
-        <section id="spotlight" style="padding-top: 2rem;">
-            <div class="container">
-                <div class="story-block">
-                    <div class="story-content">
-                        <span class="chip chip-orange">SPOTLIGHT</span>
-                        <h3>Cartographie API & Synchronisation Continue</h3>
-                        <p>
-                            Un workflow de découverte automatique scrute quotidiennement le schéma OpenAPI Directus et les index Meilisearch pour cartographier et détecter immédiatement toute évolution d'endpoint ou de champ.
+                    <div id="preview-live" class="preview-content">
+                        <div class="match-card">
+                            <div class="match-header">
+                                <span>🏀 NATIONALE MASCULINE 1 — POULE B</span>
+                                <span class="chip chip-live" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;"><span class="live-pulse"></span> 4e QUART-TEMPS</span>
+                            </div>
+                            <div class="match-teams">
+                                <div class="team-box">
+                                    <span class="team-name">Pau Nord Est</span>
+                                    <span class="team-score">78</span>
+                                </div>
+                                <span class="match-vs">VS</span>
+                                <div class="team-box" style="text-align: right;">
+                                    <span class="team-name">Stade Montois</span>
+                                    <span class="team-score">74</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center;">
+                            ⏱️ Actualisation des scores et temps forts en continu sur toutes les rencontres officielles.
                         </p>
-                        <div class="story-metrics-grid">
-                            <div class="story-metric-box">
-                                <strong>34 Collections</strong>
-                                <span>Directus OpenAPI surveillées</span>
+                    </div>
+
+                    <div id="preview-club" class="preview-content" style="display: none;">
+                        <div class="match-card">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                <div>
+                                    <h4 style="font-family: var(--font-heading); font-size: 1.15rem; color: #fff;">Élan Béarnais Pau-Lacq-Orthez</h4>
+                                    <span style="font-size: 0.8rem; color: var(--text-muted);">Club affilié FFBB • 64000 Pau</span>
+                                </div>
+                                <span class="chip chip-orange" style="font-size: 0.75rem;">3e au Classement</span>
                             </div>
-                            <div class="story-metric-box">
-                                <strong>13 Index</strong>
-                                <span>Meilisearch synchronisés</span>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; text-align: center; background: rgba(0,0,0,0.25); padding: 0.75rem; border-radius: 8px;">
+                                <div><strong style="color: #34d399;">14 Victoires</strong></div>
+                                <div><strong style="color: #ef4444;">4 Défaites</strong></div>
+                                <div><strong style="color: #ff6b00;">32 Points</strong></div>
                             </div>
                         </div>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center;">
+                            📅 Prochain match : Samedi 20h00 vs Tours Basket Métropole (Palais des Sports).
+                        </p>
                     </div>
+
+                    <div id="preview-salle" class="preview-content" style="display: none;">
+                        <div class="match-card">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <h4 style="font-family: var(--font-heading); font-size: 1.15rem; color: #fff;">Gymnase Jean Bouin</h4>
+                                    <span style="font-size: 0.85rem; color: var(--text-muted);">2 Terrains parquet • 1 Terrain 3x3 extérieur</span>
+                                </div>
+                                <span class="chip" style="font-size: 0.75rem;">📍 1.2 km</span>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center;">
+                            🔍 Géolocalisation instantanée des salles de match et spots de basket autour de vous.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Use Cases Section -->
+        <section id="usages">
+            <div class="container">
+                <div class="section-head">
+                    <span class="chip chip-orange">CAS D'USAGE</span>
+                    <h2>Donnez vie à vos projets basketball</h2>
+                    <p>Que vous soyez un club, un bénévole, un entraîneur, un créateur de contenu ou un développeur, accédez aux informations clés sans friction.</p>
+                </div>
+
+                <div class="usecases-grid">
+                    <div class="usecase-card">
+                        <div class="usecase-icon">🏟️</div>
+                        <h3>Sites Web de Clubs & Comités</h3>
+                        <p>Affichez automatiquement sur le site de votre club les classements à jour de chaque équipe, les calendriers du week-end et les derniers résultats sans saisie manuelle.</p>
+                    </div>
+
+                    <div class="usecase-card">
+                        <div class="usecase-icon">🤖</div>
+                        <h3>Bots Discord & Réseaux Sociaux</h3>
+                        <p>Créez des alertes automatiques pour vos supporters : notification de début de match, alertes scores à la mi-temps et récapitulatif du week-end dès la publication des feuilles de match.</p>
+                    </div>
+
+                    <div class="usecase-card">
+                        <div class="usecase-icon">📊</div>
+                        <h3>Statistiques & Analyse Sportive</h3>
+                        <p>Analysez les performances des adversaires, les dynamiques de victoires/défaites domicile/extérieur, les écarts de points et l'historique complet des confrontations.</p>
+                    </div>
+
+                    <div class="usecase-card">
+                        <div class="usecase-icon">📍</div>
+                        <h3>Guide des Gymnases & Terrains 3x3</h3>
+                        <p>Trouvez rapidement l'adresse d'une salle pour les déplacements du week-end, les terrains de basket de rue (3x3) homologués et les tournois organisés près de chez vous.</p>
+                    </div>
+
+                    <div class="usecase-card">
+                        <div class="usecase-icon">📱</div>
+                        <h3>Applications Mobiles & Tableaux</h3>
+                        <p>Construisez des applications de suivi pour les parents et joueurs, des écrans d'affichage dynamique pour votre club-house ou des widgets pour montres connectées.</p>
+                    </div>
+
+                    <div class="usecase-card">
+                        <div class="usecase-icon">💬</div>
+                        <h3>Assistants Vocaux & IA Générative</h3>
+                        <p>Interrogez les résultats et classements en parlant naturellement grâce à l'intégration native avec Claude, Cursor, ChatGPT et Google Antigravity.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- What Data is Exposed -->
+        <section id="donnees" style="background: rgba(255, 255, 255, 0.015); border-top: 1px solid var(--theme-border); border-bottom: 1px solid var(--theme-border);">
+            <div class="container">
+                <div class="section-head">
+                    <span class="chip chip-mint">DONNÉES OFFICIELLES</span>
+                    <h2>Une couverture intégrale du basket français</h2>
+                    <p>Toutes les divisions et catégories sont accessibles en temps réel avec des données vérifiées.</p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+                    <div style="background: var(--theme-surface); border: 1px solid var(--theme-border); border-radius: var(--radius-md); padding: 1.75rem;">
+                        <h4 style="font-family: var(--font-heading); color: #ff6b00; font-size: 1.2rem; margin-bottom: 0.75rem;">🏆 Compétitions & Poules</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.95rem;">Départemental, Régional, Championnats Nationaux (NM1, NF1, Espoirs, etc.), Coupes de France et tournois.</p>
+                    </div>
+                    <div style="background: var(--theme-surface); border: 1px solid var(--theme-border); border-radius: var(--radius-md); padding: 1.75rem;">
+                        <h4 style="font-family: var(--font-heading); color: #34d399; font-size: 1.2rem; margin-bottom: 0.75rem;">📅 Calendriers & Résultats</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.95rem;">Dates des matchs, horaires, scores finaux, feuilles de match officielles, arbitres désignés et bilans par phase.</p>
+                    </div>
+                    <div style="background: var(--theme-surface); border: 1px solid var(--theme-border); border-radius: var(--radius-md); padding: 1.75rem;">
+                        <h4 style="font-family: var(--font-heading); color: #818cf8; font-size: 1.2rem; margin-bottom: 0.75rem;">🏀 Clubs & Organismes</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.95rem;">Fiches des 4 500+ clubs de France, coordonnées, couleurs, liste des équipes engagées par catégorie d'âge.</p>
+                    </div>
+                    <div style="background: var(--theme-surface); border: 1px solid var(--theme-border); border-radius: var(--radius-md); padding: 1.75rem;">
+                        <h4 style="font-family: var(--font-heading); color: #f59e0b; font-size: 1.2rem; margin-bottom: 0.75rem;">🔴 Matchs en Direct</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.95rem;">Scores en direct actualisés toutes les 30 secondes pour les rencontres du week-end sur tous les parquets.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI & MCP Section -->
+        <section id="ia">
+            <div class="container">
+                <div class="ai-banner">
                     <div>
-                        <div class="playground-card">
-                            <div class="playground-header">
-                                <span class="window-title">discovery_metrics.json</span>
-                                <span class="chip chip-mint" style="padding: 0.15rem 0.5rem; font-size: 0.7rem;">LIVE SYNC</span>
-                            </div>
-                            <div class="code-container" style="font-size: 0.85rem;">
-                                <div>{</div>
-                                <div style="padding-left: 1rem;"><span class="code-s">"status"</span>: <span class="code-h">"synchronized"</span>,</div>
-                                <div style="padding-left: 1rem;"><span class="code-s">"collections"</span>: <span class="code-v">34</span>,</div>
-                                <div style="padding-left: 1rem;"><span class="code-s">"indexes"</span>: <span class="code-v">13</span>,</div>
-                                <div style="padding-left: 1rem;"><span class="code-s">"auto_bump_ci"</span>: <span class="code-k">true</span></div>
-                                <div>}</div>
-                            </div>
+                        <span class="chip chip-orange">ASSISTANT IA</span>
+                        <h3>Posez vos questions sur le basket en langage naturel</h3>
+                        <p>
+                            Grâce au <strong>Serveur FFBB MCP</strong> propulsé par <code>ffbb-data-client</code>, vos assistants IA (Claude, GitHub Copilot, Cursor, ChatGPT) comprennent directement vos questions sur le basket français.
+                        </p>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <a href="https://ffbb.desimone.fr" target="_blank" rel="noopener" class="btn btn-primary">🌐 Découvrir le Serveur MCP</a>
+                            <a href="https://github.com/nickdesi/FFBB-MCP-Server" target="_blank" rel="noopener" class="btn btn-surface">⭐ Voir le projet sur GitHub</a>
+                        </div>
+                    </div>
+                    <div class="ai-chat-bubble">
+                        <div class="chat-user">
+                            <span>👤</span>
+                            <strong>« Quel est le prochain match de l'équipe 1 de mon club et leur classement actuel ? »</strong>
+                        </div>
+                        <div class="chat-agent">
+                            🏀 <strong>Réponse instantanée :</strong> Votre équipe est actuellement <strong>2e de la poule</strong> avec 12 victoires. Leur prochain match aura lieu ce <strong>samedi à 20h30</strong> à domicile contre le BC Layrac !
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Architecture & Features (Google Design Cards) -->
-        <section id="features">
+        <!-- Developers Space (Clean & Accessible) -->
+        <section id="devs">
             <div class="container">
-                <div class="section-header">
-                    <span class="chip chip-indigo">ARCHITECTURE</span>
-                    <h2 class="section-title">Pensé pour la performance & la robustesse</h2>
-                    <p class="section-desc">Une conception rigoureuse alliant typage strict, exécution asynchrone non-bloquante et résilience automatique.</p>
+                <div class="section-head">
+                    <span class="chip chip-indigo">POUR LES DÉVELOPPEURS</span>
+                    <h2>Intégrez les données en quelques secondes</h2>
+                    <p>Une bibliothèque Python moderne, légère et intuitive pour construire vos projets.</p>
                 </div>
 
-                <div class="features-grid">
-                    <!-- Feature 1 -->
-                    <div class="feature-card">
-                        <div class="card-top">
-                            <div class="feature-icon-box">⚡</div>
-                            <span class="chip chip-orange">Asyncio</span>
-                        </div>
-                        <h3>Double API Sync & Async</h3>
-                        <p>Toutes les méthodes de la façade exposent une version <code>*_async()</code> basée sur <code>httpx</code> et optimisée pour FastAPI et les boucles asyncio concurrentes.</p>
-                        <div class="feature-chips">
-                            <span class="chip">httpx</span>
-                            <span class="chip">async/await</span>
-                            <span class="chip">concurrency</span>
-                        </div>
+                <div class="code-section">
+                    <div class="code-tabs-bar">
+                        <button class="chip preview-tab active" onclick="switchCodeTab(event, 'code-install')">📦 Installation</button>
+                        <button class="chip preview-tab" onclick="switchCodeTab(event, 'code-search')">🔍 Recherche Rapide</button>
+                        <button class="chip preview-tab" onclick="switchCodeTab(event, 'code-club')">🏆 Fiche Club & Matchs</button>
+                        <button class="chip preview-tab" onclick="switchCodeTab(event, 'code-live')">🔴 Matchs Live</button>
                     </div>
 
-                    <!-- Feature 2 -->
-                    <div class="feature-card">
-                        <div class="card-top">
-                            <div class="feature-icon-box">🛡️</div>
-                            <span class="chip chip-mint">Type-Safe</span>
-                        </div>
-                        <h3>Typage Strict Pydantic v2</h3>
-                        <p>Validation à l'exécution et modèles typés exhaustifs pour chaque entité (clubs, poules, matchs, arbitres). Aucune annotation <code>Any</code> résiduelle.</p>
-                        <div class="feature-chips">
-                            <span class="chip">Pydantic v2</span>
-                            <span class="chip">IDE Autocomplete</span>
-                        </div>
+                    <div id="code-install" class="code-box-content code-pane" style="display: block;">
+                        <button class="copy-btn" onclick="copySnippet('pip install ffbb-data-client')">📋 Copier</button>
+                        <pre><code><span style="color: #64748b;"># Installation en une seule commande (Python 3.10+)</span>
+<span style="color: #ff6b00;">$</span> pip install <span style="color: #34d399;">ffbb-data-client</span></code></pre>
                     </div>
 
-                    <!-- Feature 3 -->
-                    <div class="feature-card">
-                        <div class="card-top">
-                            <div class="feature-icon-box">🔍</div>
-                            <span class="chip chip-cyan">Search Engine</span>
-                        </div>
-                        <h3>Moteur Meilisearch Intégré</h3>
-                        <p>Recherche multi-index fulgurante en moins de 15ms : organismes, compétitions, salles, terrains, pratiques 3x3 et géolocalisation par rayon.</p>
-                        <div class="feature-chips">
-                            <span class="chip">13 Index</span>
-                            <span class="chip">Fuzzy Search</span>
-                            <span class="chip">Géo-filtre</span>
-                        </div>
+                    <div id="code-search" class="code-box-content code-pane" style="display: none;">
+                        <button class="copy-btn" onclick="copySnippet('from ffbb_data_client import FFBBDataClient\n\nclient = FFBBDataClient.create()\nresults = client.multi_search(\"Clermont\")')">📋 Copier</button>
+                        <pre><code><span style="color: #ff7b72;">from</span> ffbb_data_client <span style="color: #ff7b72;">import</span> <span style="color: #79c0ff;">FFBBDataClient</span>
+
+client = <span style="color: #79c0ff;">FFBBDataClient</span>.<span style="color: #d2a8ff;">create</span>()
+
+<span style="color: #8b949e;"># Recherche instantanée de clubs, compétitions et salles</span>
+resultats = client.<span style="color: #d2a8ff;">multi_search</span>(<span style="color: #a5d6ff;">"Clermont"</span>)</code></pre>
                     </div>
 
-                    <!-- Feature 4 -->
-                    <div class="feature-card">
-                        <div class="card-top">
-                            <div class="feature-icon-box">🔑</div>
-                            <span class="chip chip-indigo">Zero-Config</span>
-                        </div>
-                        <h3>TokenManager Intelligent</h3>
-                        <p>Résolution et renouvellement transparents des clés d'API publiques Directus et Meilisearch en arrière-plan sans action requise.</p>
-                        <div class="feature-chips">
-                            <span class="chip">Auto-Renew</span>
-                            <span class="chip">Masquage Logs</span>
-                        </div>
+                    <div id="code-club" class="code-box-content code-pane" style="display: none;">
+                        <button class="copy-btn" onclick="copySnippet('from ffbb_data_client import FFBBDataClient\n\nclient = FFBBDataClient.create()\nclub = client.get_organisme(id=\"12345\")\nclassement = client.get_classement(id_poule=\"98765\")')">📋 Copier</button>
+                        <pre><code><span style="color: #ff7b72;">from</span> ffbb_data_client <span style="color: #ff7b72;">import</span> <span style="color: #79c0ff;">FFBBDataClient</span>
+
+client = <span style="color: #79c0ff;">FFBBDataClient</span>.<span style="color: #d2a8ff;">create</span>()
+
+<span style="color: #8b949e;"># Récupérer la fiche club et le classement officiel</span>
+club = client.<span style="color: #d2a8ff;">get_organisme</span>(id=<span style="color: #a5d6ff;">"12345"</span>)
+classement = client.<span style="color: #d2a8ff;">get_classement</span>(id_poule=<span style="color: #a5d6ff;">"98765"</span>)</code></pre>
                     </div>
 
-                    <!-- Feature 5 -->
-                    <div class="feature-card">
-                        <div class="card-top">
-                            <div class="feature-icon-box">💾</div>
-                            <span class="chip chip-orange">Storage</span>
-                        </div>
-                        <h3>Cache Multi-Niveaux & SQLite</h3>
-                        <p>Cache mémoire court terme pour les scores live (30s) et persistance SQLite avec séparation propre des bases pour un contrôle total.</p>
-                        <div class="feature-chips">
-                            <span class="chip">Hishel</span>
-                            <span class="chip">SQLite</span>
-                            <span class="chip">TTL Rules</span>
-                        </div>
-                    </div>
+                    <div id="code-live" class="code-box-content code-pane" style="display: none;">
+                        <button class="copy-btn" onclick="copySnippet('from ffbb_data_client import FFBBDataClient\n\nclient = FFBBDataClient.create()\nlives = client.get_lives()')">📋 Copier</button>
+                        <pre><code><span style="color: #ff7b72;">from</span> ffbb_data_client <span style="color: #ff7b72;">import</span> <span style="color: #79c0ff;">FFBBDataClient</span>
 
-                    <!-- Feature 6 -->
-                    <div class="feature-card">
-                        <div class="card-top">
-                            <div class="feature-icon-box">🤖</div>
-                            <span class="chip chip-mint">AI Ready</span>
-                        </div>
-                        <h3>Moteur du Serveur MCP</h3>
-                        <p>La brique technique officielle qui alimente <strong>FFBB MCP Server</strong> pour connecter Claude, Cursor et GitHub Copilot au basket français.</p>
-                        <div class="feature-chips">
-                            <span class="chip">MCP Protocol</span>
-                            <span class="chip">AI Tools</span>
-                        </div>
+client = <span style="color: #79c0ff;">FFBBDataClient</span>.<span style="color: #d2a8ff;">create</span>()
+
+<span style="color: #8b949e;"># Scores en direct des rencontres en cours</span>
+matchs_en_direct = client.<span style="color: #d2a8ff;">get_lives</span>()</code></pre>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Interactive Code Showcase Section -->
-        <section id="code">
-            <div class="container">
-                <div class="section-header">
-                    <span class="chip chip-cyan">EXEMPLES</span>
-                    <h2 class="section-title">Quelques lignes de code suffisent</h2>
-                    <p class="section-desc">Choisissez un cas d'usage pour visualiser la simplicité de l'API.</p>
-                </div>
-
-                <div class="interactive-showcase">
-                    <div class="chips-bar">
-                        <button class="chip chip-interactive chip-active" onclick="showTab(event, 'tab-1')">🔍 Recherche Multi-Index</button>
-                        <button class="chip chip-interactive" onclick="showTab(event, 'tab-2')">🗓️ Club & Classement</button>
-                        <button class="chip chip-interactive" onclick="showTab(event, 'tab-3')">🔴 Scores Live</button>
-                        <button class="chip chip-interactive" onclick="showTab(event, 'tab-4')">⚡ Exécution Asynchrone</button>
-                    </div>
-
-                    <div id="tab-1" class="code-viewport tab-pane" style="display: block;">
-                        <button class="copy-btn-float" onclick="copyCode('from ffbb_data_client import FFBBDataClient\n\nclient = FFBBDataClient.create()\nresults = client.multi_search(\"Clermont\")\nfor group in results:\n    print(f\"Index {group.index_uid}: {len(group.hits)} résultats\")')">📋 Copier</button>
-                        <pre><code><span class="code-k">from</span> ffbb_data_client <span class="code-k">import</span> <span class="code-v">FFBBDataClient</span>
-
-client = <span class="code-v">FFBBDataClient</span>.<span class="code-f">create</span>()
-
-<span class="code-c"># Recherche globale multi-index (organismes, compétitions, salles...)</span>
-results = client.<span class="code-f">multi_search</span>(<span class="code-s">"Clermont"</span>)
-
-<span class="code-k">for</span> group <span class="code-k">in</span> results <span class="code-k">or</span> []:
-    <span class="code-f">print</span>(<span class="code-s">f"Index {group.index_uid} : {len(group.hits)} résultats trouvés"</span>)
-
-<span class="code-c"># Recherche géographique de clubs dans un rayon de 25 km</span>
-clubs = client.<span class="code-f">search_organismes_by_geo</span>(lat=<span class="code-h">45.7772</span>, lng=<span class="code-h">3.0870</span>, radius_km=<span class="code-h">25</span>)</code></pre>
-                    </div>
-
-                    <div id="tab-2" class="code-viewport tab-pane" style="display: none;">
-                        <button class="copy-btn-float" onclick="copyCode('from ffbb_data_client import FFBBDataClient\n\nclient = FFBBDataClient.create()\nclub = client.get_organisme(id=\"12345\")\nclassement = client.get_classement(id_poule=\"98765\")')">📋 Copier</button>
-                        <pre><code><span class="code-k">from</span> ffbb_data_client <span class="code-k">import</span> <span class="code-v">FFBBDataClient</span>
-
-client = <span class="code-v">FFBBDataClient</span>.<span class="code-f">create</span>()
-
-<span class="code-c"># Fiche détaillée d'un club / organisme</span>
-club = client.<span class="code-f">get_organisme</span>(id=<span class="code-s">"12345"</span>)
-<span class="code-f">print</span>(<span class="code-s">f"Club : {club.nom} ({club.codePostal})"</span>)
-
-<span class="code-c"># Classement officiel de la poule</span>
-classement = client.<span class="code-f">get_classement</span>(id_poule=<span class="code-s">"98765"</span>)
-<span class="code-k">for</span> team <span class="code-k">in</span> classement:
-    <span class="code-f">print</span>(<span class="code-s">f"#{team.position} {team.nom} - {team.points} pts (Diff: {team.difference})"</span>)</code></pre>
-                    </div>
-
-                    <div id="tab-3" class="code-viewport tab-pane" style="display: none;">
-                        <button class="copy-btn-float" onclick="copyCode('from ffbb_data_client import FFBBDataClient\n\nclient = FFBBDataClient.create()\nlives = client.get_lives()\nfor match in lives:\n    print(f\"{match.equipe1} {match.score1} - {match.score2} {match.equipe2}\")')">📋 Copier</button>
-                        <pre><code><span class="code-k">from</span> ffbb_data_client <span class="code-k">import</span> <span class="code-v">FFBBDataClient</span>
-
-client = <span class="code-v">FFBBDataClient</span>.<span class="code-f">create</span>()
-
-<span class="code-c"># Scores en direct des rencontres en cours (cache 30s)</span>
-lives = client.<span class="code-f">get_lives</span>()
-
-<span class="code-k">for</span> match <span class="code-k">in</span> lives:
-    <span class="code-f">print</span>(<span class="code-s">f"🏀 {match.equipe1} [{match.score1}] vs [{match.score2}] {match.equipe2} - {match.statut}"</span>)</code></pre>
-                    </div>
-
-                    <div id="tab-4" class="code-viewport tab-pane" style="display: none;">
-                        <button class="copy-btn-float" onclick="copyCode('import asyncio\nfrom ffbb_data_client import FFBBDataClient\n\nasync def main():\n    client = FFBBDataClient.create()\n    saisons, lives = await asyncio.gather(\n        client.get_saisons_async(active_only=True),\n        client.get_lives_async()\n    )\n    print(\"Saison active:\", saisons[0].libelle)\n\nasyncio.run(main())')">📋 Copier</button>
-                        <pre><code><span class="code-k">import</span> asyncio
-<span class="code-k">from</span> ffbb_data_client <span class="code-k">import</span> <span class="code-v">FFBBDataClient</span>
-
-<span class="code-k">async def</span> <span class="code-f">main</span>():
-    client = <span class="code-v">FFBBDataClient</span>.<span class="code-f">create</span>()
-
-    <span class="code-c"># Appels concurrents non-bloquants</span>
-    saisons, lives = <span class="code-k">await</span> asyncio.<span class="code-f">gather</span>(
-        client.<span class="code-f">get_saisons_async</span>(active_only=<span class="code-h">True</span>),
-        client.<span class="code-f">get_lives_async</span>()
-    )
-
-    <span class="code-f">print</span>(<span class="code-s">f"Saison active : {saisons[0].libelle}"</span>)
-    <span class="code-f">print</span>(<span class="code-s">f"Matchs en direct : {len(lives)}"</span>)
-
-asyncio.<span class="code-f">run</span>(main())</code></pre>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- FAQ Section (Google Design Grid Cards) -->
+        <!-- FAQ Section -->
         <section id="faq">
             <div class="container">
-                <div class="section-header">
+                <div class="section-head">
                     <span class="chip chip-mint">FAQ</span>
-                    <h2 class="section-title">Questions Fréquentes</h2>
-                    <p class="section-desc">Tout ce que vous devez savoir sur le SDK et son utilisation.</p>
+                    <h2>Questions fréquentes</h2>
+                    <p>Tout ce que vous devez savoir pour démarrer et utiliser les données.</p>
                 </div>
 
                 <div class="faq-grid">
-                    <div class="faq-card open" onclick="toggleCard(this)">
-                        <div class="faq-q">
-                            <span>Qu'est-ce que ffbb-data-client ?</span>
-                            <span class="faq-toggle">+</span>
+                    <div class="faq-box open" onclick="toggleFaqBox(this)">
+                        <div class="faq-question-row">
+                            <span>Quelles données de la FFBB sont disponibles ?</span>
+                            <span class="faq-plus">+</span>
                         </div>
-                        <div class="faq-a">
-                            <p>C'est le SDK Python moderne, asynchrone et typé (Pydantic v2) pour interagir avec les APIs publiques de la Fédération Française de BasketBall (FFBB). Il permet de manipuler calendriers, classements, statistiques et scores live avec une simplicité maximale.</p>
-                        </div>
-                    </div>
-
-                    <div class="faq-card" onclick="toggleCard(this)">
-                        <div class="faq-q">
-                            <span>Faut-il une clé d'API ou un compte ?</span>
-                            <span class="faq-toggle">+</span>
-                        </div>
-                        <div class="faq-a">
-                            <p>Non. Le TokenManager intégré résout et renouvelle automatiquement les clés publiques nécessaires en toute transparence. Aucune configuration manuelle n'est requise.</p>
+                        <div class="faq-answer-row">
+                            <p>Vous avez accès à l'ensemble des données publiques de la Fédération : fiches détaillées des clubs, compositions de poules, calendriers de toutes les divisions, classements officiels actualisés, coordonnées des gymnases, terrains 3x3 et scores en direct.</p>
                         </div>
                     </div>
 
-                    <div class="faq-card" onclick="toggleCard(this)">
-                        <div class="faq-q">
-                            <span>Est-ce compatible avec FastAPI et async ?</span>
-                            <span class="faq-toggle">+</span>
+                    <div class="faq-box" onclick="toggleFaqBox(this)">
+                        <div class="faq-question-row">
+                            <span>Faut-il une clé d'API ou une autorisation préalable ?</span>
+                            <span class="faq-plus">+</span>
                         </div>
-                        <div class="faq-a">
-                            <p>Oui, absolument. 100% des méthodes de la façade disposent d'un équivalent <code>*_async()</code> basé sur <code>httpx</code>, parfaitement adapté aux architectures asynchrones à fort trafic.</p>
+                        <div class="faq-answer-row">
+                            <p>Non. Le projet gère automatiquement la résolution des accès nécessaires pour interroger les données publiques sans aucune configuration manuelle.</p>
                         </div>
                     </div>
 
-                    <div class="faq-card" onclick="toggleCard(this)">
-                        <div class="faq-q">
-                            <span>Quelle relation avec le Serveur MCP ?</span>
-                            <span class="faq-toggle">+</span>
+                    <div class="faq-box" onclick="toggleFaqBox(this)">
+                        <div class="faq-question-row">
+                            <span>Puis-je l'utiliser pour le site internet de mon club ?</span>
+                            <span class="faq-plus">+</span>
                         </div>
-                        <div class="faq-a">
-                            <p><code>ffbb-data-client</code> est la bibliothèque Python (SDK) d'accès aux données. <code>FFBB MCP Server</code> est le serveur de contexte IA (Model Context Protocol) qui expose ces données sous forme d'outils et de ressources pour les LLM (Claude, Cursor, Copilot).</p>
+                        <div class="faq-answer-row">
+                            <p>Oui, absolument ! C'est l'un des usages principaux : alimenter les pages résultats, classements et calendriers de votre club ou de votre comité en temps réel.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-box" onclick="toggleFaqBox(this)">
+                        <div class="faq-question-row">
+                            <span>Comment poser des questions en langage naturel ?</span>
+                            <span class="faq-plus">+</span>
+                        </div>
+                        <div class="faq-answer-row">
+                            <p>Grâce au <strong>FFBB MCP Server</strong>, vous pouvez connecter directement votre assistant IA (Claude, Copilot, Cursor) pour obtenir des réponses immédiates sur n'importe quelle équipe ou compétition.</p>
                         </div>
                     </div>
                 </div>
@@ -495,31 +471,31 @@ asyncio.<span class="code-f">run</span>(main())</code></pre>
                         <img src="assets/logo.webp" alt="Logo" width="36" height="36">
                         <span>ffbb-data-client</span>
                     </a>
-                    <p>SDK Python officiel communautaire pour l'exploitation des données ouvertes du basketball français.</p>
+                    <p>Projet open-source au service de la communauté basketball pour démocratiser l'accès aux données du basket français.</p>
                 </div>
                 <div class="footer-col">
                     <h4>Ressources</h4>
-                    <ul class="footer-links">
+                    <ul>
                         <li><a href="https://pypi.org/project/ffbb-data-client/" target="_blank" rel="noopener">Package PyPI</a></li>
                         <li><a href="https://github.com/nickdesi/ffbb-data-client" target="_blank" rel="noopener">Code Source GitHub</a></li>
-                        <li><a href="https://github.com/nickdesi/ffbb-data-client/releases" target="_blank" rel="noopener">Releases & Notes</a></li>
-                        <li><a href="https://github.com/nickdesi/ffbb-data-client/issues" target="_blank" rel="noopener">Signaler un Bug</a></li>
+                        <li><a href="https://github.com/nickdesi/ffbb-data-client/releases" target="_blank" rel="noopener">Versions & Mises à jour</a></li>
+                        <li><a href="https://github.com/nickdesi/ffbb-data-client/issues" target="_blank" rel="noopener">Poser une question / Bug</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
-                    <h4>Écosystème</h4>
-                    <ul class="footer-links">
+                    <h4>Écosystème IA</h4>
+                    <ul>
                         <li><a href="https://ffbb.desimone.fr" target="_blank" rel="noopener">Serveur FFBB MCP</a></li>
                         <li><a href="https://github.com/nickdesi/FFBB-MCP-Server" target="_blank" rel="noopener">Repo FFBB-MCP-Server</a></li>
-                        <li><a href="https://modelcontextprotocol.io" target="_blank" rel="noopener">Model Context Protocol</a></li>
+                        <li><a href="https://modelcontextprotocol.io" target="_blank" rel="noopener">Protocole MCP</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
-                    <h4>Légal & Licence</h4>
-                    <ul class="footer-links">
+                    <h4>Légal & Liens</h4>
+                    <ul>
                         <li><a href="https://github.com/nickdesi/ffbb-data-client/blob/master/LICENSE.txt" target="_blank" rel="noopener">Licence Apache 2.0</a></li>
                         <li><a href="https://github.com/nickdesi/ffbb-data-client/blob/master/SECURITY.md" target="_blank" rel="noopener">Sécurité</a></li>
-                        <li><a href="https://www.ffbb.com" target="_blank" rel="noopener">Site Officiel FFBB</a></li>
+                        <li><a href="https://www.ffbb.com" target="_blank" rel="noopener">Fédération Française de BasketBall</a></li>
                     </ul>
                 </div>
             </div>
@@ -542,17 +518,27 @@ asyncio.<span class="code-f">run</span>(main())</code></pre>
             }
         });
 
-        // Tabs switcher
-        function showTab(event, tabId) {
-            document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
-            document.querySelectorAll('.chips-bar .chip').forEach(c => c.classList.remove('chip-active'));
+        // Basketball Live Preview switcher
+        function switchPreview(type) {
+            document.querySelectorAll('.preview-content').forEach(p => p.style.display = 'none');
+            document.querySelectorAll('.preview-tab').forEach(t => t.classList.remove('active'));
 
-            document.getElementById(tabId).style.display = 'block';
-            event.currentTarget.classList.add('chip-active');
+            const target = document.getElementById('preview-' + type);
+            if (target) target.style.display = 'block';
+            event.currentTarget.classList.add('active');
         }
 
-        // Copy button feedback
-        function copyCode(text) {
+        // Code Tab Switcher
+        function switchCodeTab(event, tabId) {
+            document.querySelectorAll('.code-pane').forEach(p => p.style.display = 'none');
+            document.querySelectorAll('.code-tabs-bar .preview-tab').forEach(t => t.classList.remove('active'));
+
+            document.getElementById(tabId).style.display = 'block';
+            event.currentTarget.classList.add('active');
+        }
+
+        // Copy button
+        function copySnippet(text) {
             navigator.clipboard.writeText(text).then(() => {
                 const btn = event.target;
                 const orig = btn.innerText;
@@ -562,11 +548,11 @@ asyncio.<span class="code-f">run</span>(main())</code></pre>
         }
 
         // FAQ Toggle
-        function toggleCard(card) {
-            const isOpen = card.classList.contains('open');
-            document.querySelectorAll('.faq-card').forEach(c => c.classList.remove('open'));
+        function toggleFaqBox(box) {
+            const isOpen = box.classList.contains('open');
+            document.querySelectorAll('.faq-box').forEach(b => b.classList.remove('open'));
             if (!isOpen) {
-                card.classList.add('open');
+                box.classList.add('open');
             }
         }
     </script>
