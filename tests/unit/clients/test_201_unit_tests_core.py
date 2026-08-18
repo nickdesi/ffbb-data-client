@@ -551,8 +551,8 @@ class Test001QueryFieldsCounts(unittest.TestCase):
         default = SaisonFields.get_default_fields()
         detailed = SaisonFields.get_detailed_fields()
 
-        self.assertEqual(len(default), 8)
-        self.assertEqual(len(detailed), 10)
+        self.assertEqual(len(default), 7)
+        self.assertEqual(len(detailed), 9)
         self.assertGreater(len(detailed), len(default))
         # No duplicates
         self.assertEqual(len(default), len(set(default)))
@@ -709,7 +709,6 @@ class Test001QueryFieldsManagerFieldSets(unittest.TestCase):
 
         fields = QueryFieldsManager.get_saison_fields()
         self.assertIn(SaisonFields.ID, fields)
-        self.assertIn(SaisonFields.NOM, fields)
         self.assertIn(SaisonFields.CODE, fields)
         self.assertIn(SaisonFields.LIBELLE, fields)
         self.assertIn(SaisonFields.EN_COURS, fields)

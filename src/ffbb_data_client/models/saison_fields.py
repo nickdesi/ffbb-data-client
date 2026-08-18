@@ -18,7 +18,6 @@ class SaisonFields:
         """Get default fields for saison queries."""
         return [
             cls.ID,
-            cls.NOM,
             cls.ACTIF,
             cls.DEBUT,
             cls.FIN,
