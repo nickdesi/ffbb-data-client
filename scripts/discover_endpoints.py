@@ -509,6 +509,39 @@ def _build_change_summary(
     return "\n".join(lines) + "\n"
 
 
+
+def _update_readme_discovery_metrics(collections_count: int, indexes_count: int) -> bool:
+    readme_path = PROJECT_ROOT / "README.md"
+    if not readme_path.exists():
+        return False
+    text = readme_path.read_text(encoding="utf-8")
+    block_start = "<!-- DISCOVERY_METRICS:START -->"
+    block_end = "<!-- DISCOVERY_METRICS:END -->"
+    nl = chr(10)
+    new_block = (
+        block_start
+        + nl
+        + f"> 🔄 **Cartographie API synchronisée** : `{collections_count}` collections Directus OpenAPI cartographiées, `{indexes_count}` index Meilisearch surveillés."
+        + nl
+        + block_end
+    )
+
+    if block_start in text and block_end in text:
+        pattern = re.compile(rf"{re.escape(block_start)}.*?{re.escape(block_end)}", re.DOTALL)
+        updated = pattern.sub(new_block, text)
+    else:
+        needle = "---" + nl + nl + "## 📌 À propos"
+        if needle in text:
+            updated = text.replace(needle, new_block + nl + nl + needle)
+        else:
+            updated = text + nl + nl + new_block + nl
+
+    if updated != text:
+        readme_path.write_text(updated, encoding="utf-8")
+        return True
+    return False
+
+
 def main() -> None:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -610,6 +643,7 @@ def main() -> None:
 
     packaged_changed = _sync_packaged_artefacts(PACKAGED_ARTEFACT_PATHS)
 
+    _update_readme_discovery_metrics(len(collections), len(available_indexes))
     print(f"Directus collections: {len(collections)}")
     print(f"Directus item paths: {len(item_paths)}")
     print(f"Available Meilisearch indexes: {len(available_indexes)}")
