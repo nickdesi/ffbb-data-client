@@ -30,7 +30,7 @@ from ..utils.retry_utils import (
     get_default_retry_config,
     get_default_timeout_config,
 )
-from ..utils.secure_logging import get_secure_logger, mask_token
+from ..utils.secure_logging import get_secure_logger
 
 _APP_CACHE: dict[str, tuple[float, Any]] = {}
 _APP_CACHE_LOCK = threading.Lock()
@@ -134,11 +134,10 @@ class MeilisearchClient:
         # Initialize secure logger
         self.logger = get_secure_logger(f"{self.__class__.__name__}")
 
-        # Log initialization with masked token
-        masked_token = mask_token(self._bearer_token)
+        # Log initialization without leaking token
         if self.debug:
             self.logger.info(
-                f"MeilisearchClient initialized with token: {masked_token}"
+                "MeilisearchClient initialized with authentication token configured"
             )
             self.logger.info(
                 f"Retry config: {self.retry_config.max_attempts} attempts, "

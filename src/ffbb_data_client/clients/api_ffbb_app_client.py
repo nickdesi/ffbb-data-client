@@ -11,7 +11,7 @@ from ..utils.retry_utils import (
     get_default_retry_config,
     get_default_timeout_config,
 )
-from ..utils.secure_logging import get_secure_logger, mask_token
+from ..utils.secure_logging import get_secure_logger
 from ._mixins.competition import CompetitionMixin
 from ._mixins.external import ExternalMixin
 from ._mixins.getters import GettersMixin
@@ -89,9 +89,10 @@ class ApiFFBBAppClient(
 
         self.logger = get_secure_logger(f"{self.__class__.__name__}")
 
-        masked_token = mask_token(self._bearer_token)
         if self.debug:
-            self.logger.info(f"ApiFFBBAppClient initialized with token: {masked_token}")
+            self.logger.info(
+                "ApiFFBBAppClient initialized with authentication token configured"
+            )
             self.logger.info(
                 f"Retry config: {self.retry_config.max_attempts} attempts, "
                 f"timeout: {self.timeout_config.total_timeout}s"
