@@ -15,7 +15,6 @@ class Test013SecureLoggingIntegration(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.test_token = "test_token_123456789"
-        self.masked_token = "test***MASKED***"
 
     @patch("ffbb_data_client.clients.api_ffbb_app_client.get_secure_logger")
     def test_api_ffbb_client_secure_logging(self, mock_get_logger):
@@ -39,9 +38,9 @@ class Test013SecureLoggingIntegration(unittest.TestCase):
         # (debug=True results in 2 calls)
         self.assertEqual(mock_logger.info.call_count, 2)
 
-        # Check the first call (token initialization) contains masked token
+        # Check the first call (token initialization) contains confirmation without token leak
         first_call_args = mock_logger.info.call_args_list[0][0][0]
-        self.assertIn("***MASKED***", first_call_args)
+        self.assertIn("authentication token configured", first_call_args)
         self.assertNotIn(self.test_token, first_call_args)
 
     @patch("ffbb_data_client.clients.meilisearch_client.get_secure_logger")
@@ -66,9 +65,9 @@ class Test013SecureLoggingIntegration(unittest.TestCase):
         # (debug=True results in 2 calls)
         self.assertEqual(mock_logger.info.call_count, 2)
 
-        # Check the first call (token initialization) contains masked token
+        # Check the first call (token initialization) contains confirmation without token leak
         first_call_args = mock_logger.info.call_args_list[0][0][0]
-        self.assertIn("***MASKED***", first_call_args)
+        self.assertIn("authentication token configured", first_call_args)
         self.assertNotIn(self.test_token, first_call_args)
 
     @patch("ffbb_data_client.clients.api_ffbb_app_client.get_secure_logger")
@@ -89,7 +88,6 @@ class Test013SecureLoggingIntegration(unittest.TestCase):
 
         # Should log success message without token
         self.assertEqual(call_args, "ApiFFBBAppClient initialized successfully")
-        self.assertNotIn("***MASKED***", call_args)
         self.assertNotIn(self.test_token, call_args)
 
     def test_token_validation(self):
