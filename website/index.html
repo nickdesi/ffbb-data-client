@@ -123,19 +123,38 @@
     <header class="site-nav" id="navbar">
         <div class="container nav-flex">
             <a href="#" class="nav-brand">
-                <img src="assets/logo.webp" alt="Logo FFBB" width="40" height="40">
+                <img src="assets/logo.webp" alt="Logo FFBB" width="36" height="36">
                 <span>ffbb-data-client</span>
             </a>
             <ul class="nav-links">
-                <li><a href="#usages">Ce que vous pouvez faire</a></li>
-                <li><a href="#donnees">Données disponibles</a></li>
-                <li><a href="#ia">Assistant IA & MCP</a></li>
-                <li><a href="#devs">Espace Développeurs</a></li>
+                <li><a href="#usages">Usages</a></li>
+                <li><a href="#donnees">Données</a></li>
+                <li><a href="#ia">Assistant IA</a></li>
+                <li><a href="#devs">Développeurs</a></li>
                 <li><a href="#faq">FAQ</a></li>
             </ul>
-            <div style="display: flex; gap: 0.75rem; align-items: center;">
-                <a href="https://pypi.org/project/ffbb-data-client/" target="_blank" rel="noopener" class="chip">📦 PyPI</a>
-                <a href="https://github.com/nickdesi/ffbb-data-client" target="_blank" rel="noopener" class="btn btn-primary btn-sm">⭐ GitHub</a>
+            <div class="nav-actions">
+                <a href="https://pypi.org/project/ffbb-data-client/" target="_blank" rel="noopener" class="chip chip-pypi">📦 PyPI</a>
+                <a href="https://github.com/nickdesi/ffbb-data-client" target="_blank" rel="noopener" class="btn btn-primary btn-sm nav-gh-btn">⭐ GitHub</a>
+                <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu" aria-expanded="false" onclick="toggleMobileMenu()">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Drawer -->
+        <div class="mobile-nav-drawer" id="mobileDrawer">
+            <ul class="mobile-nav-links">
+                <li><a href="#usages" onclick="closeMobileMenu()">🏀 Ce que vous pouvez faire</a></li>
+                <li><a href="#donnees" onclick="closeMobileMenu()">📊 Données officielles</a></li>
+                <li><a href="#ia" onclick="closeMobileMenu()">🤖 Assistant IA & MCP</a></li>
+                <li><a href="#devs" onclick="closeMobileMenu()">💻 Espace Développeurs</a></li>
+                <li><a href="#faq" onclick="closeMobileMenu()">❓ Questions fréquentes</a></li>
+            </ul>
+            <div class="mobile-drawer-actions">
+                <a href="https://pypi.org/project/ffbb-data-client/" target="_blank" rel="noopener" class="chip chip-orange" style="justify-content: center; width: 100%; padding: 0.75rem;">📦 Package PyPI</a>
+                <a href="https://github.com/nickdesi/ffbb-data-client" target="_blank" rel="noopener" class="btn btn-primary" style="width: 100%;">⭐ GitHub Repository</a>
             </div>
         </div>
     </header>
@@ -511,10 +530,45 @@ matchs_en_direct = client.<span style="color: #d2a8ff;">get_lives</span>()</code
         // Sticky Header
         window.addEventListener('scroll', () => {
             const nav = document.getElementById('navbar');
-            if (window.scrollY > 30) {
+            if (window.scrollY > 20) {
                 nav.classList.add('scrolled');
             } else {
                 nav.classList.remove('scrolled');
+            }
+        });
+
+        // Mobile Menu Drawer Toggle
+        function toggleMobileMenu() {
+            const btn = document.getElementById('mobileMenuBtn');
+            const drawer = document.getElementById('mobileDrawer');
+            const isOpen = drawer.classList.contains('open');
+            if (isOpen) {
+                closeMobileMenu();
+            } else {
+                drawer.classList.add('open');
+                btn.classList.add('active');
+                btn.setAttribute('aria-expanded', 'true');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeMobileMenu() {
+            const btn = document.getElementById('mobileMenuBtn');
+            const drawer = document.getElementById('mobileDrawer');
+            if (drawer) drawer.classList.remove('open');
+            if (btn) {
+                btn.classList.remove('active');
+                btn.setAttribute('aria-expanded', 'false');
+            }
+            document.body.style.overflow = '';
+        }
+
+        // Close drawer on outside click
+        document.addEventListener('click', (e) => {
+            const drawer = document.getElementById('mobileDrawer');
+            const btn = document.getElementById('mobileMenuBtn');
+            if (drawer && drawer.classList.contains('open') && !drawer.contains(e.target) && !btn.contains(e.target)) {
+                closeMobileMenu();
             }
         });
 
@@ -525,25 +579,34 @@ matchs_en_direct = client.<span style="color: #d2a8ff;">get_lives</span>()</code
 
             const target = document.getElementById('preview-' + type);
             if (target) target.style.display = 'block';
-            event.currentTarget.classList.add('active');
+            if (window.event && window.event.currentTarget) {
+                window.event.currentTarget.classList.add('active');
+            }
         }
 
         // Code Tab Switcher
-        function switchCodeTab(event, tabId) {
+        function switchCodeTab(evt, tabId) {
             document.querySelectorAll('.code-pane').forEach(p => p.style.display = 'none');
             document.querySelectorAll('.code-tabs-bar .preview-tab').forEach(t => t.classList.remove('active'));
 
-            document.getElementById(tabId).style.display = 'block';
-            event.currentTarget.classList.add('active');
+            const target = document.getElementById(tabId);
+            if (target) target.style.display = 'block';
+            if (evt && evt.currentTarget) {
+                evt.currentTarget.classList.add('active');
+            } else if (window.event && window.event.currentTarget) {
+                window.event.currentTarget.classList.add('active');
+            }
         }
 
         // Copy button
         function copySnippet(text) {
             navigator.clipboard.writeText(text).then(() => {
-                const btn = event.target;
-                const orig = btn.innerText;
-                btn.innerText = '✅ Copié !';
-                setTimeout(() => { btn.innerText = orig; }, 2000);
+                const btn = window.event ? window.event.target : null;
+                if (btn) {
+                    const orig = btn.innerText;
+                    btn.innerText = '✅ Copié !';
+                    setTimeout(() => { btn.innerText = orig; }, 2000);
+                }
             });
         }
 
