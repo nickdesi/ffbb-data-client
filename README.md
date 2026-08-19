@@ -8,9 +8,9 @@
 [![Python](https://img.shields.io/pypi/pyversions/ffbb-data-client?logo=python&logoColor=white)](https://pypi.org/project/ffbb-data-client/)
 [![CI](https://github.com/nickdesi/ffbb-data-client/actions/workflows/ci.yml/badge.svg)](https://github.com/nickdesi/ffbb-data-client/actions/workflows/ci.yml)
 [![Coverage](https://coveralls.io/repos/github/nickdesi/ffbb-data-client/badge.svg?branch=master)](https://coveralls.io/github/nickdesi/ffbb-data-client?branch=master)
-[![License](https://img.shields.io/pypi/l/ffbb-data-client?color=green)](LICENSE.txt)
+[![License](https://img.shields.io/pypi/l/ffbb-data-client?color=green)](https://github.com/nickdesi/ffbb-data-client/blob/master/LICENSE.txt)
 [![MCP-Ready](https://img.shields.io/badge/MCP-Ready-orange.svg?logo=modelcontextprotocol&logoColor=white)](https://github.com/nickdesi/FFBB-MCP-Server)
-[![Security Policy](https://img.shields.io/badge/Security-Policy-blue.svg)](SECURITY.md)
+[![Security Policy](https://img.shields.io/badge/Security-Policy-blue.svg)](https://github.com/nickdesi/ffbb-data-client/blob/master/SECURITY.md)
 [![Stars](https://img.shields.io/github/stars/nickdesi/ffbb-data-client?style=social)](https://github.com/nickdesi/ffbb-data-client/stargazers)
 [![Last Commit](https://img.shields.io/github/last-commit/nickdesi/ffbb-data-client)](https://github.com/nickdesi/ffbb-data-client/commits/master)
 [![Issues](https://img.shields.io/github/issues/nickdesi/ffbb-data-client)](https://github.com/nickdesi/ffbb-data-client/issues)
@@ -302,7 +302,7 @@ Les contributions sont bienvenues :
 
 ## 📄 Licence
 
-Distribué sous licence Apache-2.0. Voir [`LICENSE.txt`](LICENSE.txt).
+Distribué sous licence Apache-2.0. Voir [`LICENSE.txt`](https://github.com/nickdesi/ffbb-data-client/blob/master/LICENSE.txt).
 
 ---
 

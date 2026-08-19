@@ -1,6 +1,18 @@
 # Release Notes - FFBB Data Client
 
-## Version 2.3.3 (Latest Release)
+## Version 2.3.4 (Latest Release)
+
+### 🔒 Security & Bug Fixes
+- **Sensitive logging mitigation**: Masked authentication tokens in logging messages and format arguments (`CWE-532` / CodeQL compliance)
+- **Directus compatibility**: Removed non-existent `nom` field from default `SaisonFields` to prevent Directus 403 errors
+
+### 📱 Responsive Website & Documentation
+- **Mobile optimization**: Full smartphone responsiveness on landing page (mobile hamburger drawer, fluid font scaling, CSS grid blowout prevention)
+- **PyPI documentation**: Standardized README badges and absolute GitHub URLs for flawless rendering on PyPI
+
+---
+
+## Version 2.3.3
 
 ### 🚀 New Features
 - **`search_many` / `search_many_async`**: run multiple independent Meilisearch searches concurrently (`asyncio.gather`) and return results in order — each `SearchSpec` is dispatched to the matching `search_multiple_<resource>_async` method

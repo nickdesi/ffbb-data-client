@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.4] - 2026-08-19
+
+### Fixed
+- **Security**: Masquage complet des tokens d'authentification dans les messages et arguments de formatage de logs (`CWE-532` / alertes CodeQL).
+- **Directus 403**: Retrait du champ `nom` obsolète dans `SaisonFields` pour prévenir les erreurs de permissions sur l'endpoint des saisons.
+
+### Added & Changed
+- **Website & Documentation**: Refonte de la landing page avec design spatial et support mobile 100% responsive (tiroir de navigation hamburger, protection contre le CSS grid blowout, typographie fluide).
+- **PyPI & Docs**: Correction des liens relatifs dans le README pour un affichage propre sur PyPI.
+
+
 ## [2.3.3] - 2026-08-10
 
 ### Added
