@@ -1,8 +1,10 @@
 <div align="center">
 
-# 🏀 FFBB Data Client
+# 🏀 FFBB Data Client — API FFBB Python SDK
 
-**SDK Python moderne, typé et asynchrone pour exploiter les données publiques FFBB : clubs, compétitions, rencontres, classements, salles, officiels et recherche Meilisearch.**
+**SDK Python moderne, typé et asynchrone pour exploiter l'API FFBB et ses données officielles : clubs, compétitions, rencontres, classements, salles, officiels, scores en direct (lives) et recherche Meilisearch.**
+
+*Alternative moderne, performante et maintenue aux anciens packages `ffbb-api-client` et `ffbb-api-client-v2`.*
 
 [![PyPI](https://img.shields.io/pypi/v/ffbb-data-client?color=blue&label=PyPI&logo=python&logoColor=white)](https://pypi.org/project/ffbb-data-client/)
 [![Python](https://img.shields.io/pypi/pyversions/ffbb-data-client?logo=python&logoColor=white)](https://pypi.org/project/ffbb-data-client/)

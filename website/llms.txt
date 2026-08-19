@@ -1,0 +1,34 @@
+# FFBB Data Client — API FFBB Python SDK
+> SDK Python moderne, typé et asynchrone pour explorer l'ensemble des données publiques de la Fédération Française de BasketBall (FFBB).
+
+## Documentation et Liens
+- Site officiel : https://nickdesi.github.io/ffbb-data-client/
+- Dépôt GitHub : https://github.com/nickdesi/ffbb-data-client
+- Package PyPI : https://pypi.org/project/ffbb-data-client/
+- Serveur MCP : https://ffbb.desimone.fr/
+
+## Capacités principales de l'API FFBB
+- **Recherche Universelle** : Recherche instantanée dans les index Meilisearch (clubs, organismes, compétitions, tournois, gymnases, terrains 3x3, arbitres).
+- **Fiches Clubs & Organismes** : Coordonnées, équipes engagées, gymnases rattachés, couleurs officielles.
+- **Compétitions & Poules** : Calendriers, résultats de toutes les journées, classements officiels mis à jour, feuilles de match.
+- **Scores en Direct (Lives)** : Suivi en temps réel des matchs en cours du week-end sur tous les championnats (Nationale, Régionale, Départementale).
+- **Asynchrone & Synchrone** : Support complet `async/await` avec `httpx`, cache intelligent `hishel` et validation stricte Pydantic v2.
+
+## Installation
+```bash
+pip install ffbb-data-client
+```
+
+## Exemple rapide
+```python
+from ffbb_data_client import FFBBDataClient
+
+# Initialisation automatique avec résolution de tokens
+client = FFBBDataClient.create()
+
+# Recherche de club
+results = client.multi_search("Pau Orthez")
+
+# Scores live du week-end
+lives = client.get_lives()
+```
