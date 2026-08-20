@@ -950,20 +950,20 @@ section {
         grid-template-columns: 1fr;
         gap: 2.25rem;
     }
-    
+
     .tools-grid, .usecases-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    
+
     .ai-banner {
         grid-template-columns: 1fr;
         padding: 2rem;
     }
-    
+
     .faq-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .footer-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 1.75rem;
