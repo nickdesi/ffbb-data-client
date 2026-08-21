@@ -367,8 +367,6 @@ class _RestFacade:
             or getattr(engagement, "entraineur_adjoint", None)
         )
 
-        import asyncio
-
         entraineur_task = (
             self._api.get_entraineur_async(
                 str(entraineur_id), cached_session=cached_session
