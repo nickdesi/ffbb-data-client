@@ -34,6 +34,7 @@ from .models.generic_search import (
 )
 from .models.get_competition_response import GetCompetitionResponse
 from .models.get_organisme_response import GetOrganismeResponse
+from .models.get_poule_response import GetPouleResponse
 from .models.multi_search_query import MultiSearchQuery
 from .models.multi_search_result_competitions import CompetitionsMultiSearchResult
 from .models.multi_search_result_engagements import EngagementsMultiSearchResult
@@ -47,18 +48,18 @@ from .models.multi_search_result_tournois import TournoisMultiSearchResult
 from .models.organismes_facet_distribution import OrganismesFacetDistribution
 from .models.organismes_facet_stats import OrganismesFacetStats
 from .models.organismes_hit import OrganismesHit
-from .models.poules_models import GetPouleResponse
 from .models.pratiques_facet_distribution import PratiquesFacetDistribution
 from .models.pratiques_facet_stats import PratiquesFacetStats
 from .models.pratiques_hit import PratiquesHit
 from .models.query_fields_manager import QueryFieldsManager
-from .models.rankings_models import RankingEngagement, TeamRanking
+from .models.ranking_engagement import RankingEngagement
 from .models.rencontres_facet_distribution import RencontresFacetDistribution
 from .models.rencontres_facet_stats import RencontresFacetStats
 from .models.rencontres_hit import RencontresHit
 from .models.salles_facet_distribution import SallesFacetDistribution
 from .models.salles_facet_stats import SallesFacetStats
 from .models.salles_hit import SallesHit
+from .models.team_ranking import TeamRanking
 from .models.terrains_facet_distribution import TerrainsFacetDistribution
 from .models.terrains_facet_stats import TerrainsFacetStats
 from .models.terrains_hit import TerrainsHit

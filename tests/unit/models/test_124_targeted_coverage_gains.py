@@ -30,10 +30,15 @@ class TestPackagedDiscoveryArtefacts(unittest.TestCase):
 
 class TestGameStatsCompatibilityShim(unittest.TestCase):
     def test_game_stats_models_reexports_game_stats_model(self) -> None:
+        import warnings
+
         from ffbb_data_client.models.game_stats_model import GameStatsModel
-        from ffbb_data_client.models.game_stats_models import (
-            GameStatsModel as Reexported,
-        )
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            from ffbb_data_client.models.game_stats_models import (
+                GameStatsModel as Reexported,
+            )
 
         self.assertIs(Reexported, GameStatsModel)
 

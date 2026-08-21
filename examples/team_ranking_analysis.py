@@ -26,9 +26,9 @@ from dotenv import load_dotenv
 
 from ffbb_data_client import FFBBDataClient
 from ffbb_data_client.models.get_organisme_response import GetOrganismeResponse
-from ffbb_data_client.models.niveau_models import NiveauType
-from ffbb_data_client.models.poules_models import GetPouleResponse
-from ffbb_data_client.models.rankings_models import TeamRanking
+from ffbb_data_client.models.get_poule_response import GetPouleResponse
+from ffbb_data_client.models.niveau_type import NiveauType
+from ffbb_data_client.models.team_ranking import TeamRanking
 
 # Example configuration - modify these values for your team
 TEAM_NAME = "SENAS BASKET BALL"

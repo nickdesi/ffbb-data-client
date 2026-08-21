@@ -30,6 +30,8 @@ from ffbb_data_client.models.configuration_models import GetConfigurationRespons
 from ffbb_data_client.models.game_stats_model import GameStatsModel
 from ffbb_data_client.models.get_competition_response import GetCompetitionResponse
 from ffbb_data_client.models.get_organisme_response import GetOrganismeResponse
+from ffbb_data_client.models.get_poule_response import GetPouleResponse
+from ffbb_data_client.models.get_saisons_response import GetSaisonsResponse
 from ffbb_data_client.models.lives import Clock, Live, lives_from_dict
 from ffbb_data_client.models.multi_search_result_competitions import (
     CompetitionsMultiSearchResult,
@@ -56,7 +58,7 @@ from ffbb_data_client.models.multi_search_results_class import (
     MultiSearchResults,
     multi_search_results_from_dict,
 )
-from ffbb_data_client.models.niveau_models import (
+from ffbb_data_client.models.niveau_type import (
     CategorieType,
     NiveauExtractor,
     NiveauInfo,
@@ -65,18 +67,17 @@ from ffbb_data_client.models.niveau_models import (
 from ffbb_data_client.models.organismes_facet_distribution import (
     OrganismesFacetDistribution,
 )
-from ffbb_data_client.models.poules_models import GetPouleResponse
 from ffbb_data_client.models.pratiques_facet_distribution import (
     PratiquesFacetDistribution,
 )
-from ffbb_data_client.models.rankings_models import RankingEngagement, TeamRanking
+from ffbb_data_client.models.ranking_engagement import RankingEngagement
 from ffbb_data_client.models.rencontres_facet_distribution import (
     RencontresFacetDistribution,
 )
-from ffbb_data_client.models.saisons_models import GetSaisonsResponse
 from ffbb_data_client.models.salles_facet_distribution import (
     SallesFacetDistribution,
 )
+from ffbb_data_client.models.team_ranking import TeamRanking
 from ffbb_data_client.models.terrains_facet_distribution import (
     TerrainsFacetDistribution,
 )

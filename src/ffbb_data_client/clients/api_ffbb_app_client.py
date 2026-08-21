@@ -109,9 +109,9 @@ class ApiFFBBAppClient(
 from ..helpers.http_requests_utils import http_get_json_async  # noqa: E402, F401
 from ..models.get_competition_response import GetCompetitionResponse  # noqa: E402, F401
 from ..models.get_organisme_response import GetOrganismeResponse  # noqa: E402, F401
+from ..models.get_poule_response import GetPouleResponse  # noqa: E402, F401
+from ..models.get_saisons_response import GetSaisonsResponse  # noqa: E402, F401
 from ..models.lives import lives_from_dict  # noqa: E402, F401
-from ..models.poules_models import GetPouleResponse  # noqa: E402, F401
-from ..models.saisons_models import GetSaisonsResponse  # noqa: E402, F401
 
 # Déclare explicitement l'API publique du module (classe principale + re-exports
 # de compatibilité) afin que les imports ci-dessus soient reconnus comme exportés.

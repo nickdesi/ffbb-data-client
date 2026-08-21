@@ -13,9 +13,9 @@ from ...config import (
 from ...helpers.http_requests_utils import http_get_json_async, url_with_params
 from ...models.field_set import FieldSet
 from ...models.get_competition_response import GetCompetitionResponse
-from ...models.poules_models import GetPouleResponse
+from ...models.get_poule_response import GetPouleResponse
+from ...models.get_saisons_response import GetSaisonsResponse
 from ...models.query_fields_manager import QueryFieldsManager
-from ...models.saisons_models import GetSaisonsResponse
 from ...models.team_ranking import TeamRanking
 
 

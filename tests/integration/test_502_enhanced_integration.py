@@ -8,8 +8,8 @@ from ffbb_data_client import FFBBDataClient
 from ffbb_data_client.models.field_set import FieldSet
 from ffbb_data_client.models.get_competition_response import GetCompetitionResponse
 from ffbb_data_client.models.get_organisme_response import GetOrganismeResponse
+from ffbb_data_client.models.get_saisons_response import GetSaisonsResponse
 from ffbb_data_client.models.query_fields_manager import QueryFieldsManager
-from ffbb_data_client.models.saisons_models import GetSaisonsResponse
 
 
 class Test011EnhancedIntegration(unittest.TestCase):
