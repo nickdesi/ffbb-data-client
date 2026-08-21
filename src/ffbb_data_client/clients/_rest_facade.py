@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 from typing import Any
 
@@ -1731,4 +1732,108 @@ class _RestFacade:
                     limit=len(chunk), filter_criteria=fc, cached_session=cached_session
                 )
             )
+        return results
+
+    async def list_engagements_by_ids_async(
+        self, ids: list[int], cached_session: httpx.AsyncClient | None = None
+    ) -> list[GetEngagementResponse]:
+        if not ids:
+            return []
+        chunks = self._chunked(ids, self._BATCH_CHUNK_SIZE)
+        tasks = [
+            self.list_engagements_async(
+                limit=len(chunk),
+                filter_criteria=json.dumps({"id": {"_in": chunk}}),
+                cached_session=cached_session,
+            )
+            for chunk in chunks
+        ]
+        chunk_results = await asyncio.gather(*tasks)
+        results: list[GetEngagementResponse] = []
+        for chunk_res in chunk_results:
+            if chunk_res:
+                results.extend(chunk_res)
+        return results
+
+    async def list_engagements_by_poule_async(
+        self, poule_id: int, cached_session: httpx.AsyncClient | None = None
+    ) -> list[GetEngagementResponse]:
+        return await self.list_engagements_async(
+            limit=250,
+            filter_criteria=json.dumps({"idPoule": {"_eq": poule_id}}),
+            cached_session=cached_session,
+        )
+
+    async def list_engagements_by_poules_async(
+        self, poule_ids: list[int], cached_session: httpx.AsyncClient | None = None
+    ) -> list[GetEngagementResponse]:
+        if not poule_ids:
+            return []
+        chunks = self._chunked(poule_ids, self._BATCH_CHUNK_SIZE)
+        tasks = [
+            self.list_engagements_async(
+                limit=len(chunk) * 15,
+                filter_criteria=json.dumps({"idPoule": {"_in": chunk}}),
+                cached_session=cached_session,
+            )
+            for chunk in chunks
+        ]
+        chunk_results = await asyncio.gather(*tasks)
+        results: list[GetEngagementResponse] = []
+        for chunk_res in chunk_results:
+            if chunk_res:
+                results.extend(chunk_res)
+        return results
+
+    async def list_rencontres_by_poule_async(
+        self, poule_id: int, cached_session: httpx.AsyncClient | None = None
+    ) -> list[GetRencontreResponse]:
+        return await self.list_rencontres_async(
+            limit=500,
+            filter_criteria=json.dumps({"idPoule": {"_eq": poule_id}}),
+            cached_session=cached_session,
+        )
+
+    async def list_rencontres_by_poules_async(
+        self, poule_ids: list[int], cached_session: httpx.AsyncClient | None = None
+    ) -> list[GetRencontreResponse]:
+        if not poule_ids:
+            return []
+        chunks = self._chunked(poule_ids, self._BATCH_CHUNK_SIZE)
+        tasks = [
+            self.list_rencontres_async(
+                limit=len(chunk) * 30,
+                filter_criteria=json.dumps({"idPoule": {"_in": chunk}}),
+                cached_session=cached_session,
+            )
+            for chunk in chunks
+        ]
+        chunk_results = await asyncio.gather(*tasks)
+        results: list[GetRencontreResponse] = []
+        for chunk_res in chunk_results:
+            if chunk_res:
+                results.extend(chunk_res)
+        return results
+
+    async def list_entraineurs_by_ids_async(
+        self, ids: list[int], cached_session: httpx.AsyncClient | None = None
+    ) -> list[GetEntraineurResponse]:
+        if not ids:
+            return []
+        chunks = self._chunked(ids, self._BATCH_CHUNK_SIZE)
+        tasks = [
+            self.list_entraineurs_async(
+                limit=len(chunk),
+                filter_criteria=json.dumps(
+                    {"idLicence": {"_in": [str(i) for i in chunk]}}
+                ),
+                cached_session=cached_session,
+            )
+            for chunk in chunks
+        ]
+        chunk_results = await asyncio.gather(*tasks)
+        results: list[GetEntraineurResponse] = []
+        for chunk_res in chunk_results:
+            if chunk_res:
+                results.extend(chunk_res)
         return results

@@ -61,8 +61,24 @@ def _cache_set(key: str, value: Any) -> None:
         _APP_CACHE[key] = (time.monotonic(), value)
 
 
+def _clone_multi_search_results(
+    res: MultiSearchResults | None,
+) -> MultiSearchResults | None:
+    if res is None:
+        return None
+    if res.results is None:
+        return MultiSearchResults(results=None)
+    cloned_results = []
+    for r in res.results:
+        r_copy = copy.copy(r)
+        if r.hits is not None:
+            r_copy.hits = list(r.hits)
+        cloned_results.append(r_copy)
+    return MultiSearchResults(results=cloned_results)
+
+
 def _cache_result_object(key: str, result: MultiSearchResults) -> None:
-    _cache_set(key, copy.deepcopy(result))
+    _cache_set(key, _clone_multi_search_results(result))
 
 
 def clear_meili_app_cache() -> None:
@@ -162,8 +178,7 @@ class MeilisearchClient:
         key = _make_cache_key(queries)
         cached = _cache_get(key)
         if cached is not None:
-            cached_copy: MultiSearchResults = copy.deepcopy(cached)
-            return cached_copy
+            return _clone_multi_search_results(cached)
 
         url = f"{self.url}{MEILISEARCH_ENDPOINT_MULTI_SEARCH}"
         params = {"queries": [query.to_dict() for query in queries] if queries else []}
@@ -193,8 +208,7 @@ class MeilisearchClient:
         key = _make_cache_key(queries)
         cached = _cache_get(key)
         if cached is not None:
-            cached_copy: MultiSearchResults = copy.deepcopy(cached)
-            return cached_copy
+            return _clone_multi_search_results(cached)
 
         url = f"{self.url}{MEILISEARCH_ENDPOINT_MULTI_SEARCH}"
         params = {"queries": [query.to_dict() for query in queries] if queries else []}
