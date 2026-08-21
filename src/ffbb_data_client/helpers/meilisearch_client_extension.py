@@ -31,7 +31,7 @@ def _apply_query_filters(
         result_list = results.results
         results.results = [
             query.filter_result(res) if query.q else res
-            for query, res in zip(queries, result_list, strict=True)
+            for query, res in zip(queries, result_list, strict=False)
         ]
     return results
 
@@ -51,7 +51,7 @@ def _build_pagination_jobs(
         return jobs
 
     for i, (query, query_result) in enumerate(
-        zip(queries, result.results, strict=True)
+        zip(queries, result.results, strict=False)
     ):
         if query_result.hits is None:
             continue

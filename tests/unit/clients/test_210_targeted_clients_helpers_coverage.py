@@ -76,6 +76,18 @@ class TestTargetedMeilisearchExtensionCoverage(unittest.IsolatedAsyncioTestCase)
     def _client(self) -> MeilisearchClientExtension:
         return MeilisearchClientExtension("token", "https://example.test/")
 
+    def test_smart_multi_search_mismatched_lengths_does_not_raise(self) -> None:
+        client = self._client()
+        result1 = MultiSearchResult(hits=[_Hit(True)], estimated_total_hits=1)
+        queries = [MultiSearchQuery(q="Senas"), MultiSearchQuery(q="Other")]
+        # results has only 1 element while queries has 2
+        client.multi_search = MagicMock(return_value=MultiSearchResults([result1]))
+
+        result = client.smart_multi_search(queries)
+        self.assertIsNotNone(result)
+        assert result is not None and result.results is not None
+        self.assertEqual(len(result.results), 1)
+
     def test_smart_multi_search_filters_only_queries_with_q(self) -> None:
         client = self._client()
         result_with_q = MultiSearchResult(
