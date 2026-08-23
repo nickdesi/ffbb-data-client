@@ -26,9 +26,12 @@ from ffbb_data_client.config import (
     MEILISEARCH_BASE_URL,
     MEILISEARCH_ENDPOINT_MULTI_SEARCH,
 )
-from ffbb_data_client.models.configuration_models import GetConfigurationResponse
+from ffbb_data_client.models.categorie_type import CategorieType
 from ffbb_data_client.models.game_stats_model import GameStatsModel
 from ffbb_data_client.models.get_competition_response import GetCompetitionResponse
+from ffbb_data_client.models.get_configuration_response import (
+    GetConfigurationResponse,
+)
 from ffbb_data_client.models.get_organisme_response import GetOrganismeResponse
 from ffbb_data_client.models.get_poule_response import GetPouleResponse
 from ffbb_data_client.models.get_saisons_response import GetSaisonsResponse
@@ -58,12 +61,9 @@ from ffbb_data_client.models.multi_search_results_class import (
     MultiSearchResults,
     multi_search_results_from_dict,
 )
-from ffbb_data_client.models.niveau_type import (
-    CategorieType,
-    NiveauExtractor,
-    NiveauInfo,
-    NiveauType,
-)
+from ffbb_data_client.models.niveau_extractor import NiveauExtractor
+from ffbb_data_client.models.niveau_info import NiveauInfo
+from ffbb_data_client.models.niveau_type import NiveauType
 from ffbb_data_client.models.organismes_facet_distribution import (
     OrganismesFacetDistribution,
 )
