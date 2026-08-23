@@ -184,6 +184,8 @@ src/ffbb_data_client/
 
 ## Conventions de code
 - **Modèles Pydantic** : Tous les modèles héritent de `pydantic.BaseModel` et fournissent une validation stricte.
+  Chaque modèle possède son propre fichier source dédié en `snake_case` (ex: `categorie_type.py`, `niveau_info.py`).
+  Les imports internes et dans les tests doivent cibler précisément le fichier dédié ou le namespace racine `models`.
 - **Async/Sync en parallèle** : Le SDK implémente systématiquement la double interface synchrone (`get_x`)
   et asynchrone (`get_x_async`) pour un maximum de flexibilité d'intégration.
 - **Cache HTTP** : Utilisation d'`hishel` pour le cache de requêtes HTTP asynchrones et d'un cache local
@@ -205,6 +207,10 @@ Avant push/tag/release :
 2. `rtk ruff check .`
 3. `rtk mypy src`
 4. `rtk pytest`
+5. `rtk pre-commit run --all-files`
+
+⚠️ Note Release PyPI : Les releases sur PyPI sont immuables. Ne jamais réassigner ou forcer un tag
+déjà publié sur PyPI. Tout correctif requiert un bump de version (ex: v2.3.6).
 """
     return content
 

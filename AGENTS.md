@@ -1,8 +1,8 @@
 # FFBB Data Client SDK
 
 > ⚠️ **Fichier auto-généré** par `tools/update_agents_md.py` — ne pas modifier manuellement.
-> Dernière mise à jour : ffbb-data-client | SDK total : ~19030 lignes de code
-> (clients: 6227, models: 9878, utils: 1954, helpers: 971)
+> Dernière mise à jour : ffbb-data-client | SDK total : ~18803 lignes de code
+> (clients: 5980, models: 9805, utils: 2003, helpers: 1015)
 
 ## Langue
 Tous les documents de travail (walkthrough.md, implementation_plan.md) DOIVENT être en français.
@@ -69,17 +69,19 @@ Ces directives inspirées d'Andrej Karpathy visent à éliminer les erreurs de c
 ```
 src/ffbb_data_client/
 ├── __init__.py            # Point d'entrée du SDK, expose FFBBDataClient et FFBBTokens
-├── clients/               # Clients d'API (REST et Meilisearch) et façades (≈6227 lignes)
+├── clients/               # Clients d'API (REST et Meilisearch) et façades (≈5980 lignes)
 ├── config.py              # Configuration centralisée (URLs, Headers, Endpoints, Facettes)
 ├── data/                  # Ressources et données statiques
-├── helpers/               # Méthodes utilitaires pour requêtes HTTP et mapping (≈971 lignes)
-├── models/                # Modèles de données Pydantic type-safe (≈9878 lignes)
+├── helpers/               # Méthodes utilitaires pour requêtes HTTP et mapping (≈1015 lignes)
+├── models/                # Modèles de données Pydantic type-safe (≈9805 lignes)
 ├── py.typed               # Marqueur pour la compatibilité avec mypy
-└── utils/                 # Gestionnaires transversaux (cache, jetons de sécurité, validation) (≈1954 lignes)
+└── utils/                 # Gestionnaires transversaux (cache, jetons de sécurité, validation) (≈2003 lignes)
 ```
 
 ## Conventions de code
 - **Modèles Pydantic** : Tous les modèles héritent de `pydantic.BaseModel` et fournissent une validation stricte.
+  Chaque modèle possède son propre fichier source dédié en `snake_case` (ex: `categorie_type.py`, `niveau_info.py`).
+  Les imports internes et dans les tests doivent cibler précisément le fichier dédié ou le namespace racine `models`.
 - **Async/Sync en parallèle** : Le SDK implémente systématiquement la double interface synchrone (`get_x`)
   et asynchrone (`get_x_async`) pour un maximum de flexibilité d'intégration.
 - **Cache HTTP** : Utilisation d'`hishel` pour le cache de requêtes HTTP asynchrones et d'un cache local
@@ -101,3 +103,7 @@ Avant push/tag/release :
 2. `rtk ruff check .`
 3. `rtk mypy src`
 4. `rtk pytest`
+5. `rtk pre-commit run --all-files`
+
+⚠️ Note Release PyPI : Les releases sur PyPI sont immuables. Ne jamais réassigner ou forcer un tag
+déjà publié sur PyPI. Tout correctif requiert un bump de version (ex: v2.3.6).
