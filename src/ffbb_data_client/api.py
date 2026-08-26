@@ -127,6 +127,89 @@ _logo_cache: dict[str, Optional[str]] = {}
 _salle_cache: dict[str, str] = {}
 
 
+def get_cached_organisme(client, org_id: Any):
+    if not org_id:
+        return None
+    try:
+        oid = int(org_id)
+    except Exception:
+        return None
+    if oid in _org_cache:
+        return _org_cache[oid]
+    try:
+        org = client.get_organisme(oid)
+        _org_cache[oid] = org
+        return org
+    except Exception:
+        _org_cache[oid] = None
+        return None
+
+
+def resolve_exact_salle_address(client, salle_id: Any, org_id: Any, default_name: str = "") -> str:
+    """Résout l'adresse complète officielle de la salle (Nom - Rue, CP Ville)."""
+    sid = str(salle_id) if salle_id else ""
+    org_key = str(org_id) if org_id else ""
+    cache_key = f"{sid}_{org_key}"
+
+    if cache_key in _salle_cache:
+        return _salle_cache[cache_key]
+
+    org = get_cached_organisme(client, org_id) if org_id else None
+
+    # 1. Vérifier si la salle principale de l'organisme hôte correspond
+    if org and getattr(org, 'salle', None):
+        o_salle = org.salle
+        o_sid = str(getattr(o_salle, 'id', ''))
+        if o_sid == sid or not sid:
+            nom = getattr(o_salle, 'libelle', '') or getattr(o_salle, 'nom', '') or default_name
+            adr = getattr(o_salle, 'adresse', '') or ""
+            commune = getattr(o_salle, 'commune', None)
+            cp = getattr(commune, 'codePostal', '') or getattr(commune, 'code_postal', '') if commune else ""
+            v = getattr(commune, 'libelle', '') or getattr(o_salle, 'ville', '') if commune else ""
+            parts = [adr, f"{cp} {v}".strip()]
+            full_addr = ", ".join([p for p in parts if p])
+            full = f"{nom} - {full_addr}" if nom and full_addr else (nom or full_addr)
+            if full:
+                _salle_cache[cache_key] = full
+                return full
+
+    # 2. Résolution de la salle spécifique + recherche de la commune via Meilisearch
+    if sid:
+        try:
+            salle = client.get_salle(sid)
+            if salle:
+                nom = getattr(salle, 'libelle', '') or getattr(salle, 'nom', '') or default_name
+                adr = getattr(salle, 'adresse', '') or ""
+                cp, v = "", ""
+                try:
+                    res = client.search_salles(nom)
+                    if res and getattr(res, 'hits', None):
+                        matched_hit = None
+                        for hit in res.hits:
+                            if str(getattr(hit, 'id', '')) == sid:
+                                matched_hit = hit
+                                break
+                        if not matched_hit:
+                            matched_hit = res.hits[0]
+                        commune = getattr(matched_hit, 'commune', None)
+                        if commune:
+                            cp = getattr(commune, 'code_postal', '') or getattr(commune, 'codePostal', '') or ""
+                            v = getattr(commune, 'libelle', '') or ""
+                except Exception:
+                    pass
+
+                parts = [adr, f"{cp} {v}".strip()]
+                full_addr = ", ".join([p for p in parts if p])
+                full = f"{nom} - {full_addr}" if nom and full_addr else (nom or full_addr)
+                if full:
+                    _salle_cache[cache_key] = full
+                    return full
+        except Exception:
+            pass
+
+    return default_name or "Lieu à confirmer"
+
+
 @app.get("/health", tags=["Monitoring"])
 async def health():
     return {
@@ -143,7 +226,7 @@ async def get_club_matches(
 ):
     """
     Récupère l'ensemble des rencontres officielles FFBB d'un club,
-    avec détection domicile/extérieur, calcul des équipes, salles résolues et logos officiels.
+    avec détection domicile/extérieur, calcul des équipes, salles résolues avec adresse exacte et logos officiels.
     """
     client = get_client()
 
@@ -162,7 +245,7 @@ async def get_club_matches(
             club_logo_url = f"https://api.ffbb.com/assets/{logo_id}"
 
     engagements = getattr(org, "engagements", []) or []
-    matches_list: list[dict[str, Any]] = []
+    candidate_matches = []
     seen_match_ids: set[str] = set()
 
     for eng in engagements:
@@ -197,92 +280,120 @@ async def get_club_matches(
                 continue
 
             seen_match_ids.add(m_id)
-            is_home = is_club1
-            local_team_raw = nom_eq1 if is_home else nom_eq2
-            opp_team_raw = nom_eq2 if is_home else nom_eq1
-            opp_org_id = id_org2 if is_home else id_org1
+            candidate_matches.append((m_id, comp_nom, is_club1, is_club2))
 
-            scba_team = normalize_team_name(local_team_raw, comp_nom)
-            opponent = clean_opponent_name(opp_team_raw)
+    from concurrent.futures import ThreadPoolExecutor
 
-            if team and team != "ALL" and team.upper() not in scba_team.upper():
-                continue
-
-            # Date & time
-            date_raw = str(getattr(m, "date_rencontre", "") or getattr(m, "date", "") or "")
-            date_iso = ""
-            if re.match(r"^\d{4}-\d{2}-\d{2}", date_raw):
-                date_iso = date_raw[:10]
-
-            time_str = "15:00"
-            horaire = str(getattr(m, "horaire", "") or "")
-            if horaire:
-                h_clean = re.sub(r"[hH:]", "", horaire).strip()
-                if len(h_clean) == 4:
-                    time_str = f"{h_clean[:2]}:{h_clean[2:]}"
-                elif len(h_clean) == 2:
-                    time_str = f"{h_clean}:00"
-            elif " " in date_raw:
-                time_part = date_raw.split(" ")[1][:5]
-                if ":" in time_part:
-                    time_str = time_part
-
-            # Salle
-            location = f"Domicile ({club_name})" if is_home else f"Extérieur ({opponent})"
-            salle_id = getattr(m, "salle", None)
-            if salle_id:
-                s_key = str(salle_id)
-                if s_key in _salle_cache:
-                    location = _salle_cache[s_key]
-                else:
-                    try:
-                        salle = client.get_salle(s_key)
-                        if salle:
-                            s_nom = getattr(salle, "libelle", "") or getattr(salle, "nom", "") or ""
-                            s_adr = getattr(salle, "adresse", "") or ""
-                            commune = getattr(salle, "commune", None)
-                            cp = getattr(commune, "codePostal", "") or getattr(commune, "code_postal", "") or ""
-                            v = getattr(commune, "libelle", "") or getattr(salle, "ville", "") or ""
-                            parts = [p for p in [s_adr, f"{cp} {v}".strip()] if p]
-                            full = f"{s_nom} - {', '.join(parts)}" if s_nom and parts else (s_nom or ", ".join(parts))
-                            if full:
-                                _salle_cache[s_key] = full
-                                location = full
-                    except Exception:
-                        pass
-
-            # Opponent Logo
-            opponent_logo: Optional[str] = None
-            if opp_org_id:
-                if opp_org_id in _logo_cache:
-                    opponent_logo = _logo_cache[opp_org_id]
-                else:
-                    try:
-                        opp_org = client.get_organisme(int(opp_org_id))
-                        if opp_org and getattr(opp_org, "logo", None):
-                            opp_logo_id = getattr(opp_org.logo, "id", None) or opp_org.logo
-                            if opp_logo_id:
-                                opponent_logo = f"https://api.ffbb.com/assets/{opp_logo_id}"
-                        _logo_cache[opp_org_id] = opponent_logo
-                    except Exception:
-                        _logo_cache[opp_org_id] = None
-
-            match_data: dict[str, Any] = {
-                "ffbbMatchId": m_id,
-                "team": scba_team,
-                "opponent": opponent,
-                "date": format_french_date(date_iso),
-                "dateISO": date_iso,
-                "time": time_str,
-                "location": location,
-                "isHome": is_home,
-                "competition": comp_nom,
-                "teamLogo": club_logo_url,
+    def fetch_full_rencontre(item):
+        m_id, comp_nom, is_club1, is_club2 = item
+        try:
+            full_r = client.get_rencontre(m_id)
+            return {
+                "raw_match": full_r,
+                "comp_nom": comp_nom,
+                "is_club1": is_club1,
+                "is_club2": is_club2,
             }
-            if opponent_logo:
-                match_data["opponentLogo"] = opponent_logo
+        except Exception:
+            return None
 
-            matches_list.append(match_data)
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        detailed_items = list(executor.map(fetch_full_rencontre, candidate_matches))
+
+    matches_list: list[dict[str, Any]] = []
+
+    for item in detailed_items:
+        if not item:
+            continue
+        m = item["raw_match"]
+        comp_nom = item["comp_nom"]
+        is_home = item["is_club1"]
+
+        nom_eq1 = getattr(m, "nomEquipe1", "") or ""
+        nom_eq2 = getattr(m, "nomEquipe2", "") or ""
+        id_org1 = getattr(m, "idOrganismeEquipe1", None)
+        id_org2 = getattr(m, "idOrganismeEquipe2", None)
+        m_id = str(getattr(m, "id", ""))
+
+        local_team_raw = nom_eq1 if is_home else nom_eq2
+        opp_team_raw = nom_eq2 if is_home else nom_eq1
+        opp_org_id = id_org2 if is_home else id_org1
+
+        scba_team = normalize_team_name(local_team_raw, comp_nom)
+        opponent = clean_opponent_name(opp_team_raw)
+
+        if team and team != "ALL" and team.upper() not in scba_team.upper():
+            continue
+
+        # Date & time
+        date_raw = str(getattr(m, "date_rencontre", "") or getattr(m, "date", "") or "")
+        date_iso = ""
+        if re.match(r"^\d{4}-\d{2}-\d{2}", date_raw):
+            date_iso = date_raw[:10]
+
+        time_str = "15:00"
+        horaire = str(getattr(m, "horaire", "") or "")
+        if horaire:
+            h_clean = re.sub(r"[hH:]", "", horaire).strip()
+            if len(h_clean) == 4:
+                time_str = f"{h_clean[:2]}:{h_clean[2:]}"
+            elif len(h_clean) == 2:
+                time_str = f"{h_clean}:00"
+        elif " " in date_raw:
+            time_part = date_raw.split(" ")[1][:5]
+            if ":" in time_part:
+                time_str = time_part
+
+        # Résolution de la salle exacte
+        salle_id = getattr(m, "salle", None)
+        if is_home:
+            if organisme_id == 9326:
+                location = "Maison des Sports, Place des Bughes, 63000 Clermont-Ferrand"
+            else:
+                location = resolve_exact_salle_address(
+                    client, salle_id=salle_id, org_id=organisme_id, default_name="Domicile"
+                )
+        else:
+            location = resolve_exact_salle_address(
+                client,
+                salle_id=salle_id,
+                org_id=opp_org_id,
+                default_name=f"Extérieur ({opponent})",
+            )
+
+        # Opponent Logo
+        opponent_logo: Optional[str] = None
+        if opp_org_id:
+            s_opp_org = str(opp_org_id)
+            if s_opp_org in _logo_cache:
+                opponent_logo = _logo_cache[s_opp_org]
+            else:
+                try:
+                    opp_org = get_cached_organisme(client, opp_org_id)
+                    if opp_org and getattr(opp_org, "logo", None):
+                        opp_logo_id = getattr(opp_org.logo, "id", None) or opp_org.logo
+                        if opp_logo_id:
+                            opponent_logo = f"https://api.ffbb.com/assets/{opp_logo_id}"
+                    _logo_cache[s_opp_org] = opponent_logo
+                except Exception:
+                    _logo_cache[s_opp_org] = None
+
+        match_data: dict[str, Any] = {
+            "ffbbMatchId": m_id,
+            "team": scba_team,
+            "opponent": opponent,
+            "date": format_french_date(date_iso),
+            "dateISO": date_iso,
+            "time": time_str,
+            "location": location,
+            "isHome": is_home,
+            "competition": comp_nom,
+            "teamLogo": club_logo_url,
+        }
+        if opponent_logo:
+            match_data["opponentLogo"] = opponent_logo
+
+        matches_list.append(match_data)
 
     matches_list.sort(key=lambda x: (x.get("dateISO", ""), x.get("time", "")))
 
