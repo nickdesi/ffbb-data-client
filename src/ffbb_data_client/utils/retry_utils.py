@@ -41,8 +41,19 @@ async def _get_default_async_client() -> httpx.AsyncClient:
 
 
 def close_default_clients() -> None:
-    """Close module-level fallback clients."""
+    """Close module-level fallback clients synchronously."""
     global _DEFAULT_CLIENT, _DEFAULT_ASYNC_CLIENT
+    if _DEFAULT_CLIENT is not None and not _DEFAULT_CLIENT.is_closed:
+        _DEFAULT_CLIENT.close()
+    _DEFAULT_CLIENT = None
+    _DEFAULT_ASYNC_CLIENT = None
+
+
+async def aclose_default_clients() -> None:
+    """Close module-level fallback clients asynchronously."""
+    global _DEFAULT_CLIENT, _DEFAULT_ASYNC_CLIENT
+    if _DEFAULT_ASYNC_CLIENT is not None and not _DEFAULT_ASYNC_CLIENT.is_closed:
+        await _DEFAULT_ASYNC_CLIENT.aclose()
     if _DEFAULT_CLIENT is not None and not _DEFAULT_CLIENT.is_closed:
         _DEFAULT_CLIENT.close()
     _DEFAULT_CLIENT = None

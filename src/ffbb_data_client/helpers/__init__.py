@@ -12,6 +12,13 @@ from .http_requests_utils import (
 )
 from .meilisearch_client_extension import MeilisearchClientExtension
 from .multi_search_query_helper import generate_queries
+from .normalization import (
+    ParsedCategorie,
+    normalize_apostrophes,
+    normalize_query,
+    parse_categorie,
+    strip_accents,
+)
 
 __all__ = [
     "MeilisearchClientExtension",
@@ -24,4 +31,9 @@ __all__ = [
     "http_post_json",
     "to_json_from_response",
     "url_with_params",
+    "ParsedCategorie",
+    "normalize_apostrophes",
+    "normalize_query",
+    "parse_categorie",
+    "strip_accents",
 ]

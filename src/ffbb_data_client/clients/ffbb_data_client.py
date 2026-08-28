@@ -150,3 +150,19 @@ class FFBBDataClient(_RestFacade, _SearchFacade):
         ses poules associées dans le cache SQLite local.
         """
         _run_async(self.warm_competition_cache_async(competition_id, max_concurrency))
+
+    async def aclose(self) -> None:
+        """Ferme proprement les sessions HTTP asynchrones."""
+        if self.async_cached_session and not getattr(
+            self.async_cached_session, "is_closed", True
+        ):
+            await self.async_cached_session.aclose()
+        if hasattr(self.api_ffbb_client, "aclose"):
+            await getattr(self.api_ffbb_client, "aclose")()
+        if hasattr(self.meilisearch_ffbb_client, "aclose"):
+            await getattr(self.meilisearch_ffbb_client, "aclose")()
+
+    def close(self) -> None:
+        """Ferme proprement les sessions HTTP synchrones."""
+        if self.cached_session and not getattr(self.cached_session, "is_closed", True):
+            self.cached_session.close()
