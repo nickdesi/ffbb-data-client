@@ -1,6 +1,7 @@
 """
 Text normalization and category parsing utilities for French basketball data.
 """
+
 from __future__ import annotations
 
 import re
@@ -33,15 +34,25 @@ _VETERAN_PATTERN = re.compile(
     re.IGNORECASE,
 )
 _SENIOR_PATTERN = re.compile(
-    r"\b(SENIORS?|SEN|SE|SEM\d?|SEF\d?|SM\d?|SF\d?|[RDN][MF]\d?|PN[MF]\d?|PR[MF]\d?|[RDN]\d[MF]|PRE[\s-]?NAT(IONALE?)?|PRÉ[\s-]?NAT(IONALE?)?|PRE[\s-]?REG(IONALE?)?|PRÉ[\s-]?RÉG(IONALE?)?|REGION(AL|ALE|ALES|AUX)?|RÉGION(AL|ALE|ALES|AUX)?|DEPARTEMENT(AL|ALE|ALES|AUX)?|DÉPARTEMENT(AL|ALE|ALES|AUX)?|NATION(AL|ALE|ALES|AUX)?|ELITE|ÉLITE)\b",
+    r"\b("
+    r"SENIORS?|SEN|SE|SEM\d?|SEF\d?|SM\d?|SF\d?|[RDN][MF]\d?|PN[MF]\d?|PR[MF]\d?|[RDN]\d[MF]|"
+    r"PRE[\s-]?NAT(IONALE?)?|PRÉ[\s-]?NAT(IONALE?)?|PRE[\s-]?REG(IONALE?)?|PRÉ[\s-]?RÉG(IONALE?)?|"
+    r"REGION(AL|ALE|ALES|AUX)?|RÉGION(AL|ALE|ALES|AUX)?|"
+    r"DEPARTEMENT(AL|ALE|ALES|AUX)?|DÉPARTEMENT(AL|ALE|ALES|AUX)?|"
+    r"NATION(AL|ALE|ALES|AUX)?|ELITE|ÉLITE"
+    r")\b",
     re.IGNORECASE,
 )
 _M_PATTERN = re.compile(
-    r"\bM\b|U\d{1,2}M|\b[RDN]M\d?\b|\bPNM\d?\b|\bPRM\d?\b|\bR\dM\b|\bD\dM\b|\bN\dM\b|\bSEM\d?\b|\bSM\d?\b|\bM\d\b|\b(MASC|MASCULIN|MASCULINS|MASCULINE|HOMMES?|GARS|GARCONS?|GARÇONS?|MESSIEURS|CADETS?|BENJAMINS?|POUSSINS?)\b",
+    r"\bM\b|U\d{1,2}M|\b[RDN]M\d?\b|\bPNM\d?\b|\bPRM\d?\b|\bR\dM\b|\bD\dM\b|\bN\dM\b|"
+    r"\bSEM\d?\b|\bSM\d?\b|\bM\d\b|"
+    r"\b(MASC|MASCULIN|MASCULINS|MASCULINE|HOMMES?|GARS|GARCONS?|GARÇONS?|MESSIEURS|CADETS?|BENJAMINS?|POUSSINS?)\b",
     re.IGNORECASE,
 )
 _F_PATTERN = re.compile(
-    r"\bF\b|U\d{1,2}F|\b[RDN]F\d?\b|\bPNF\d?\b|\bPRF\d?\b|\bR\dF\b|\bD\dF\b|\bN\dF\b|\bSEF\d?\b|\bSF\d?\b|\bF\d\b|\b(FÉM|FEM|FEMININ|FÉMININ|FEMININE|FÉMININE|FEMININES|FÉMININES|FILLES?|FEMMES?|DAMES?|CADETTES?|BENJAMINES?|POUSSINES?)\b",
+    r"\bF\b|U\d{1,2}F|\b[RDN]F\d?\b|\bPNF\d?\b|\bPRF\d?\b|\bR\dF\b|\bD\dF\b|\bN\dF\b|"
+    r"\bSEF\d?\b|\bSF\d?\b|\bF\d\b|"
+    r"\b(FÉM|FEM|FEMININ|FÉMININ|FEMININE|FÉMININE|FEMININES|FÉMININES|FILLES?|FEMMES?|DAMES?|CADETTES?|BENJAMINES?|POUSSINES?)\b",
     re.IGNORECASE,
 )
 _NUM_PATTERN = re.compile(r"(\d+)")

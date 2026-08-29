@@ -1,4 +1,5 @@
 """Unit tests for normalization helper."""
+
 from ffbb_data_client.helpers.normalization import (
     normalize_apostrophes,
     normalize_query,

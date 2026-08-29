@@ -6,11 +6,10 @@ and hosts the official documentation website at /.
 
 from __future__ import annotations
 
-import os
 import re
-from pathlib import Path
-from typing import Any, Optional
 from datetime import datetime
+from pathlib import Path
+from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -43,7 +42,7 @@ app.add_middleware(
 )
 
 # Global Client Singleton
-_client: Optional[FFBBDataClient] = None
+_client: FFBBDataClient | None = None
 
 
 def get_client() -> FFBBDataClient:
@@ -123,7 +122,7 @@ def clean_opponent_name(opp_raw: str) -> str:
 
 # Cache dictionaries
 _org_cache: dict[int, Any] = {}
-_logo_cache: dict[str, Optional[str]] = {}
+_logo_cache: dict[str, str | None] = {}
 _salle_cache: dict[str, str] = {}
 
 
@@ -145,7 +144,9 @@ def get_cached_organisme(client, org_id: Any):
         return None
 
 
-def resolve_exact_salle_address(client, salle_id: Any, org_id: Any, default_name: str = "") -> str:
+def resolve_exact_salle_address(
+    client, salle_id: Any, org_id: Any, default_name: str = ""
+) -> str:
     """Résout l'adresse complète officielle de la salle (Nom - Rue, CP Ville)."""
     sid = str(salle_id) if salle_id else ""
     org_key = str(org_id) if org_id else ""
@@ -157,15 +158,28 @@ def resolve_exact_salle_address(client, salle_id: Any, org_id: Any, default_name
     org = get_cached_organisme(client, org_id) if org_id else None
 
     # 1. Vérifier si la salle principale de l'organisme hôte correspond
-    if org and getattr(org, 'salle', None):
+    if org and getattr(org, "salle", None):
         o_salle = org.salle
-        o_sid = str(getattr(o_salle, 'id', ''))
+        o_sid = str(getattr(o_salle, "id", ""))
         if o_sid == sid or not sid:
-            nom = getattr(o_salle, 'libelle', '') or getattr(o_salle, 'nom', '') or default_name
-            adr = getattr(o_salle, 'adresse', '') or ""
-            commune = getattr(o_salle, 'commune', None)
-            cp = getattr(commune, 'codePostal', '') or getattr(commune, 'code_postal', '') if commune else ""
-            v = getattr(commune, 'libelle', '') or getattr(o_salle, 'ville', '') if commune else ""
+            nom = (
+                getattr(o_salle, "libelle", "")
+                or getattr(o_salle, "nom", "")
+                or default_name
+            )
+            adr = getattr(o_salle, "adresse", "") or ""
+            commune = getattr(o_salle, "commune", None)
+            cp = (
+                getattr(commune, "codePostal", "")
+                or getattr(commune, "code_postal", "")
+                if commune
+                else ""
+            )
+            v = (
+                getattr(commune, "libelle", "") or getattr(o_salle, "ville", "")
+                if commune
+                else ""
+            )
             parts = [adr, f"{cp} {v}".strip()]
             full_addr = ", ".join([p for p in parts if p])
             full = f"{nom} - {full_addr}" if nom and full_addr else (nom or full_addr)
@@ -178,29 +192,39 @@ def resolve_exact_salle_address(client, salle_id: Any, org_id: Any, default_name
         try:
             salle = client.get_salle(sid)
             if salle:
-                nom = getattr(salle, 'libelle', '') or getattr(salle, 'nom', '') or default_name
-                adr = getattr(salle, 'adresse', '') or ""
+                nom = (
+                    getattr(salle, "libelle", "")
+                    or getattr(salle, "nom", "")
+                    or default_name
+                )
+                adr = getattr(salle, "adresse", "") or ""
                 cp, v = "", ""
                 try:
                     res = client.search_salles(nom)
-                    if res and getattr(res, 'hits', None):
+                    if res and getattr(res, "hits", None):
                         matched_hit = None
                         for hit in res.hits:
-                            if str(getattr(hit, 'id', '')) == sid:
+                            if str(getattr(hit, "id", "")) == sid:
                                 matched_hit = hit
                                 break
                         if not matched_hit:
                             matched_hit = res.hits[0]
-                        commune = getattr(matched_hit, 'commune', None)
+                        commune = getattr(matched_hit, "commune", None)
                         if commune:
-                            cp = getattr(commune, 'code_postal', '') or getattr(commune, 'codePostal', '') or ""
-                            v = getattr(commune, 'libelle', '') or ""
+                            cp = (
+                                getattr(commune, "code_postal", "")
+                                or getattr(commune, "codePostal", "")
+                                or ""
+                            )
+                            v = getattr(commune, "libelle", "") or ""
                 except Exception:
                     pass
 
                 parts = [adr, f"{cp} {v}".strip()]
                 full_addr = ", ".join([p for p in parts if p])
-                full = f"{nom} - {full_addr}" if nom and full_addr else (nom or full_addr)
+                full = (
+                    f"{nom} - {full_addr}" if nom and full_addr else (nom or full_addr)
+                )
                 if full:
                     _salle_cache[cache_key] = full
                     return full
@@ -222,7 +246,9 @@ async def health():
 @app.get("/api/v1/club/{organisme_id}/matches", tags=["Clubs"])
 async def get_club_matches(
     organisme_id: int,
-    team: Optional[str] = Query(None, description="Filtrer par équipe (ex: 'SENIOR M1', 'U18 M1', 'ALL')"),
+    team: str | None = Query(
+        None, description="Filtrer par équipe (ex: 'SENIOR M1', 'U18 M1', 'ALL')"
+    ),
 ):
     """
     Récupère l'ensemble des rencontres officielles FFBB d'un club,
@@ -233,12 +259,14 @@ async def get_club_matches(
     try:
         org = client.get_organisme(organisme_id)
         if not org:
-            raise HTTPException(status_code=404, detail=f"Club {organisme_id} introuvable.")
+            raise HTTPException(
+                status_code=404, detail=f"Club {organisme_id} introuvable."
+            )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur FFBB: {e}")
 
     club_name = getattr(org, "nom", "") or "Club"
-    club_logo_url: Optional[str] = None
+    club_logo_url: str | None = None
     if getattr(org, "logo", None):
         logo_id = getattr(org.logo, "id", None) or org.logo
         if logo_id:
@@ -251,7 +279,9 @@ async def get_club_matches(
     for eng in engagements:
         poule_obj = getattr(eng, "idPoule", None)
         comp_obj = getattr(eng, "idCompetition", None)
-        poule_id = getattr(poule_obj, "id", None) or (str(poule_obj) if poule_obj else None)
+        poule_id = getattr(poule_obj, "id", None) or (
+            str(poule_obj) if poule_obj else None
+        )
         comp_nom = getattr(comp_obj, "nom", "") or ""
 
         if not poule_id:
@@ -273,8 +303,12 @@ async def get_club_matches(
             id_org1 = str(getattr(m, "idOrganismeEquipe1", "") or "")
             id_org2 = str(getattr(m, "idOrganismeEquipe2", "") or "")
 
-            is_club1 = id_org1 == str(organisme_id) or club_name.upper() in nom_eq1.upper()
-            is_club2 = id_org2 == str(organisme_id) or club_name.upper() in nom_eq2.upper()
+            is_club1 = (
+                id_org1 == str(organisme_id) or club_name.upper() in nom_eq1.upper()
+            )
+            is_club2 = (
+                id_org2 == str(organisme_id) or club_name.upper() in nom_eq2.upper()
+            )
 
             if not is_club1 and not is_club2:
                 continue
@@ -311,13 +345,13 @@ async def get_club_matches(
 
         nom_eq1 = getattr(m, "nomEquipe1", "") or ""
         nom_eq2 = getattr(m, "nomEquipe2", "") or ""
-        id_org1 = getattr(m, "idOrganismeEquipe1", None)
-        id_org2 = getattr(m, "idOrganismeEquipe2", None)
+        id_org1_raw = getattr(m, "idOrganismeEquipe1", None)
+        id_org2_raw = getattr(m, "idOrganismeEquipe2", None)
         m_id = str(getattr(m, "id", ""))
 
         local_team_raw = nom_eq1 if is_home else nom_eq2
         opp_team_raw = nom_eq2 if is_home else nom_eq1
-        opp_org_id = id_org2 if is_home else id_org1
+        opp_org_id = id_org2_raw if is_home else id_org1_raw
 
         scba_team = normalize_team_name(local_team_raw, comp_nom)
         opponent = clean_opponent_name(opp_team_raw)
@@ -351,7 +385,10 @@ async def get_club_matches(
                 location = "Maison des Sports, Place des Bughes, 63000 Clermont-Ferrand"
             else:
                 location = resolve_exact_salle_address(
-                    client, salle_id=salle_id, org_id=organisme_id, default_name="Domicile"
+                    client,
+                    salle_id=salle_id,
+                    org_id=organisme_id,
+                    default_name="Domicile",
                 )
         else:
             location = resolve_exact_salle_address(
@@ -362,7 +399,7 @@ async def get_club_matches(
             )
 
         # Opponent Logo
-        opponent_logo: Optional[str] = None
+        opponent_logo: str | None = None
         if opp_org_id:
             s_opp_org = str(opp_org_id)
             if s_opp_org in _logo_cache:
@@ -421,12 +458,16 @@ async def get_club_teams(organisme_id: int):
     for eng in engagements:
         comp = getattr(eng, "idCompetition", None)
         poule = getattr(eng, "idPoule", None)
-        teams.append({
-            "engagement_id": str(getattr(eng, "id", "")),
-            "team_number": getattr(eng, "numeroEquipe", "") or "1",
-            "competition": getattr(comp, "nom", "") if comp else "",
-            "poule_id": str(getattr(poule, "id", "")) if poule else str(poule or ""),
-        })
+        teams.append(
+            {
+                "engagement_id": str(getattr(eng, "id", "")),
+                "team_number": getattr(eng, "numeroEquipe", "") or "1",
+                "competition": getattr(comp, "nom", "") if comp else "",
+                "poule_id": (
+                    str(getattr(poule, "id", "")) if poule else str(poule or "")
+                ),
+            }
+        )
 
     return {
         "organisme_id": organisme_id,
@@ -486,7 +527,9 @@ if _WEBSITE_DIR.exists():
     async def serve_index():
         index_file = _WEBSITE_DIR / "index.html"
         if index_file.exists():
-            return HTMLResponse(content=index_file.read_text(encoding="utf-8"), status_code=200)
+            return HTMLResponse(
+                content=index_file.read_text(encoding="utf-8"), status_code=200
+            )
         return {"service": "ffbb-data-client-api", "docs": "/docs"}
 
     @app.get("/robots.txt", include_in_schema=False)
