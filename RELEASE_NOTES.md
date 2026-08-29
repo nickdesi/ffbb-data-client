@@ -1,6 +1,13 @@
 # Release Notes - FFBB Data Client
 
-## Version 2.4.4 (Latest Release)
+## Version 2.4.5 (Latest Release)
+
+### 🔒 Complete CodeQL Pipeline Unification
+- **Zero Raw Sinks**: All sync and async requests now route through sanitized retry wrappers.
+
+---
+
+## Version 2.4.4
 
 ### 🔒 Complete CodeQL SSRF Mitigation (CWE-918)
 - **SSRF Taint Graph Elimination**: Reconstructed HTTP request targets via parsed components in `http_requests_utils.py` and `retry_utils.py`.

@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.5] - 2026-08-29
+
+### Security & Hardening (CodeQL / SSRF Pipeline Unification)
+- **SSRF Elimination (CWE-918)**: Unification de l'ensemble des requêtes HTTP (sync & async) au travers de `make_http_request_with_retry` et élimination des appels directs non encapsulés à `session.get()` / `session.post()`.
+
 ## [2.4.4] - 2026-08-29
 
 ### Security & Hardening (CodeQL / SSRF Resolution)

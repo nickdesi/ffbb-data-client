@@ -182,53 +182,30 @@ def http_get(
         logger.debug(f"Making GET request to {url}")
         start_time = time.time()
 
-    # Use retry logic if configured
-    if retry_config and timeout_config:
-        response = make_http_request_with_retry(
-            "GET",
-            url,
-            headers,
-            cached_session=cached_session,
-            retry_config=retry_config,
-            timeout_config=timeout_config,
-            debug=debug,
-        )
-    else:
-        # Fallback to reusable client to keep connections warm across calls.
-        if cached_session:
-            response = cached_session.get(
-                url, headers=headers, timeout=_build_timeout(timeout_config or timeout)
-            )
-        else:
-            response = _get_default_sync_client(timeout).get(
-                url, headers=headers, timeout=_build_timeout(timeout_config or timeout)
-            )
+    t_config = timeout_config or TimeoutConfig(total_timeout=timeout)
+    r_config = retry_config or RetryConfig(max_attempts=0)
+
+    response = make_http_request_with_retry(
+        "GET",
+        url,
+        headers,
+        cached_session=cached_session,
+        retry_config=r_config,
+        timeout_config=t_config,
+        debug=debug,
+    )
 
     if response.status_code in (401, 403) and "Authorization" in headers:
         if _handle_token_refresh(url, headers, debug):
-            if retry_config and timeout_config:
-                response = make_http_request_with_retry(
-                    "GET",
-                    url,
-                    headers,
-                    cached_session=cached_session,
-                    retry_config=retry_config,
-                    timeout_config=timeout_config,
-                    debug=debug,
-                )
-            else:
-                if cached_session:
-                    response = cached_session.get(
-                        url,
-                        headers=headers,
-                        timeout=_build_timeout(timeout_config or timeout),
-                    )
-                else:
-                    response = _get_default_sync_client(timeout).get(
-                        url,
-                        headers=headers,
-                        timeout=_build_timeout(timeout_config or timeout),
-                    )
+            response = make_http_request_with_retry(
+                "GET",
+                url,
+                headers,
+                cached_session=cached_session,
+                retry_config=r_config,
+                timeout_config=t_config,
+                debug=debug,
+            )
 
     if debug:
         end_time = time.time()
@@ -272,63 +249,32 @@ def http_post(
         logger.debug(f"Making POST request to {url} {data_str}")
         start_time = time.time()
 
-    # Use retry logic if configured
-    if retry_config and timeout_config:
-        response = make_http_request_with_retry(
-            "POST",
-            url,
-            headers,
-            data=data,
-            cached_session=cached_session,
-            retry_config=retry_config,
-            timeout_config=timeout_config,
-            debug=debug,
-        )
-    else:
-        # Fallback to reusable client to keep connections warm across calls.
-        if cached_session:
-            response = cached_session.post(
-                url,
-                headers=headers,
-                json=data,
-                timeout=_build_timeout(timeout_config or timeout),
-            )
-        else:
-            response = _get_default_sync_client(timeout).post(
-                url,
-                headers=headers,
-                json=data,
-                timeout=_build_timeout(timeout_config or timeout),
-            )
+    t_config = timeout_config or TimeoutConfig(total_timeout=timeout)
+    r_config = retry_config or RetryConfig(max_attempts=0)
+
+    response = make_http_request_with_retry(
+        "POST",
+        url,
+        headers,
+        data=data,
+        cached_session=cached_session,
+        retry_config=r_config,
+        timeout_config=t_config,
+        debug=debug,
+    )
 
     if response.status_code in (401, 403) and "Authorization" in headers:
         if _handle_token_refresh(url, headers, debug):
-            if retry_config and timeout_config:
-                response = make_http_request_with_retry(
-                    "POST",
-                    url,
-                    headers,
-                    data=data,
-                    cached_session=cached_session,
-                    retry_config=retry_config,
-                    timeout_config=timeout_config,
-                    debug=debug,
-                )
-            else:
-                if cached_session:
-                    response = cached_session.post(
-                        url,
-                        headers=headers,
-                        json=data,
-                        timeout=_build_timeout(timeout_config or timeout),
-                    )
-                else:
-                    response = _get_default_sync_client(timeout).post(
-                        url,
-                        headers=headers,
-                        json=data,
-                        timeout=_build_timeout(timeout_config or timeout),
-                    )
+            response = make_http_request_with_retry(
+                "POST",
+                url,
+                headers,
+                data=data,
+                cached_session=cached_session,
+                retry_config=r_config,
+                timeout_config=t_config,
+                debug=debug,
+            )
 
     if debug:
         end_time = time.time()
@@ -437,53 +383,30 @@ async def http_get_async(
         logger.debug(f"Making async GET request to {url}")
         start_time = time.time()
 
-    # Use retry logic if configured
-    if retry_config and timeout_config:
-        response = await make_http_request_with_retry_async(
-            "GET",
-            url,
-            headers,
-            cached_session=cached_session,
-            retry_config=retry_config,
-            timeout_config=timeout_config,
-            debug=debug,
-        )
-    else:
-        # Fallback to reusable async client to keep connections warm across calls.
-        if cached_session:
-            response = await cached_session.get(
-                url, headers=headers, timeout=_build_timeout(timeout_config or timeout)
-            )
-        else:
-            response = await (await _get_default_async_client(timeout)).get(
-                url, headers=headers, timeout=_build_timeout(timeout_config or timeout)
-            )
+    t_config = timeout_config or TimeoutConfig(total_timeout=timeout)
+    r_config = retry_config or RetryConfig(max_attempts=0)
+
+    response = await make_http_request_with_retry_async(
+        "GET",
+        url,
+        headers,
+        cached_session=cached_session,
+        retry_config=r_config,
+        timeout_config=t_config,
+        debug=debug,
+    )
 
     if response.status_code in (401, 403) and "Authorization" in headers:
         if _handle_token_refresh(url, headers, debug):
-            if retry_config and timeout_config:
-                response = await make_http_request_with_retry_async(
-                    "GET",
-                    url,
-                    headers,
-                    cached_session=cached_session,
-                    retry_config=retry_config,
-                    timeout_config=timeout_config,
-                    debug=debug,
-                )
-            else:
-                if cached_session:
-                    response = await cached_session.get(
-                        url,
-                        headers=headers,
-                        timeout=_build_timeout(timeout_config or timeout),
-                    )
-                else:
-                    response = await (await _get_default_async_client(timeout)).get(
-                        url,
-                        headers=headers,
-                        timeout=_build_timeout(timeout_config or timeout),
-                    )
+            response = await make_http_request_with_retry_async(
+                "GET",
+                url,
+                headers,
+                cached_session=cached_session,
+                retry_config=r_config,
+                timeout_config=t_config,
+                debug=debug,
+            )
 
     if debug:
         end_time = time.time()
