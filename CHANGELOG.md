@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.0] - 2026-08-29
+
+### Added
+- **Serveur FastAPI & REST API**: Serveur FastAPI intégré avec support CORS, documentation OpenAPI/Swagger et routes optimisées pour les matchs de clubs.
+- **Résolution d'adresses précises des salles**: Résolution automatique de l'adresse de voirie exacte des gymnases pour l'ensemble des rencontres (domicile & extérieur).
+- **Gestion du cycle de vie async (`aclose`)**: Support natif de la fermeture asynchrone des sessions et mutualisation des pools de connexions HTTP.
+
+### Fixed & Maintenance
+- **Imports des modèles**: Correction des chemins d'accès aux modèles `CategorieType` et `Niveau`.
+- **Conventions d'architecture**: Documentation des règles d'immutabilité des packages PyPI et des directives d'imports de modèles dans `AGENTS.md`.
+
 ## [2.3.4] - 2026-08-19
 
 ### Fixed

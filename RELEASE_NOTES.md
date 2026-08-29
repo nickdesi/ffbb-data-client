@@ -1,6 +1,19 @@
 # Release Notes - FFBB Data Client
 
-## Version 2.3.4 (Latest Release)
+## Version 2.4.0 (Latest Release)
+
+### 🚀 New Features & API
+- **Embedded FastAPI Server**: Standalone or embeddable FastAPI application providing CORS-enabled REST endpoints for clubs, competitions, and match calendars with auto-generated Swagger UI.
+- **Precise Venue Geocoding**: Enhanced gym & salle resolution delivering exact street addresses for both home and away matches.
+- **Async Resource Cleanup**: Added explicit `aclose()` support across async clients with connection pool lifecycle management.
+
+### 🐛 Bug Fixes & Refactoring
+- **Model Import Paths**: Fixed direct module imports for `CategorieType` and `Niveau` to avoid deprecation warnings.
+- **Repository Architecture Rules**: Documented PyPI release immutability and strict zero-guess versioning in `AGENTS.md`.
+
+---
+
+## Version 2.3.4
 
 ### 🔒 Security & Bug Fixes
 - **Sensitive logging mitigation**: Masked authentication tokens in logging messages and format arguments (`CWE-532` / CodeQL compliance)
