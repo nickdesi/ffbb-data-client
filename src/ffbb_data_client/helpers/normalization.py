@@ -134,6 +134,7 @@ def parse_categorie(raw: str | None) -> ParsedCategorie:
         try:
             numero_equipe = int(num_match.group(1))
         except ValueError:
+            # Fallback if matched digits cannot be converted to int
             pass
 
     return ParsedCategorie(categorie=categorie, sexe=sexe, numero_equipe=numero_equipe)

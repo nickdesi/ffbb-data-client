@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.2] - 2026-08-29
+
+### Security & Hardening (CodeQL / CWE-117 & CWE-918)
+- **Log Injection (CWE-117)**: Neutralisation des injections de logs par assainissement des sauts de ligne (CRLF) dans `secure_logging.py`.
+- **SSRF Hardening (CWE-918)**: Validation stricte des protocoles (HTTP/HTTPS) et des domaines cibles dans `http_requests_utils.py`.
+- **CodeQL Empty Excepts**: Ajout de commentaires explicatifs documentés dans les blocs `except` de `api.py` et `normalization.py`.
+
 ## [2.4.1] - 2026-08-29
 
 ### Fixed

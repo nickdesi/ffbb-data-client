@@ -66,22 +66,22 @@ class SecureLogger:
 
     def _mask_sensitive_data(self, message: str) -> str:
         """
-        Mask sensitive information in a log message.
+        Mask sensitive information in a log message and sanitize newlines to prevent Log Injection (CWE-117).
 
         Args:
             message (str): The original log message
 
         Returns:
-            str: The message with sensitive data masked
+            str: The message with sensitive data masked and newlines sanitized
         """
         if not isinstance(message, str):
-            return str(message)
+            return str(message).replace(chr(13), " ").replace(chr(10), " ")
 
         masked_message = message
         for pattern, replacement in self.SENSITIVE_PATTERNS_COMPILED:
             masked_message = pattern.sub(replacement, masked_message)
 
-        return masked_message
+        return masked_message.replace(chr(13), " ").replace(chr(10), " ")
 
     def _log(self, level: int, message: str, *args, **kwargs):
         """Log with sensitive data masked in the message and its format args."""

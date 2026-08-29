@@ -218,6 +218,7 @@ def resolve_exact_salle_address(
                             )
                             v = getattr(commune, "libelle", "") or ""
                 except Exception:
+                    # Ignore salle search errors to fallback to address-only format
                     pass
 
                 parts = [adr, f"{cp} {v}".strip()]
@@ -229,6 +230,7 @@ def resolve_exact_salle_address(
                     _salle_cache[cache_key] = full
                     return full
         except Exception:
+            # Fallback to default name if salle resolution fails
             pass
 
     return default_name or "Lieu à confirmer"

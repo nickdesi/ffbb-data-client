@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import time
 from typing import Any
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 
 try:
     import orjson  # type: ignore
@@ -34,6 +34,21 @@ from ..utils.retry_utils import (
 from ..utils.secure_logging import get_secure_logger
 
 logger = get_secure_logger(__name__)
+
+
+_ALLOWED_SCHEMES = frozenset({"http", "https"})
+
+
+def _sanitize_url(url: str) -> str:
+    """Validate and sanitize URL target to prevent SSRF (CWE-918)."""
+    if not isinstance(url, str) or not url.strip():
+        raise ValueError("URL must be a non-empty string")
+    parsed = urlparse(url.strip())
+    if parsed.scheme not in _ALLOWED_SCHEMES or not parsed.netloc:
+        raise ValueError(
+            f"Invalid URL target {url}: only HTTP and HTTPS protocols with a valid hostname are allowed"
+        )
+    return url.strip()
 
 
 def _build_timeout(timeout: int | float | TimeoutConfig | None) -> httpx.Timeout:
@@ -159,6 +174,7 @@ def http_get(
     Returns:
         Response: The HTTP response.
     """
+    url = _sanitize_url(url)
     start_time: float = 0.0
     if debug:
         logger.debug(f"Making GET request to {url}")
@@ -246,6 +262,7 @@ def http_post(
     Returns:
         Response: The HTTP response.
     """
+    url = _sanitize_url(url)
     start_time: float = 0.0
     data_str: str = ""
     if debug:
@@ -412,6 +429,7 @@ async def http_get_async(
     """
     Performs an HTTP GET request asynchroniously.
     """
+    url = _sanitize_url(url)
     start_time: float = 0.0
     if debug:
         logger.debug(f"Making async GET request to {url}")
@@ -513,6 +531,7 @@ async def http_post_async(
     """
     Performs an HTTP POST request asynchroniously.
     """
+    url = _sanitize_url(url)
     start_time: float = 0.0
     data_str: str = ""
     if debug:

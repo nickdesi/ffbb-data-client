@@ -1,6 +1,15 @@
 # Release Notes - FFBB Data Client
 
-## Version 2.4.1 (Latest Release)
+## Version 2.4.2 (Latest Release)
+
+### 🔒 Security Hardening (CodeQL / CWE-117 & CWE-918)
+- **Log Injection Protection**: Sanitized CRLF sequences in log formatting within `secure_logging.py`.
+- **SSRF Hardening**: Validated URL targets and protocols in `http_requests_utils.py`.
+- **Explanatory Error Handling**: Documented all fallback exception blocks across `api.py` and `normalization.py`.
+
+---
+
+## Version 2.4.1
 
 ### 🐛 Bug Fixes & CI
 - **Static Typing & Linter Compliance**: Resolved MyPy type narrowing issues in `api.py`, wrapped long regex patterns in `normalization.py`, and aligned Pyright configuration.
