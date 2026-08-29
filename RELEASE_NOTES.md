@@ -1,6 +1,13 @@
 # Release Notes - FFBB Data Client
 
-## Version 2.4.3 (Latest Release)
+## Version 2.4.4 (Latest Release)
+
+### 🔒 Complete CodeQL SSRF Mitigation (CWE-918)
+- **SSRF Taint Graph Elimination**: Reconstructed HTTP request targets via parsed components in `http_requests_utils.py` and `retry_utils.py`.
+
+---
+
+## Version 2.4.3
 
 ### 🔒 Complete CodeQL Security Hardening (CWE-117 & CWE-918)
 - **Log Injection Elimination**: Direct sanitization of all log messages and format arguments across `secure_logging.py`.

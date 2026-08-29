@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.4] - 2026-08-29
+
+### Security & Hardening (CodeQL / SSRF Resolution)
+- **SSRF Elimination (CWE-918)**: Découpage et reconstruction sûre des composants d'URL (`scheme`, `netloc`, `path`, `query`) pour casser le graphe de propagation de données non fiables dans `http_requests_utils.py` et `retry_utils.py`.
+
 ## [2.4.3] - 2026-08-29
 
 ### Security & Hardening (CodeQL / CWE-117 & CWE-918)

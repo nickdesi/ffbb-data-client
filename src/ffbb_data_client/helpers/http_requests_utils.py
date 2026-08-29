@@ -40,15 +40,17 @@ _ALLOWED_SCHEMES = frozenset({"http", "https"})
 
 
 def _sanitize_url(url: str) -> str:
-    """Validate and sanitize URL target to prevent SSRF (CWE-918)."""
+    """Validate, sanitize and reconstruct URL target to prevent SSRF (CWE-918)."""
     if not isinstance(url, str) or not url.strip():
         raise ValueError("URL must be a non-empty string")
     parsed = urlparse(url.strip())
     if parsed.scheme not in _ALLOWED_SCHEMES or not parsed.netloc:
         raise ValueError(
-            f"Invalid URL target {url}: only HTTP and HTTPS protocols with a valid hostname are allowed"
+            f"Invalid URL target: '{url}' - only HTTP and HTTPS protocols with a valid hostname are allowed"
         )
-    return url.strip()
+    path = parsed.path or "/"
+    query = f"?{parsed.query}" if parsed.query else ""
+    return f"{parsed.scheme}://{parsed.netloc}{path}{query}"
 
 
 def _build_timeout(timeout: int | float | TimeoutConfig | None) -> httpx.Timeout:

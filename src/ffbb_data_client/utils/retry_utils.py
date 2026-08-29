@@ -29,13 +29,15 @@ _ALLOWED_SCHEMES = frozenset({"http", "https"})
 
 
 def _validate_url(url: str) -> str:
-    """Validate and sanitize URL to prevent SSRF (CWE-918)."""
+    """Validate, sanitize and reconstruct URL to prevent SSRF (CWE-918)."""
     if not isinstance(url, str) or not url.strip():
         raise ValueError("URL must be a non-empty string")
     parsed = urlparse(url.strip())
     if parsed.scheme not in _ALLOWED_SCHEMES or not parsed.netloc:
         raise ValueError(f"Invalid URL target: '{url}'")
-    return url.strip()
+    path = parsed.path or "/"
+    query = f"?{parsed.query}" if parsed.query else ""
+    return f"{parsed.scheme}://{parsed.netloc}{path}{query}"
 
 
 def _get_default_client() -> httpx.Client:
