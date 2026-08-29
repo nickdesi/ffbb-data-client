@@ -84,13 +84,26 @@ class SecureLogger:
         return masked_message.replace(chr(13), " ").replace(chr(10), " ")
 
     def _log(self, level: int, message: str, *args, **kwargs):
-        """Log with sensitive data masked in the message and its format args."""
+        """Log with sensitive data masked and newlines stripped to prevent log injection (CWE-117)."""
         masked_message = self._mask_sensitive_data(message)
-        masked_args = tuple(
-            self._mask_sensitive_data(arg) if isinstance(arg, str) else arg
+        clean_message = (
+            str(masked_message)
+            .replace("\r\n", " ")
+            .replace("\r", " ")
+            .replace("\n", " ")
+        )
+        clean_args = tuple(
+            (
+                str(self._mask_sensitive_data(arg))
+                .replace("\r\n", " ")
+                .replace("\r", " ")
+                .replace("\n", " ")
+                if isinstance(arg, str)
+                else arg
+            )
             for arg in args
         )
-        self.logger.log(level, masked_message, *masked_args, **kwargs)
+        self.logger.log(level, clean_message, *clean_args, **kwargs)
 
     def debug(self, message: str, *args, **kwargs):
         """Log a debug message with sensitive data masked."""

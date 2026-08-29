@@ -11,7 +11,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException
+from fastapi import Path as PathParam
+from fastapi import Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -247,7 +249,9 @@ async def health():
 
 @app.get("/api/v1/club/{organisme_id}/matches", tags=["Clubs"])
 async def get_club_matches(
-    organisme_id: int,
+    organisme_id: int = PathParam(
+        ..., ge=1, le=99999999, description="ID Organisme FFBB"
+    ),
     team: str | None = Query(
         None, description="Filtrer par équipe (ex: 'SENIOR M1', 'U18 M1', 'ALL')"
     ),
@@ -445,7 +449,11 @@ async def get_club_matches(
 
 
 @app.get("/api/v1/club/{organisme_id}/teams", tags=["Clubs"])
-async def get_club_teams(organisme_id: int):
+async def get_club_teams(
+    organisme_id: int = PathParam(
+        ..., ge=1, le=99999999, description="ID Organisme FFBB"
+    ),
+):
     """Retourne la liste des équipes engagées pour un organisme/club."""
     client = get_client()
     try:

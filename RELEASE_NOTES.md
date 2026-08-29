@@ -1,6 +1,16 @@
 # Release Notes - FFBB Data Client
 
-## Version 2.4.2 (Latest Release)
+## Version 2.4.3 (Latest Release)
+
+### 🔒 Complete CodeQL Security Hardening (CWE-117 & CWE-918)
+- **Log Injection Elimination**: Direct sanitization of all log messages and format arguments across `secure_logging.py`.
+- **SSRF Elimination**: Explicit URL parsing, protocol whitelisting, and target sanitization across `http_requests_utils.py` and `retry_utils.py`.
+- **FastAPI Path & Query Validation**: Strict range and pattern checks on all public API endpoints in `api.py`.
+- **Documented Exception Fallbacks**: Clarified fallback logic in all empty `except` handlers.
+
+---
+
+## Version 2.4.2
 
 ### 🔒 Security Hardening (CodeQL / CWE-117 & CWE-918)
 - **Log Injection Protection**: Sanitized CRLF sequences in log formatting within `secure_logging.py`.

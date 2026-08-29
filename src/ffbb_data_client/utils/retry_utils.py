@@ -11,6 +11,7 @@ import secrets
 import time
 from collections.abc import Callable
 from typing import Any, cast
+from urllib.parse import urlparse
 
 import httpx
 from httpx import Client, Response
@@ -24,6 +25,17 @@ _DEFAULT_ASYNC_CLIENT: httpx.AsyncClient | None = None
 
 # ⚡ Performance optimization: Connection limits to keep TLS sockets warm across calls
 _POOL_LIMITS = httpx.Limits(max_keepalive_connections=50, max_connections=200)
+_ALLOWED_SCHEMES = frozenset({"http", "https"})
+
+
+def _validate_url(url: str) -> str:
+    """Validate and sanitize URL to prevent SSRF (CWE-918)."""
+    if not isinstance(url, str) or not url.strip():
+        raise ValueError("URL must be a non-empty string")
+    parsed = urlparse(url.strip())
+    if parsed.scheme not in _ALLOWED_SCHEMES or not parsed.netloc:
+        raise ValueError(f"Invalid URL target: '{url}'")
+    return url.strip()
 
 
 def _get_default_client() -> httpx.Client:
@@ -296,6 +308,8 @@ def make_http_request_with_retry(
         HTTP response.
     """
 
+    url = _validate_url(url)
+
     def _make_request(**_kwargs: Any) -> Response:
         if debug:
             logger.debug(f"Making {method} request to {url}")
@@ -433,6 +447,8 @@ async def make_http_request_with_retry_async(
     Returns:
         HTTP response.
     """
+
+    url = _validate_url(url)
 
     async def _make_request(**_kwargs: Any) -> Response:
         if debug:
