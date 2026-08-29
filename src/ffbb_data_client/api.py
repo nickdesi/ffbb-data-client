@@ -7,6 +7,7 @@ and hosts the official documentation website at /.
 from __future__ import annotations
 
 import re
+from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -19,6 +20,7 @@ from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
 from .clients.ffbb_data_client import FFBBDataClient
+from .utils.retry_utils import aclose_default_clients
 
 # Directories
 _BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -26,12 +28,21 @@ _WEBSITE_DIR = _BASE_DIR / "website"
 if not _WEBSITE_DIR.exists():
     _WEBSITE_DIR = Path("/app/website")
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for startup and graceful shutdown (FastAPI/Context7 standard)."""
+    yield
+    await aclose_default_clients()
+
+
 app = FastAPI(
     title="FFBB Data Client API",
     description="API REST moderne & asynchrone pour les données officielles de la Fédération Française de BasketBall.",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 # Enable CORS for all origins

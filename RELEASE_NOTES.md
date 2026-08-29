@@ -1,6 +1,13 @@
 # Release Notes - FFBB Data Client
 
-## Version 2.4.5 (Latest Release)
+## Version 2.4.6 (Latest Release)
+
+### 🚀 FastAPI Lifespan & Connection Cleanup
+- Implemented modern `@asynccontextmanager` lifespan on FastAPI app to guarantee non-leaking HTTP connection pools on server shutdown.
+
+---
+
+## Version 2.4.5
 
 ### 🔒 Complete CodeQL Pipeline Unification
 - **Zero Raw Sinks**: All sync and async requests now route through sanitized retry wrappers.

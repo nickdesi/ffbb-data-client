@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.6] - 2026-08-29
+
+### Performance & Modern Standards (FastAPI Lifespan)
+- **FastAPI Lifespan Context Manager**: Gestion propre du cycle de vie startup/shutdown avec fermeture asynchrone des sockets HTTP et pools de connexions lors de l'arrêt du serveur REST.
+
 ## [2.4.5] - 2026-08-29
 
 ### Security & Hardening (CodeQL / SSRF Pipeline Unification)
