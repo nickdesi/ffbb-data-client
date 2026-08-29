@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.1] - 2026-08-29
+
+### Fixed
+- **CI / Linters & Typage**: Correction des erreurs de typage MyPy/Pyright dans `api.py`, découpage des lignes d'expressions régulières dans `normalization.py` et configuration des extras de typage.
+
 ## [2.4.0] - 2026-08-29
 
 ### Added

@@ -1,6 +1,13 @@
 # Release Notes - FFBB Data Client
 
-## Version 2.4.0 (Latest Release)
+## Version 2.4.1 (Latest Release)
+
+### 🐛 Bug Fixes & CI
+- **Static Typing & Linter Compliance**: Resolved MyPy type narrowing issues in `api.py`, wrapped long regex patterns in `normalization.py`, and aligned Pyright configuration.
+
+---
+
+## Version 2.4.0
 
 ### 🚀 New Features & API
 - **Embedded FastAPI Server**: Standalone or embeddable FastAPI application providing CORS-enabled REST endpoints for clubs, competitions, and match calendars with auto-generated Swagger UI.
