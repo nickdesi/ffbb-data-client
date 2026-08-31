@@ -640,7 +640,7 @@ async def get_lives():
 
 
 
-@app.get("/docs", include_in_schema=False)
+@app.api_route("/docs", methods=["GET", "HEAD"], include_in_schema=False)
 async def custom_swagger_ui_html():
     html_content = """<!DOCTYPE html>
 <html lang="fr">
@@ -698,7 +698,7 @@ async def custom_swagger_ui_html():
     return HTMLResponse(content=html_content, status_code=200)
 
 
-@app.get("/redoc", include_in_schema=False)
+@app.api_route("/redoc", methods=["GET", "HEAD"], include_in_schema=False)
 async def custom_redoc_html():
     html_content = """<!DOCTYPE html>
 <html lang="fr">
