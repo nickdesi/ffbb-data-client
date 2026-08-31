@@ -298,7 +298,6 @@ async def search_ffbb(
         description="Terme de recherche (nom de club, compétition, ville, gymnase, etc.)",
         examples=["Stade Clermontois", "Pau", "RM2", "Maison des Sports"],
     ),
-    limit: int = Query(20, ge=1, le=100, description="Nombre maximum de résultats"),
 ):
     """
     Recherche universelle multi-index Meilisearch.
@@ -306,7 +305,7 @@ async def search_ffbb(
     """
     client = get_client()
     try:
-        results = client.multi_search(q, limit=limit)
+        results = client.multi_search(name=q)
         return results
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur de recherche: {e}")
