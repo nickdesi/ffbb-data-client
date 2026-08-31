@@ -290,28 +290,49 @@ async def health():
     }
 
 
-@app.get("/api/v1/search", tags=["Recherche & Meilisearch"])
+@app.get(
+    "/api/v1/search",
+    tags=["Recherche & Meilisearch"],
+    summary="Recherche universelle (Clubs, Compétitions, Salles)",
+    response_description="Résultats multi-index Meilisearch groupés par typologie",
+)
 async def search_ffbb(
-    q: str = Query(
+    query: str = Query(
         ...,
+        title="Terme de recherche",
+        description="Nom d'un club, d'une compétition, ville, salle ou tournoi",
         min_length=2,
-        description="Terme de recherche (nom de club, compétition, ville, gymnase, etc.)",
-        examples=["Stade Clermontois", "Pau", "RM2", "Maison des Sports"],
+        examples=["Stade Clermontois"],
+    ),
+    q: str | None = Query(
+        None,
+        include_in_schema=False,
+        description="Alias court optionnel pour compatibilité ?q=",
     ),
 ):
     """
-    Recherche universelle multi-index Meilisearch.
-    Permet de rechercher simultanément dans les clubs, compétitions, gymnases, tournois 3x3 et actualités.
+    Recherche universelle rapide multi-index optimisée par Meilisearch.
+    
+    Permet d'interroger simultanément :
+    - 🏀 **Clubs & Organismes** (nom officiel, sigle, commune, code postal)
+    - 🏆 **Compétitions & Championnats** (départemental, régional, national)
+    - 📍 **Salles & Gymnases** (nom, adresse, ville)
+    - ⚡ **Tournois & Terrains 3x3**
     """
+    search_term = (query or q or "").strip()
+    if len(search_term) < 2:
+        raise HTTPException(
+            status_code=400, detail="Le terme de recherche doit comporter au moins 2 caractères."
+        )
     client = get_client()
     try:
-        results = client.multi_search(name=q)
+        results = client.multi_search(name=search_term)
         return results
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur de recherche: {e}")
 
 
-@app.get("/api/v1/club/{organisme_id}/matches", tags=["Matchs & Calendriers"])
+@app.get("/api/v1/club/{organisme_id}/matches", tags=["Matchs & Calendriers"], summary="Calendrier & Matchs d'un club", response_description="Liste ordonnée des rencontres avec adresses et logos")
 async def get_club_matches(
     organisme_id: int = PathParam(
         ..., ge=1, le=99999999, description="ID Organisme FFBB (ex: 9326 pour SCBA)"
@@ -512,7 +533,7 @@ async def get_club_matches(
     }
 
 
-@app.get("/api/v1/club/{organisme_id}/teams", tags=["Clubs"])
+@app.get("/api/v1/club/{organisme_id}/teams", tags=["Clubs"], summary="Équipes engagées d'un club", response_description="Liste des équipes engagées par championnat")
 async def get_club_teams(
     organisme_id: int = PathParam(
         ..., ge=1, le=99999999, description="ID Organisme FFBB"
@@ -551,7 +572,7 @@ async def get_club_teams(
     }
 
 
-@app.get("/api/v1/club/{organisme_id}", tags=["Clubs"])
+@app.get("/api/v1/club/{organisme_id}", tags=["Clubs"], summary="Fiche détaillée d'un club", response_description="Informations administratives, contacts et salle")
 async def get_club_details(
     organisme_id: int = PathParam(
         ..., ge=1, le=99999999, description="ID Organisme FFBB (ex: 9326)"
@@ -568,7 +589,7 @@ async def get_club_details(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/v1/poule/{poule_id}", tags=["Compétitions & Poules"])
+@app.get("/api/v1/poule/{poule_id}", tags=["Compétitions & Poules"], summary="Détails complets d'une poule", response_description="Composition, classements et rencontres")
 async def get_poule(
     poule_id: int = PathParam(
         ..., ge=1, le=99999999, description="ID de la poule FFBB"
@@ -585,7 +606,7 @@ async def get_poule(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/v1/poule/{poule_id}/classement", tags=["Compétitions & Poules"])
+@app.get("/api/v1/poule/{poule_id}/classement", tags=["Compétitions & Poules"], summary="Classement officiel d'une poule", response_description="Classement détaillé avec points, victoires et goal-average")
 async def get_poule_classement(
     poule_id: int = PathParam(
         ..., ge=1, le=99999999, description="ID de la poule FFBB"
@@ -608,7 +629,7 @@ async def get_poule_classement(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/v1/lives", tags=["Scores en Direct"])
+@app.get("/api/v1/lives", tags=["Scores en Direct"], summary="Scores en direct du week-end (Lives)", response_description="Matchs en direct avec scores temps réel")
 async def get_lives():
     """Retourne les matchs en direct avec score en temps réel sur l'ensemble des championnats."""
     client = get_client()
