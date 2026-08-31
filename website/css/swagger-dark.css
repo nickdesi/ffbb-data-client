@@ -1,0 +1,364 @@
+/* Swagger UI Modern Dark Glassmorphism Theme - FFBB Data Client */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@600;700;800&display=swap");
+
+:root {
+    --bg-dark: #07090e;
+    --bg-card: #0d121f;
+    --bg-card-hover: #131b2e;
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(255, 107, 53, 0.4);
+    --ffbb-orange: #ff6b35;
+    --ffbb-orange-light: #ff8c5a;
+    --ffbb-orange-glow: rgba(255, 107, 53, 0.25);
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --get-color: #10b981;
+    --get-bg: rgba(16, 185, 129, 0.1);
+    --post-color: #3b82f6;
+    --post-bg: rgba(59, 130, 246, 0.1);
+    --tag-bg: #111827;
+}
+
+body {
+    background-color: var(--bg-dark) !important;
+    color: var(--text-main) !important;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif !important;
+    margin: 0;
+    padding: 0;
+}
+
+/* Top Navigation Bar */
+.swagger-custom-navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 2rem;
+    background: rgba(7, 9, 14, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.swagger-nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #fff;
+    text-decoration: none;
+    font-family: "Outfit", sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.swagger-nav-brand span.badge {
+    background: linear-gradient(135deg, var(--ffbb-orange), #ea580c);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.swagger-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.swagger-nav-link {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.swagger-nav-link:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.swagger-nav-link.active {
+    color: var(--ffbb-orange);
+    background: var(--ffbb-orange-glow);
+    font-weight: 600;
+}
+
+/* Swagger UI Global Resets */
+.swagger-ui {
+    color: var(--text-main) !important;
+}
+
+.swagger-ui .topbar {
+    display: none !important;
+}
+
+.swagger-ui .info {
+    margin: 2rem 0 !important;
+    padding: 2rem !important;
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+}
+
+.swagger-ui .info .title {
+    color: #fff !important;
+    font-family: "Outfit", sans-serif !important;
+    font-weight: 800 !important;
+    font-size: 2.2rem !important;
+    letter-spacing: -0.02em !important;
+}
+
+.swagger-ui .info .title small {
+    background: linear-gradient(135deg, var(--ffbb-orange), #ea580c) !important;
+    color: #fff !important;
+    border-radius: 999px !important;
+    padding: 0.2rem 0.6rem !important;
+    font-size: 0.8rem !important;
+    margin-left: 0.75rem !important;
+}
+
+.swagger-ui .info p, .swagger-ui .info li, .swagger-ui .info div {
+    color: var(--text-muted) !important;
+    font-size: 0.95rem !important;
+    line-height: 1.6 !important;
+}
+
+.swagger-ui .info a {
+    color: var(--ffbb-orange-light) !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+}
+
+.swagger-ui .info a:hover {
+    text-decoration: underline !important;
+}
+
+/* Tag Sections */
+.swagger-ui .opblock-tag-section {
+    margin-bottom: 1.5rem !important;
+}
+
+.swagger-ui .opblock-tag {
+    color: #fff !important;
+    font-family: "Outfit", sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 1.3rem !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    padding: 1rem 0 !important;
+}
+
+.swagger-ui .opblock-tag small {
+    color: var(--text-muted) !important;
+    font-family: "Inter", sans-serif !important;
+    font-size: 0.85rem !important;
+    font-weight: 400 !important;
+}
+
+/* Operation Blocks (Endpoints) */
+.swagger-ui .opblock {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 12px !important;
+    margin: 0 0 1rem !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+    transition: all 0.2s ease !important;
+}
+
+.swagger-ui .opblock:hover {
+    border-color: var(--border-hover) !important;
+    transform: translateY(-1px);
+}
+
+.swagger-ui .opblock .opblock-summary {
+    padding: 0.75rem 1.25rem !important;
+}
+
+.swagger-ui .opblock .opblock-summary-method {
+    font-family: "JetBrains Mono", monospace !important;
+    font-weight: 700 !important;
+    border-radius: 8px !important;
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.85rem !important;
+}
+
+.swagger-ui .opblock.opblock-get .opblock-summary-method {
+    background: var(--get-color) !important;
+    color: #fff !important;
+}
+
+.swagger-ui .opblock.opblock-get {
+    border-color: rgba(16, 185, 129, 0.2) !important;
+}
+
+.swagger-ui .opblock .opblock-summary-path {
+    color: #fff !important;
+    font-family: "JetBrains Mono", monospace !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+}
+
+.swagger-ui .opblock .opblock-summary-description {
+    color: var(--text-muted) !important;
+    font-size: 0.875rem !important;
+}
+
+.swagger-ui .opblock-body {
+    background: #090d16 !important;
+    border-top: 1px solid var(--border-color) !important;
+    padding: 1.5rem !important;
+}
+
+.swagger-ui .opblock-description-wrapper p {
+    color: var(--text-muted) !important;
+    font-size: 0.9rem !important;
+}
+
+/* Parameters Table */
+.swagger-ui table.parameters {
+    color: var(--text-main) !important;
+}
+
+.swagger-ui table.parameters thead th {
+    color: var(--text-muted) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    font-size: 0.8rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+}
+
+.swagger-ui .parameter__name {
+    color: #fff !important;
+    font-family: "JetBrains Mono", monospace !important;
+    font-weight: 600 !important;
+}
+
+.swagger-ui .parameter__type {
+    color: var(--text-muted) !important;
+    font-family: "JetBrains Mono", monospace !important;
+    font-size: 0.8rem !important;
+}
+
+.swagger-ui input[type=text],
+.swagger-ui select {
+    background: #0f172a !important;
+    color: #fff !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 8px !important;
+    padding: 0.5rem 0.75rem !important;
+    font-family: "JetBrains Mono", monospace !important;
+    font-size: 0.875rem !important;
+}
+
+.swagger-ui input[type=text]:focus {
+    border-color: var(--ffbb-orange) !important;
+    outline: none !important;
+    box-shadow: 0 0 0 2px var(--ffbb-orange-glow) !important;
+}
+
+/* Buttons */
+.swagger-ui .btn {
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    transition: all 0.2s ease !important;
+}
+
+.swagger-ui .btn.try-out__btn {
+    border: 1px solid var(--ffbb-orange) !important;
+    color: var(--ffbb-orange) !important;
+    background: transparent !important;
+}
+
+.swagger-ui .btn.try-out__btn:hover {
+    background: var(--ffbb-orange) !important;
+    color: #fff !important;
+}
+
+.swagger-ui .btn.execute {
+    background: linear-gradient(135deg, var(--ffbb-orange), #ea580c) !important;
+    border: none !important;
+    color: #fff !important;
+    box-shadow: 0 4px 12px var(--ffbb-orange-glow) !important;
+}
+
+.swagger-ui .btn.execute:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 16px var(--ffbb-orange-glow) !important;
+}
+
+.swagger-ui .btn.cancel {
+    border-color: #ef4444 !important;
+    color: #ef4444 !important;
+}
+
+/* Responses & Code Blocks */
+.swagger-ui .responses-inner {
+    padding: 1rem 0 !important;
+}
+
+.swagger-ui .responses-table thead th {
+    color: var(--text-muted) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+.swagger-ui .response-col_status {
+    color: #fff !important;
+    font-family: "JetBrains Mono", monospace !important;
+    font-weight: 700 !important;
+}
+
+.swagger-ui .highlight-code,
+.swagger-ui .microlight {
+    background: #030712 !important;
+    border-radius: 8px !important;
+    border: 1px solid var(--border-color) !important;
+    font-family: "JetBrains Mono", monospace !important;
+    color: #e2e8f0 !important;
+}
+
+/* Filter bar */
+.swagger-ui .wrapper .filter {
+    padding: 0 0 1.5rem 0 !important;
+}
+
+.swagger-ui .wrapper .filter input {
+    background: var(--bg-card) !important;
+    color: #fff !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 12px !important;
+    padding: 0.75rem 1.25rem !important;
+    width: 100% !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+}
+
+.swagger-ui .wrapper .filter input:focus {
+    border-color: var(--ffbb-orange) !important;
+    box-shadow: 0 0 0 3px var(--ffbb-orange-glow) !important;
+}
+
+/* Models Section */
+.swagger-ui section.models {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 16px !important;
+    margin: 2rem 0 !important;
+}
+
+.swagger-ui section.models h4 {
+    color: #fff !important;
+    font-family: "Outfit", sans-serif !important;
+}
+
+.swagger-ui .model-box {
+    background: #090d16 !important;
+    border-radius: 8px !important;
+}

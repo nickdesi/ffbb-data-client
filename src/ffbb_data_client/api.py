@@ -85,8 +85,8 @@ Cette API REST moderne et asynchrone (FastAPI + Pydantic v2) permet d'interroger
 """,
     version="2.3.4",
     openapi_tags=TAGS_METADATA,
-    docs_url="/docs",
-    redoc_url="/redoc",
+    docs_url=None,
+    redoc_url=None,
     openapi_url="/openapi.json",
     swagger_ui_parameters={
         "defaultModelsExpandDepth": 1,
@@ -638,6 +638,103 @@ async def get_lives():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
+
+@app.get("/docs", include_in_schema=False)
+async def custom_swagger_ui_html():
+    html_content = """<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API FFBB — Documentation Swagger Interactive</title>
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/favicon-48x48.png">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css">
+    <link rel="stylesheet" type="text/css" href="/css/swagger-dark.css">
+</head>
+<body>
+    <nav class="swagger-custom-navbar">
+        <a href="/" class="swagger-nav-brand">
+            <img src="/assets/logo.webp" alt="FFBB Logo" width="28" height="28" style="border-radius: 6px;">
+            <span>ffbb-data-client</span>
+            <span class="badge">REST API v2.3.4</span>
+        </a>
+        <div class="swagger-nav-links">
+            <a href="/" class="swagger-nav-link">🏠 Accueil</a>
+            <a href="/docs" class="swagger-nav-link active">⚡ Swagger UI</a>
+            <a href="/redoc" class="swagger-nav-link">📖 ReDoc</a>
+            <a href="/openapi.json" target="_blank" class="swagger-nav-link">📋 OpenAPI JSON</a>
+            <a href="https://ffbb.desimone.fr" target="_blank" class="swagger-nav-link">🤖 Serveur MCP IA</a>
+            <a href="https://pypi.org/project/ffbb-data-client/" target="_blank" class="swagger-nav-link">📦 PyPI</a>
+            <a href="https://github.com/nickdesi/ffbb-data-client" target="_blank" class="swagger-nav-link">⭐ GitHub</a>
+        </div>
+    </nav>
+    <div id="swagger-ui"></div>
+    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
+    <script>
+        window.onload = function() {
+            window.ui = SwaggerUIBundle({
+                url: '/openapi.json',
+                dom_id: '#swagger-ui',
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIStandalonePreset
+                ],
+                layout: "BaseLayout",
+                defaultModelsExpandDepth: 1,
+                docExpansion: "list",
+                filter: true,
+                displayRequestDuration: true,
+                tryItOutEnabled: true,
+                persistAuthorization: true
+            });
+        };
+    </script>
+</body>
+</html>
+"""
+    return HTMLResponse(content=html_content, status_code=200)
+
+
+@app.get("/redoc", include_in_schema=False)
+async def custom_redoc_html():
+    html_content = """<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API FFBB — Documentation ReDoc</title>
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/favicon-48x48.png">
+    <link rel="stylesheet" type="text/css" href="/css/swagger-dark.css">
+    <style>
+        body { margin: 0; padding: 0; background: #07090e; color: #f1f5f9; }
+    </style>
+</head>
+<body>
+    <nav class="swagger-custom-navbar">
+        <a href="/" class="swagger-nav-brand">
+            <img src="/assets/logo.webp" alt="FFBB Logo" width="28" height="28" style="border-radius: 6px;">
+            <span>ffbb-data-client</span>
+            <span class="badge">REST API v2.3.4</span>
+        </a>
+        <div class="swagger-nav-links">
+            <a href="/" class="swagger-nav-link">🏠 Accueil</a>
+            <a href="/docs" class="swagger-nav-link">⚡ Swagger UI</a>
+            <a href="/redoc" class="swagger-nav-link active">📖 ReDoc</a>
+            <a href="/openapi.json" target="_blank" class="swagger-nav-link">📋 OpenAPI JSON</a>
+            <a href="https://ffbb.desimone.fr" target="_blank" class="swagger-nav-link">🤖 Serveur MCP IA</a>
+            <a href="https://pypi.org/project/ffbb-data-client/" target="_blank" class="swagger-nav-link">📦 PyPI</a>
+            <a href="https://github.com/nickdesi/ffbb-data-client" target="_blank" class="swagger-nav-link">⭐ GitHub</a>
+        </div>
+    </nav>
+    <redoc spec-url="/openapi.json" theme=colors:{primary:{main:#ff6b35}}></redoc>
+    <script src="https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js"></script>
+</body>
+</html>
+"""
+    return HTMLResponse(content=html_content, status_code=200)
 
 # Serve static documentation website if website/ directory exists
 if _WEBSITE_DIR.exists():
