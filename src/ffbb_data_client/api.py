@@ -1,7 +1,7 @@
 """
 FastAPI REST API for FFBB Data Client.
 Provides public HTTP endpoints, Swagger documentation at /docs,
-and hosts the official documentation website at /.
+ReDoc at /redoc, and hosts the official documentation website at /.
 """
 
 from __future__ import annotations
@@ -12,9 +12,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi import Path as PathParam
-from fastapi import Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -36,12 +35,72 @@ async def lifespan(app: FastAPI):
     await aclose_default_clients()
 
 
+TAGS_METADATA = [
+    {
+        "name": "Clubs",
+        "description": "Fiches détaillées, contacts, gymnases et liste des équipes engagées des 4 500+ clubs affiliés FFBB.",
+    },
+    {
+        "name": "Matchs & Calendriers",
+        "description": "Calendriers officiels, programmation des rencontres, dates, horaires et résolution des gymnases.",
+    },
+    {
+        "name": "Compétitions & Poules",
+        "description": "Compositions de poules, classements officiels détaillés (points, victoires, défaites, goal-average) et résultats.",
+    },
+    {
+        "name": "Scores en Direct",
+        "description": "Scores live en temps réel, statut et évolution des matchs en direct le week-end sur toutes les divisions.",
+    },
+    {
+        "name": "Recherche & Meilisearch",
+        "description": "Moteur de recherche rapide multi-index : clubs, compétitions, tournois 3x3, gymnases et arbitres.",
+    },
+    {
+        "name": "Monitoring & Diagnostic",
+        "description": "Health check, diagnostic des connexions Directus/Meilisearch et état de fonctionnement du service.",
+    },
+]
+
 app = FastAPI(
-    title="FFBB Data Client API",
-    description="API REST moderne & asynchrone pour les données officielles de la Fédération Française de BasketBall.",
-    version="1.0.0",
+    title="FFBB REST API — Données Officielles du Basket Français",
+    description="""
+# 🏀 API REST FFBB & Open Data Basketball
+
+Bienvenue sur la documentation OpenAPI / Swagger officielle de l'API **FFBB Data Client**.
+
+Cette API REST moderne et asynchrone (FastAPI + Pydantic v2) permet d'interroger directement l'ensemble des données publiques de la **Fédération Française de BasketBall** :
+- **Clubs & Équipes** : fiches, contacts, adresses et engagements (du niveau départemental à la Betclic Élite).
+- **Compétitions & Poules** : calendriers, résultats, feuilles de match et classements officiels.
+- **Scores Live** : suivi en temps réel des matchs le week-end.
+- **Moteur de recherche** : recherche universelle multi-index optimisée par Meilisearch.
+
+---
+
+### 📚 Écosystème & Liens Utiles
+- 📦 **SDK Python (PyPI)** : [`pip install ffbb-data-client`](https://pypi.org/project/ffbb-data-client/)
+- 🤖 **Serveur MCP pour assistants IA** : [`https://ffbb.desimone.fr`](https://ffbb.desimone.fr)
+- ⭐ **Code Source GitHub** : [`https://github.com/nickdesi/ffbb-data-client`](https://github.com/nickdesi/ffbb-data-client)
+- 📖 **Documentation Sphinx complète** : [`https://nickdesi.github.io/ffbb-data-client/`](https://nickdesi.github.io/ffbb-data-client/)
+""",
+    version="2.3.4",
+    openapi_tags=TAGS_METADATA,
     docs_url="/docs",
     redoc_url="/redoc",
+    openapi_url="/openapi.json",
+    swagger_ui_parameters={
+        "defaultModelsExpandDepth": 1,
+        "docExpansion": "list",
+        "filter": True,
+        "syntaxHighlight.theme": "monokai",
+        "persistAuthorization": True,
+        "displayRequestDuration": True,
+        "tryItOutEnabled": True,
+    },
+    servers=[
+        {"url": "https://ffbb-api.desimone.fr", "description": "Serveur de Production (Live API)"},
+        {"url": "http://localhost:8000", "description": "Serveur Local de Développement"},
+    ],
     lifespan=lifespan,
 )
 
@@ -153,89 +212,62 @@ def get_cached_organisme(client, org_id: Any):
         _org_cache[oid] = org
         return org
     except Exception:
-        _org_cache[oid] = None
         return None
 
 
 def resolve_exact_salle_address(
-    client, salle_id: Any, org_id: Any, default_name: str = ""
+    client, salle_id: Any = None, org_id: Any = None, default_name: str = ""
 ) -> str:
-    """Résout l'adresse complète officielle de la salle (Nom - Rue, CP Ville)."""
-    sid = str(salle_id) if salle_id else ""
-    org_key = str(org_id) if org_id else ""
-    cache_key = f"{sid}_{org_key}"
-
+    """Résout l'adresse complète et exacte du gymnase via l'API FFBB."""
+    cache_key = f"{salle_id}_{org_id}"
     if cache_key in _salle_cache:
         return _salle_cache[cache_key]
 
-    org = get_cached_organisme(client, org_id) if org_id else None
-
-    # 1. Vérifier si la salle principale de l'organisme hôte correspond
-    if org and getattr(org, "salle", None):
-        o_salle = org.salle
-        o_sid = str(getattr(o_salle, "id", ""))
-        if o_sid == sid or not sid:
-            nom = (
-                getattr(o_salle, "libelle", "")
-                or getattr(o_salle, "nom", "")
-                or default_name
-            )
-            adr = getattr(o_salle, "adresse", "") or ""
-            commune = getattr(o_salle, "commune", None)
-            cp = (
-                getattr(commune, "codePostal", "")
-                or getattr(commune, "code_postal", "")
-                if commune
-                else ""
-            )
-            v = (
-                getattr(commune, "libelle", "") or getattr(o_salle, "ville", "")
-                if commune
-                else ""
-            )
-            parts = [adr, f"{cp} {v}".strip()]
-            full_addr = ", ".join([p for p in parts if p])
-            full = f"{nom} - {full_addr}" if nom and full_addr else (nom or full_addr)
-            if full:
-                _salle_cache[cache_key] = full
-                return full
-
-    # 2. Résolution de la salle spécifique + recherche de la commune via Meilisearch
-    if sid:
+    # 1. Résolution directe via salle_id si présent
+    if salle_id:
         try:
-            salle = client.get_salle(sid)
+            s_id = getattr(salle_id, "id", None) or salle_id
+            salle = client.get_salle(s_id)
             if salle:
-                nom = (
-                    getattr(salle, "libelle", "")
-                    or getattr(salle, "nom", "")
-                    or default_name
-                )
-                adr = getattr(salle, "adresse", "") or ""
-                cp, v = "", ""
-                try:
-                    res = client.search_salles(nom)
-                    if res and getattr(res, "hits", None):
-                        matched_hit = None
-                        for hit in res.hits:
-                            if str(getattr(hit, "id", "")) == sid:
-                                matched_hit = hit
-                                break
-                        if not matched_hit:
-                            matched_hit = res.hits[0]
-                        commune = getattr(matched_hit, "commune", None)
-                        if commune:
-                            cp = (
-                                getattr(commune, "code_postal", "")
-                                or getattr(commune, "codePostal", "")
-                                or ""
-                            )
-                            v = getattr(commune, "libelle", "") or ""
-                except Exception:
-                    # Ignore salle search errors to fallback to address-only format
-                    pass
+                nom = getattr(salle, "nom", "") or getattr(salle, "libelle", "") or ""
+                adresse = getattr(salle, "adresse", "") or ""
+                cp = getattr(salle, "codePostal", "") or getattr(salle, "cp", "") or ""
+                ville = getattr(salle, "ville", "") or ""
 
-                parts = [adr, f"{cp} {v}".strip()]
-                full_addr = ", ".join([p for p in parts if p])
+                parts = [p for p in [nom, adresse, f"{cp} {ville}".strip()] if p]
+                if parts:
+                    res = ", ".join(parts)
+                    _salle_cache[cache_key] = res
+                    return res
+        except Exception:
+            pass
+
+    # 2. Résolution de secours via la fiche de l'organisme (club hôte)
+    if org_id:
+        try:
+            org = get_cached_organisme(client, org_id)
+            if org:
+                nom = getattr(org, "nomSalle", "") or getattr(org, "salle", "") or ""
+                adr = (
+                    getattr(org, "adresseSalle", "")
+                    or getattr(org, "adresse", "")
+                    or getattr(org, "adr1", "")
+                    or ""
+                )
+                cp = (
+                    getattr(org, "codePostalSalle", "")
+                    or getattr(org, "codePostal", "")
+                    or getattr(org, "cp", "")
+                    or ""
+                )
+                ville = (
+                    getattr(org, "villeSalle", "")
+                    or getattr(org, "ville", "")
+                    or ""
+                )
+
+                addr_parts = [p for p in [adr, f"{cp} {ville}".strip()] if p]
+                full_addr = ", ".join(addr_parts)
                 full = (
                     f"{nom} - {full_addr}" if nom and full_addr else (nom or full_addr)
                 )
@@ -243,14 +275,14 @@ def resolve_exact_salle_address(
                     _salle_cache[cache_key] = full
                     return full
         except Exception:
-            # Fallback to default name if salle resolution fails
             pass
 
     return default_name or "Lieu à confirmer"
 
 
-@app.get("/health", tags=["Monitoring"])
+@app.api_route("/health", methods=["GET", "HEAD"], tags=["Monitoring & Diagnostic"])
 async def health():
+    """Vérifie l'état de fonctionnement et la disponibilité de l'API REST."""
     return {
         "status": "healthy",
         "service": "ffbb-data-client-api",
@@ -258,10 +290,32 @@ async def health():
     }
 
 
-@app.get("/api/v1/club/{organisme_id}/matches", tags=["Clubs"])
+@app.get("/api/v1/search", tags=["Recherche & Meilisearch"])
+async def search_ffbb(
+    q: str = Query(
+        ...,
+        min_length=2,
+        description="Terme de recherche (nom de club, compétition, ville, gymnase, etc.)",
+        examples=["Stade Clermontois", "Pau", "RM2", "Maison des Sports"],
+    ),
+    limit: int = Query(20, ge=1, le=100, description="Nombre maximum de résultats"),
+):
+    """
+    Recherche universelle multi-index Meilisearch.
+    Permet de rechercher simultanément dans les clubs, compétitions, gymnases, tournois 3x3 et actualités.
+    """
+    client = get_client()
+    try:
+        results = client.multi_search(q, limit=limit)
+        return results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur de recherche: {e}")
+
+
+@app.get("/api/v1/club/{organisme_id}/matches", tags=["Matchs & Calendriers"])
 async def get_club_matches(
     organisme_id: int = PathParam(
-        ..., ge=1, le=99999999, description="ID Organisme FFBB"
+        ..., ge=1, le=99999999, description="ID Organisme FFBB (ex: 9326 pour SCBA)"
     ),
     team: str | None = Query(
         None, description="Filtrer par équipe (ex: 'SENIOR M1', 'U18 M1', 'ALL')"
@@ -499,7 +553,11 @@ async def get_club_teams(
 
 
 @app.get("/api/v1/club/{organisme_id}", tags=["Clubs"])
-async def get_club_details(organisme_id: int):
+async def get_club_details(
+    organisme_id: int = PathParam(
+        ..., ge=1, le=99999999, description="ID Organisme FFBB (ex: 9326)"
+    )
+):
     """Retourne les informations détaillées d'un club (nom, contacts, adresse, engagements)."""
     client = get_client()
     try:
@@ -511,9 +569,13 @@ async def get_club_details(organisme_id: int):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/v1/poule/{poule_id}", tags=["Compétitions"])
-async def get_poule(poule_id: int):
-    """Retourne les détails, classements et rencontres d'une poule."""
+@app.get("/api/v1/poule/{poule_id}", tags=["Compétitions & Poules"])
+async def get_poule(
+    poule_id: int = PathParam(
+        ..., ge=1, le=99999999, description="ID de la poule FFBB"
+    )
+):
+    """Retourne les détails complets, classements et rencontres d'une poule."""
     client = get_client()
     try:
         poule = client.get_poule(poule_id)
@@ -524,9 +586,32 @@ async def get_poule(poule_id: int):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/v1/lives", tags=["Live"])
+@app.get("/api/v1/poule/{poule_id}/classement", tags=["Compétitions & Poules"])
+async def get_poule_classement(
+    poule_id: int = PathParam(
+        ..., ge=1, le=99999999, description="ID de la poule FFBB"
+    )
+):
+    """Retourne le classement officiel d'une poule avec victoires, défaites, points et goal-average."""
+    client = get_client()
+    try:
+        poule = client.get_poule(poule_id)
+        if not poule:
+            raise HTTPException(status_code=404, detail="Poule introuvable.")
+        classement = getattr(poule, "classement", []) or []
+        return {
+            "poule_id": poule_id,
+            "nom": getattr(poule, "nom", "") or getattr(poule, "libelle", ""),
+            "classement": classement,
+            "count": len(classement),
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/v1/lives", tags=["Scores en Direct"])
 async def get_lives():
-    """Retourne les matchs en direct avec score en temps réel."""
+    """Retourne les matchs en direct avec score en temps réel sur l'ensemble des championnats."""
     client = get_client()
     try:
         return client.get_lives()
@@ -544,25 +629,35 @@ if _WEBSITE_DIR.exists():
     if css_dir.exists():
         app.mount("/css", StaticFiles(directory=str(css_dir)), name="css")
 
-    @app.get("/", include_in_schema=False)
-    async def serve_index():
+    @app.api_route("/", methods=["GET", "HEAD"], include_in_schema=False)
+    async def serve_index(request: Request):
         index_file = _WEBSITE_DIR / "index.html"
         if index_file.exists():
+            if request.method == "HEAD":
+                return Response(status_code=200, media_type="text/html")
             return HTMLResponse(
                 content=index_file.read_text(encoding="utf-8"), status_code=200
             )
-        return {"service": "ffbb-data-client-api", "docs": "/docs"}
+        return {"service": "ffbb-data-client-api", "docs": "/docs", "redoc": "/redoc"}
 
-    @app.get("/robots.txt", include_in_schema=False)
+    @app.api_route("/robots.txt", methods=["GET", "HEAD"], include_in_schema=False)
     async def serve_robots():
         robots_file = _WEBSITE_DIR / "robots.txt"
         if robots_file.exists():
             return FileResponse(robots_file, media_type="text/plain")
-        return HTMLResponse("User-agent: *\nAllow: /\n", media_type="text/plain")
+        return HTMLResponse("User-agent: *
+Allow: /
+", media_type="text/plain")
 
-    @app.get("/sitemap.xml", include_in_schema=False)
+    @app.api_route("/sitemap.xml", methods=["GET", "HEAD"], include_in_schema=False)
     async def serve_sitemap():
         sitemap_file = _WEBSITE_DIR / "sitemap.xml"
         if sitemap_file.exists():
             return FileResponse(sitemap_file, media_type="application/xml")
         return HTTPException(status_code=404, detail="Sitemap not found")
+else:
+    @app.api_route("/", methods=["GET", "HEAD"], include_in_schema=False)
+    async def fallback_index(request: Request):
+        if request.method == "HEAD":
+            return Response(status_code=200, media_type="application/json")
+        return {"service": "ffbb-data-client-api", "docs": "/docs", "redoc": "/redoc"}
