@@ -1,7 +1,7 @@
 """
 FastAPI REST API for FFBB Data Client.
-Provides public HTTP endpoints, Swagger documentation at /docs,
-ReDoc at /redoc, and hosts the official documentation website at /.
+Provides public HTTP endpoints, Scalar modern documentation at /docs,
+Swagger UI at /swagger, ReDoc at /redoc, and hosts the official website at /.
 """
 
 from __future__ import annotations
@@ -15,6 +15,7 @@ from typing import Any
 from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi import Path as PathParam
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -67,7 +68,7 @@ app = FastAPI(
     description="""
 # 🏀 API REST FFBB & Open Data Basketball
 
-Bienvenue sur la documentation OpenAPI / Swagger officielle de l'API **FFBB Data Client**.
+Bienvenue sur la documentation interactive officielle de l'API **FFBB Data Client**.
 
 Cette API REST moderne et asynchrone (FastAPI + Pydantic v2) permet d'interroger directement l'ensemble des données publiques de la **Fédération Française de BasketBall** :
 - **Clubs & Équipes** : fiches, contacts, adresses et engagements (du niveau départemental à la Betclic Élite).
@@ -88,15 +89,6 @@ Cette API REST moderne et asynchrone (FastAPI + Pydantic v2) permet d'interroger
     docs_url=None,
     redoc_url=None,
     openapi_url="/openapi.json",
-    swagger_ui_parameters={
-        "defaultModelsExpandDepth": 1,
-        "docExpansion": "list",
-        "filter": True,
-        "syntaxHighlight.theme": "monokai",
-        "persistAuthorization": True,
-        "displayRequestDuration": True,
-        "tryItOutEnabled": True,
-    },
     servers=[
         {"url": "https://ffbb-api.desimone.fr", "description": "Serveur de Production (Live API)"},
         {"url": "http://localhost:8000", "description": "Serveur Local de Développement"},
@@ -223,7 +215,6 @@ def resolve_exact_salle_address(
     if cache_key in _salle_cache:
         return _salle_cache[cache_key]
 
-    # 1. Résolution directe via salle_id si présent
     if salle_id:
         try:
             s_id = getattr(salle_id, "id", None) or salle_id
@@ -242,7 +233,6 @@ def resolve_exact_salle_address(
         except Exception:
             pass
 
-    # 2. Résolution de secours via la fiche de l'organisme (club hôte)
     if org_id:
         try:
             org = get_cached_organisme(client, org_id)
@@ -280,7 +270,7 @@ def resolve_exact_salle_address(
     return default_name or "Lieu à confirmer"
 
 
-@app.api_route("/health", methods=["GET", "HEAD"], tags=["Monitoring & Diagnostic"])
+@app.get("/health", tags=["Monitoring & Diagnostic"], summary="Diagnostic de l'API (/health)")
 async def health():
     """Vérifie l'état de fonctionnement et la disponibilité de l'API REST."""
     return {
@@ -288,6 +278,11 @@ async def health():
         "service": "ffbb-data-client-api",
         "timestamp": datetime.utcnow().isoformat() + "Z",
     }
+
+
+@app.head("/health", include_in_schema=False)
+async def health_head():
+    return Response(status_code=200)
 
 
 @app.get(
@@ -332,13 +327,18 @@ async def search_ffbb(
         raise HTTPException(status_code=500, detail=f"Erreur de recherche: {e}")
 
 
-@app.get("/api/v1/club/{organisme_id}/matches", tags=["Matchs & Calendriers"], summary="Calendrier & Matchs d'un club", response_description="Liste ordonnée des rencontres avec adresses et logos")
+@app.get(
+    "/api/v1/club/{organisme_id}/matches",
+    tags=["Matchs & Calendriers"],
+    summary="Calendrier & Matchs d'un club",
+    response_description="Liste ordonnée des rencontres avec adresses et logos",
+)
 async def get_club_matches(
     organisme_id: int = PathParam(
-        ..., ge=1, le=99999999, description="ID Organisme FFBB (ex: 9326 pour SCBA)"
+        ..., ge=1, le=99999999, description="ID Organisme FFBB (ex: 9326 pour SCBA)", examples=[9326]
     ),
     team: str | None = Query(
-        None, description="Filtrer par équipe (ex: 'SENIOR M1', 'U18 M1', 'ALL')"
+        None, description="Filtrer par équipe (ex: 'SENIOR M1', 'U18 M1', 'ALL')", examples=["SENIOR M1"]
     ),
 ):
     """
@@ -501,7 +501,7 @@ async def get_club_matches(
                     if opp_org and getattr(opp_org, "logo", None):
                         opp_logo_id = getattr(opp_org.logo, "id", None) or opp_org.logo
                         if opp_logo_id:
-                            opponent_logo = f"https://api.ffbb.com/assets/{opp_logo_id}"
+                            opponent_logo = f"https://api.ffbb.com/assets/{logo_id}"
                     _logo_cache[s_opp_org] = opponent_logo
                 except Exception:
                     _logo_cache[s_opp_org] = None
@@ -533,10 +533,15 @@ async def get_club_matches(
     }
 
 
-@app.get("/api/v1/club/{organisme_id}/teams", tags=["Clubs"], summary="Équipes engagées d'un club", response_description="Liste des équipes engagées par championnat")
+@app.get(
+    "/api/v1/club/{organisme_id}/teams",
+    tags=["Clubs"],
+    summary="Équipes engagées d'un club",
+    response_description="Liste des équipes engagées par championnat",
+)
 async def get_club_teams(
     organisme_id: int = PathParam(
-        ..., ge=1, le=99999999, description="ID Organisme FFBB"
+        ..., ge=1, le=99999999, description="ID Organisme FFBB (ex: 9326)", examples=[9326]
     ),
 ):
     """Retourne la liste des équipes engagées pour un organisme/club."""
@@ -572,10 +577,15 @@ async def get_club_teams(
     }
 
 
-@app.get("/api/v1/club/{organisme_id}", tags=["Clubs"], summary="Fiche détaillée d'un club", response_description="Informations administratives, contacts et salle")
+@app.get(
+    "/api/v1/club/{organisme_id}",
+    tags=["Clubs"],
+    summary="Fiche détaillée d'un club",
+    response_description="Informations administratives, contacts et salle",
+)
 async def get_club_details(
     organisme_id: int = PathParam(
-        ..., ge=1, le=99999999, description="ID Organisme FFBB (ex: 9326)"
+        ..., ge=1, le=99999999, description="ID Organisme FFBB (ex: 9326)", examples=[9326]
     )
 ):
     """Retourne les informations détaillées d'un club (nom, contacts, adresse, engagements)."""
@@ -589,10 +599,15 @@ async def get_club_details(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/v1/poule/{poule_id}", tags=["Compétitions & Poules"], summary="Détails complets d'une poule", response_description="Composition, classements et rencontres")
+@app.get(
+    "/api/v1/poule/{poule_id}",
+    tags=["Compétitions & Poules"],
+    summary="Détails complets d'une poule",
+    response_description="Composition, classements et rencontres",
+)
 async def get_poule(
     poule_id: int = PathParam(
-        ..., ge=1, le=99999999, description="ID de la poule FFBB"
+        ..., ge=1, le=99999999, description="ID de la poule FFBB", examples=[129759]
     )
 ):
     """Retourne les détails complets, classements et rencontres d'une poule."""
@@ -606,10 +621,15 @@ async def get_poule(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/v1/poule/{poule_id}/classement", tags=["Compétitions & Poules"], summary="Classement officiel d'une poule", response_description="Classement détaillé avec points, victoires et goal-average")
+@app.get(
+    "/api/v1/poule/{poule_id}/classement",
+    tags=["Compétitions & Poules"],
+    summary="Classement officiel d'une poule",
+    response_description="Classement détaillé avec points, victoires et goal-average",
+)
 async def get_poule_classement(
     poule_id: int = PathParam(
-        ..., ge=1, le=99999999, description="ID de la poule FFBB"
+        ..., ge=1, le=99999999, description="ID de la poule FFBB", examples=[129759]
     )
 ):
     """Retourne le classement officiel d'une poule avec victoires, défaites, points et goal-average."""
@@ -629,7 +649,12 @@ async def get_poule_classement(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/v1/lives", tags=["Scores en Direct"], summary="Scores en direct du week-end (Lives)", response_description="Matchs en direct avec scores temps réel")
+@app.get(
+    "/api/v1/lives",
+    tags=["Scores en Direct"],
+    summary="Scores en direct du week-end (Lives)",
+    response_description="Matchs en direct avec scores temps réel",
+)
 async def get_lives():
     """Retourne les matchs en direct avec score en temps réel sur l'ensemble des championnats."""
     client = get_client()
@@ -639,104 +664,82 @@ async def get_lives():
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# --------------------------------------------------------------------------
+# Modern API Documentation Interfaces (Scalar, Swagger UI, ReDoc)
+# --------------------------------------------------------------------------
 
 @app.api_route("/docs", methods=["GET", "HEAD"], include_in_schema=False)
-async def custom_swagger_ui_html():
-    html_content = """<!DOCTYPE html>
+async def scalar_api_reference(request: Request):
+    """Modern interactive API Reference powered by Scalar."""
+    if request.method == "HEAD":
+        return Response(status_code=200, media_type="text/html")
+    html_content = """<!doctype html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API FFBB — Documentation Swagger Interactive</title>
+  <head>
+    <title>API FFBB — Documentation & Interactive API Reference</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/png" sizes="48x48" href="/assets/favicon-48x48.png">
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css">
-    <link rel="stylesheet" type="text/css" href="/css/swagger-dark.css">
-</head>
-<body>
-    <nav class="swagger-custom-navbar">
-        <a href="/" class="swagger-nav-brand">
-            <img src="/assets/logo.webp" alt="FFBB Logo" width="28" height="28" style="border-radius: 6px;">
-            <span>ffbb-data-client</span>
-            <span class="badge">REST API v2.3.4</span>
-        </a>
-        <div class="swagger-nav-links">
-            <a href="/" class="swagger-nav-link">🏠 Accueil</a>
-            <a href="/docs" class="swagger-nav-link active">⚡ Swagger UI</a>
-            <a href="/redoc" class="swagger-nav-link">📖 ReDoc</a>
-            <a href="/openapi.json" target="_blank" class="swagger-nav-link">📋 OpenAPI JSON</a>
-            <a href="https://ffbb.desimone.fr" target="_blank" class="swagger-nav-link">🤖 Serveur MCP IA</a>
-            <a href="https://pypi.org/project/ffbb-data-client/" target="_blank" class="swagger-nav-link">📦 PyPI</a>
-            <a href="https://github.com/nickdesi/ffbb-data-client" target="_blank" class="swagger-nav-link">⭐ GitHub</a>
-        </div>
-    </nav>
-    <div id="swagger-ui"></div>
-    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
-    <script>
-        window.onload = function() {
-            window.ui = SwaggerUIBundle({
-                url: '/openapi.json',
-                dom_id: '#swagger-ui',
-                deepLinking: true,
-                presets: [
-                    SwaggerUIBundle.presets.apis,
-                    SwaggerUIStandalonePreset
-                ],
-                layout: "BaseLayout",
-                defaultModelsExpandDepth: 1,
-                docExpansion: "list",
-                filter: true,
-                displayRequestDuration: true,
-                tryItOutEnabled: true,
-                persistAuthorization: true
-            });
-        };
-    </script>
-</body>
+    <style>
+      body { margin: 0; padding: 0; background: #07090e; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    </style>
+  </head>
+  <body>
+    <script
+      id="api-reference"
+      data-url="/openapi.json"
+      data-configuration='{
+        "theme": "purple",
+        "darkMode": true,
+        "showSidebar": true,
+        "searchHotKey": "k",
+        "defaultHttpClient": {
+          "targetKey": "python",
+          "clientKey": "httpx"
+        }
+      }'></script>
+    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+  </body>
 </html>
 """
     return HTMLResponse(content=html_content, status_code=200)
+
+
+@app.api_route("/swagger", methods=["GET", "HEAD"], include_in_schema=False)
+async def swagger_ui(request: Request):
+    """Standard Clean Swagger UI without broken CSS overrides."""
+    if request.method == "HEAD":
+        return Response(status_code=200, media_type="text/html")
+    return get_swagger_ui_html(
+        openapi_url="/openapi.json",
+        title="API FFBB — Swagger UI",
+        swagger_favicon_url="/assets/favicon-48x48.png",
+        swagger_ui_parameters={
+            "defaultModelsExpandDepth": 1,
+            "docExpansion": "list",
+            "filter": True,
+            "displayRequestDuration": True,
+            "tryItOutEnabled": True,
+        },
+    )
 
 
 @app.api_route("/redoc", methods=["GET", "HEAD"], include_in_schema=False)
-async def custom_redoc_html():
-    html_content = """<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API FFBB — Documentation ReDoc</title>
-    <link rel="icon" type="image/png" sizes="48x48" href="/assets/favicon-48x48.png">
-    <link rel="stylesheet" type="text/css" href="/css/swagger-dark.css">
-    <style>
-        body { margin: 0; padding: 0; background: #07090e; color: #f1f5f9; }
-    </style>
-</head>
-<body>
-    <nav class="swagger-custom-navbar">
-        <a href="/" class="swagger-nav-brand">
-            <img src="/assets/logo.webp" alt="FFBB Logo" width="28" height="28" style="border-radius: 6px;">
-            <span>ffbb-data-client</span>
-            <span class="badge">REST API v2.3.4</span>
-        </a>
-        <div class="swagger-nav-links">
-            <a href="/" class="swagger-nav-link">🏠 Accueil</a>
-            <a href="/docs" class="swagger-nav-link">⚡ Swagger UI</a>
-            <a href="/redoc" class="swagger-nav-link active">📖 ReDoc</a>
-            <a href="/openapi.json" target="_blank" class="swagger-nav-link">📋 OpenAPI JSON</a>
-            <a href="https://ffbb.desimone.fr" target="_blank" class="swagger-nav-link">🤖 Serveur MCP IA</a>
-            <a href="https://pypi.org/project/ffbb-data-client/" target="_blank" class="swagger-nav-link">📦 PyPI</a>
-            <a href="https://github.com/nickdesi/ffbb-data-client" target="_blank" class="swagger-nav-link">⭐ GitHub</a>
-        </div>
-    </nav>
-    <redoc spec-url="/openapi.json" theme=colors:{primary:{main:#ff6b35}}></redoc>
-    <script src="https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js"></script>
-</body>
-</html>
-"""
-    return HTMLResponse(content=html_content, status_code=200)
+async def redoc_ui(request: Request):
+    """ReDoc Documentation."""
+    if request.method == "HEAD":
+        return Response(status_code=200, media_type="text/html")
+    return get_redoc_html(
+        openapi_url="/openapi.json",
+        title="API FFBB — ReDoc",
+        redoc_favicon_url="/assets/favicon-48x48.png",
+    )
 
+
+# --------------------------------------------------------------------------
 # Serve static documentation website if website/ directory exists
+# --------------------------------------------------------------------------
+
 if _WEBSITE_DIR.exists():
     assets_dir = _WEBSITE_DIR / "assets"
     if assets_dir.exists():
@@ -755,17 +758,21 @@ if _WEBSITE_DIR.exists():
             return HTMLResponse(
                 content=index_file.read_text(encoding="utf-8"), status_code=200
             )
-        return {"service": "ffbb-data-client-api", "docs": "/docs", "redoc": "/redoc"}
+        return {"service": "ffbb-data-client-api", "docs": "/docs", "swagger": "/swagger", "redoc": "/redoc"}
 
     @app.api_route("/robots.txt", methods=["GET", "HEAD"], include_in_schema=False)
-    async def serve_robots():
+    async def serve_robots(request: Request):
+        if request.method == "HEAD":
+            return Response(status_code=200, media_type="text/plain")
         robots_file = _WEBSITE_DIR / "robots.txt"
         if robots_file.exists():
             return FileResponse(robots_file, media_type="text/plain")
         return HTMLResponse("User-agent: *\nAllow: /\n", media_type="text/plain")
 
     @app.api_route("/sitemap.xml", methods=["GET", "HEAD"], include_in_schema=False)
-    async def serve_sitemap():
+    async def serve_sitemap(request: Request):
+        if request.method == "HEAD":
+            return Response(status_code=200, media_type="application/xml")
         sitemap_file = _WEBSITE_DIR / "sitemap.xml"
         if sitemap_file.exists():
             return FileResponse(sitemap_file, media_type="application/xml")
@@ -775,4 +782,4 @@ else:
     async def fallback_index(request: Request):
         if request.method == "HEAD":
             return Response(status_code=200, media_type="application/json")
-        return {"service": "ffbb-data-client-api", "docs": "/docs", "redoc": "/redoc"}
+        return {"service": "ffbb-data-client-api", "docs": "/docs", "swagger": "/swagger", "redoc": "/redoc"}
