@@ -645,9 +645,7 @@ if _WEBSITE_DIR.exists():
         robots_file = _WEBSITE_DIR / "robots.txt"
         if robots_file.exists():
             return FileResponse(robots_file, media_type="text/plain")
-        return HTMLResponse("User-agent: *
-Allow: /
-", media_type="text/plain")
+        return HTMLResponse("User-agent: *\nAllow: /\n", media_type="text/plain")
 
     @app.api_route("/sitemap.xml", methods=["GET", "HEAD"], include_in_schema=False)
     async def serve_sitemap():
