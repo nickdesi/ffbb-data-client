@@ -855,6 +855,24 @@ if _WEBSITE_DIR.exists():
             return FileResponse(sitemap_file, media_type="application/xml")
         return HTTPException(status_code=404, detail="Sitemap not found")
 
+    @app.api_route("/llms.txt", methods=["GET", "HEAD"], include_in_schema=False)
+    async def serve_llms(request: Request):
+        if request.method == "HEAD":
+            return Response(status_code=200, media_type="text/plain")
+        llms_file = _WEBSITE_DIR / "llms.txt"
+        if llms_file.exists():
+            return FileResponse(llms_file, media_type="text/plain")
+        return HTTPException(status_code=404, detail="llms.txt not found")
+
+    @app.api_route("/llms-full.txt", methods=["GET", "HEAD"], include_in_schema=False)
+    async def serve_llms_full(request: Request):
+        if request.method == "HEAD":
+            return Response(status_code=200, media_type="text/plain")
+        llms_full_file = _WEBSITE_DIR / "llms-full.txt"
+        if llms_full_file.exists():
+            return FileResponse(llms_full_file, media_type="text/plain")
+        return HTTPException(status_code=404, detail="llms-full.txt not found")
+
 else:
 
     @app.api_route("/", methods=["GET", "HEAD"], include_in_schema=False)

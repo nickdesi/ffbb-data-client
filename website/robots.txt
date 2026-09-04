@@ -1,4 +1,30 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://nickdesi.github.io/ffbb-data-client/sitemap.xml
+Sitemap: https://ffbb-api.desimone.fr/sitemap.xml
+
+# AI Search & GEO Discovery (Perplexity, Gemini, ChatGPT, Claude)
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: GoogleOther
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+# Aggressive Model-Training Scrapers
+User-agent: Bytespider
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
