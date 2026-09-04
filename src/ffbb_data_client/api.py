@@ -210,62 +210,61 @@ def get_cached_organisme(client, org_id: Any):
 def resolve_exact_salle_address(
     client, salle_id: Any = None, org_id: Any = None, default_name: str = ""
 ) -> str:
-    """Résout l'adresse complète et exacte du gymnase via l'API FFBB."""
+    """Résout l'adresse complète et exacte du gymnase via l'API FFBB (Nom, Rue, CP Ville)."""
     cache_key = f"{salle_id}_{org_id}"
     if cache_key in _salle_cache:
         return _salle_cache[cache_key]
 
+    nom = ""
+    adresse = ""
+    cp = ""
+    ville = ""
+
     if salle_id:
         try:
             s_id = getattr(salle_id, "id", None) or salle_id
-            salle = client.get_salle(s_id)
+            salle = client.get_salle(str(s_id))
             if salle:
-                nom = getattr(salle, "nom", "") or getattr(salle, "libelle", "") or ""
+                nom = getattr(salle, "libelle", "") or getattr(salle, "nom", "") or ""
                 adresse = getattr(salle, "adresse", "") or ""
                 cp = getattr(salle, "codePostal", "") or getattr(salle, "cp", "") or ""
                 ville = getattr(salle, "ville", "") or ""
-
-                parts = [p for p in [nom, adresse, f"{cp} {ville}".strip()] if p]
-                if parts:
-                    res = ", ".join(parts)
-                    _salle_cache[cache_key] = res
-                    return res
         except Exception:
             pass
 
-    if org_id:
+    if org_id and (not cp or not ville or not nom or not adresse):
         try:
             org = get_cached_organisme(client, org_id)
             if org:
-                nom = getattr(org, "nomSalle", "") or getattr(org, "salle", "") or ""
-                adr = (
-                    getattr(org, "adresseSalle", "")
-                    or getattr(org, "adresse", "")
-                    or getattr(org, "adr1", "")
-                    or ""
-                )
-                cp = (
-                    getattr(org, "codePostalSalle", "")
-                    or getattr(org, "codePostal", "")
-                    or getattr(org, "cp", "")
-                    or ""
-                )
-                ville = (
-                    getattr(org, "villeSalle", "")
-                    or getattr(org, "ville", "")
-                    or ""
-                )
+                o_salle = getattr(org, "salle", None)
+                if o_salle:
+                    if not nom:
+                        nom = getattr(o_salle, "libelle", "") or getattr(o_salle, "nom", "") or ""
+                    if not adresse:
+                        adresse = getattr(o_salle, "adresse", "") or ""
+                    c = getattr(o_salle, "commune", None)
+                    if c:
+                        if not cp:
+                            cp = getattr(c, "codePostal", "") or getattr(c, "code_postal", "") or ""
+                        if not ville:
+                            ville = getattr(c, "libelle", "") or ""
 
-                addr_parts = [p for p in [adr, f"{cp} {ville}".strip()] if p]
-                full_addr = ", ".join(addr_parts)
-                full = (
-                    f"{nom} - {full_addr}" if nom and full_addr else (nom or full_addr)
-                )
-                if full:
-                    _salle_cache[cache_key] = full
-                    return full
+                if not cp or not ville:
+                    c = getattr(org, "commune", None)
+                    if c:
+                        if not cp:
+                            cp = getattr(c, "codePostal", "") or getattr(c, "code_postal", "") or ""
+                        if not ville:
+                            ville = getattr(c, "libelle", "") or ""
         except Exception:
             pass
+
+    cp_ville = f"{cp} {ville}".strip()
+    parts = [p for p in [nom, adresse, cp_ville] if p]
+    if parts:
+        res = ", ".join(parts)
+        _salle_cache[cache_key] = res
+        return res
 
     return default_name or "Lieu à confirmer"
 
