@@ -232,6 +232,29 @@ def resolve_exact_salle_address(
         except Exception:
             pass
 
+    # 2. Si CP ou Ville manque, chercher dans Meilisearch par adresse ou ID salle
+    if salle_id and (not cp or not ville):
+        try:
+            s_id_str = str(getattr(salle_id, "id", None) or salle_id)
+            queries = [adresse] if adresse else []
+            if nom:
+                queries.append(nom)
+            for q in queries:
+                res = client.search_salles(q)
+                if res and res.hits:
+                    for h in res.hits:
+                        carto_id = getattr(getattr(h, "cartographie", None), "cartographie_id", "")
+                        if carto_id == f"S-{s_id_str}" or str(getattr(h, "id", "")) == s_id_str:
+                            c = getattr(h, "commune", None)
+                            if c:
+                                cp = getattr(c, "code_postal", "") or getattr(c, "codePostal", "") or ""
+                                ville = getattr(c, "libelle", "") or ""
+                            break
+                if cp and ville:
+                    break
+        except Exception:
+            pass
+
     if org_id and (not cp or not ville or not nom or not adresse):
         try:
             org = get_cached_organisme(client, org_id)
