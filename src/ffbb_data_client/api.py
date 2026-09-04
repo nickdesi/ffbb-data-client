@@ -523,7 +523,7 @@ async def get_club_matches(
                     if opp_org and getattr(opp_org, "logo", None):
                         opp_logo_id = getattr(opp_org.logo, "id", None) or opp_org.logo
                         if opp_logo_id:
-                            opponent_logo = f"https://api.ffbb.com/assets/{logo_id}"
+                            opponent_logo = f"https://api.ffbb.com/assets/{opp_logo_id}"
                     _logo_cache[s_opp_org] = opponent_logo
                 except Exception:
                     _logo_cache[s_opp_org] = None
