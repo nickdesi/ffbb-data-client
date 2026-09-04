@@ -126,6 +126,7 @@ class Live:
                 # Use our own custom dict logic so key mappings apply naturally
                 return cls.from_dict(value)
             except Exception:
+                # Fallback to raw value if custom deserialization fails
                 pass
         return value
 

@@ -238,6 +238,7 @@ def resolve_exact_salle_address(
                 cp = getattr(salle, "codePostal", "") or getattr(salle, "cp", "") or ""
                 ville = getattr(salle, "ville", "") or ""
         except Exception:
+            # Fallback gracefully if salle lookup fails or salle does not exist
             pass
 
     # 2. Si CP ou Ville manque, chercher dans Meilisearch par adresse ou ID salle
@@ -270,6 +271,7 @@ def resolve_exact_salle_address(
                 if cp and ville:
                     break
         except Exception:
+            # Fallback gracefully if Meilisearch salle search fails
             pass
 
     if org_id and (not cp or not ville or not nom or not adresse):
@@ -309,6 +311,7 @@ def resolve_exact_salle_address(
                         if not ville:
                             ville = getattr(c, "libelle", "") or ""
         except Exception:
+            # Fallback gracefully if host organism details cannot be retrieved
             pass
 
     cp_ville = f"{cp} {ville}".strip()

@@ -131,6 +131,7 @@ def to_json_from_response(response: Response) -> Any:
     try:
         return _JSON_LOADS(data_str)
     except Exception:
+        # Fallback to sanitizing trailing commas before re-attempting JSON parsing
         pass
 
     if data_str.endswith(","):
