@@ -27,6 +27,10 @@
 
 </div>
 
+<!-- DISCOVERY_METRICS:START -->
+> 🔄 **Cartographie API synchronisée** : `162` collections Directus OpenAPI cartographiées, `13` index Meilisearch surveillés.
+<!-- DISCOVERY_METRICS:END -->
+
 ---
 
 ## 📌 À propos

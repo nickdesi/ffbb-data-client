@@ -329,9 +329,9 @@
       "items/youtube_videos_youtube_tags"
     ],
     "metadata": {
-      "openapi_version": "e5f76d83e876077e80ab344bbb4fc03606f63ca4",
+      "openapi_version": "5e5f138eae2de296226e37d6c0ac5a9ee7a96f2e",
       "source": "https://api.ffbb.app/server/specs/oas",
-      "timestamp": "2026-08-10T19:59:19.080946+00:00"
+      "timestamp": "2026-09-11T09:44:26.132076+00:00"
     },
     "paths": {
       "items/configuration": [
@@ -1353,42 +1353,15 @@
   "drift": {
     "directus_openapi": {
       "added_schemas": [],
-      "modified_schemas": {
-        "ItemsFfbbnationalPratiques": {
-          "added_properties": [
-            "code_structure",
-            "date_validation_ffbb"
-          ],
-          "modified_properties": {},
-          "removed_properties": []
-        }
-      },
-      "removed_schemas": [
-        "ItemsFfbbsiteFormsEntries",
-        "ItemsFfbbsiteFormsEntriesDirectusFiles"
-      ]
+      "modified_schemas": {},
+      "removed_schemas": []
     },
     "meilisearch_indexes": {
-      "ffbbnational_pratiques": {
+      "ffbbserver_organismes": {
         "added": [
-          "code_structure",
-          "date_validation_ffbb",
-          "date_validation_ffbb_timestamp"
+          "code_emploi"
         ],
         "removed": []
-      },
-      "ffbbserver_rencontres": {
-        "added": [],
-        "removed": [
-          "competition_orgine",
-          "competition_origine",
-          "horaire",
-          "logo",
-          "nomExtended",
-          "pro",
-          "sexe",
-          "typeCompetitionGenerique"
-        ]
       }
     }
   },
@@ -1434,7 +1407,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 253,
+        "estimatedTotalHits": 429,
         "indexUid": "ffbbnational_pratiques",
         "sampleKeys": [
           "_geo",
@@ -1491,7 +1464,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 4104,
+        "estimatedTotalHits": 4228,
         "indexUid": "ffbbnational_rss",
         "sampleKeys": [
           "categories",
@@ -1521,7 +1494,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 571,
+        "estimatedTotalHits": 1680,
         "indexUid": "ffbbserver_competitions",
         "sampleKeys": [
           "age",
@@ -1601,7 +1574,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 144,
+        "estimatedTotalHits": 146,
         "indexUid": "ffbbserver_formations",
         "sampleKeys": [
           "certification",
@@ -1636,7 +1609,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 4642,
+        "estimatedTotalHits": 4714,
         "indexUid": "ffbbserver_organismes",
         "sampleKeys": [
           "_geo",
@@ -1644,6 +1617,7 @@
           "adresseClubPro",
           "cartographie",
           "code",
+          "code_emploi",
           "commune",
           "communeClubPro",
           "dateAffiliation",
@@ -1671,7 +1645,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 96,
+        "estimatedTotalHits": 5000,
         "indexUid": "ffbbserver_rencontres",
         "sampleKeys": [
           "_geo",
@@ -1763,7 +1737,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 19,
+        "estimatedTotalHits": 7,
         "indexUid": "ffbbserver_tournois",
         "sampleKeys": [
           "_geo",
@@ -1802,7 +1776,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 6106,
+        "estimatedTotalHits": 6229,
         "indexUid": "ffbbsite_news",
         "sampleKeys": [
           "author",
@@ -1831,7 +1805,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 1842,
+        "estimatedTotalHits": 1858,
         "indexUid": "youtube_videos",
         "sampleKeys": [
           "channelId",
@@ -1864,7 +1838,7 @@
     ],
     "metadata": {
       "source": "https://meilisearch-prod.ffbb.app/multi-search",
-      "timestamp": "2026-08-10T19:59:19.080946+00:00"
+      "timestamp": "2026-09-11T09:44:26.132076+00:00"
     },
     "unavailable_indexes": [
       {
@@ -1900,9 +1874,9 @@
   "metadata": {
     "api_base_url": "https://api.ffbb.app/",
     "meilisearch_base_url": "https://meilisearch-prod.ffbb.app/",
-    "openapi_sha256": "d42e75cfb86a35bd5e17f12cc75785563d25a33ac9885ffa1ac0996c0140ff31",
-    "openapi_snapshot_sha256": "8a7b1fa7c2e9b499a050bcf7a7d9282c3daa7805f2d43ab61d5dc14d1686ed4d",
-    "openapi_version": "e5f76d83e876077e80ab344bbb4fc03606f63ca4",
-    "timestamp": "2026-08-10T19:59:19.080946+00:00"
+    "openapi_sha256": "6769caa03ee9be1fe2722bab2fd734d66f4efa436caa1e0031d4254120bcc28c",
+    "openapi_snapshot_sha256": "93e278fcfb74b4fceb6eef145020bef5bb2b0c0ea6fb3826d3d6d6c5b4b2ac16",
+    "openapi_version": "5e5f138eae2de296226e37d6c0ac5a9ee7a96f2e",
+    "timestamp": "2026-09-11T09:44:26.132076+00:00"
   }
 }
