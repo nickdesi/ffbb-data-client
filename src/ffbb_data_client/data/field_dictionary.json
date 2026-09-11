@@ -1,0 +1,289 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "1.0.0",
+  "description": "Dictionnaire de référence métier des champs Directus et attributs Meilisearch de l'écosystème FFBB.",
+  "fields": {
+    "code_emploi": {
+      "name": "code_emploi",
+      "description": "Code de conventionnement ou statut employeur/PSF de l'organisme auprès de la FFBB (suivi des postes aidés ANS/PSF et structuration salariée).",
+      "category": "statut",
+      "usage": "Exposé dans Meilisearch pour filtrer les clubs et structures employeurs."
+    },
+    "nom": {
+      "name": "nom",
+      "description": "Nom officiel de l'entité (organisme, compétition, salle, officiel, terrain).",
+      "category": "identification",
+      "usage": "Champ de recherche textuelle principal."
+    },
+    "code": {
+      "name": "code",
+      "description": "Code fédéral unique attribué par la FFBB (ex: ARA0063062 pour un club, 063 pour un comité).",
+      "category": "identification",
+      "usage": "Identifiant stable de l'organisme dans FBI."
+    },
+    "id": {
+      "name": "id",
+      "description": "Identifiant numérique unique de la ressource dans le système Directus FFBB.",
+      "category": "identification",
+      "usage": "Clé primaire pour requêtes unitaires."
+    },
+    "commune": {
+      "name": "commune",
+      "description": "Nom de la commune de rattachement ou de localisation.",
+      "category": "geographie",
+      "usage": "Filtrage et recherche géographique."
+    },
+    "communeClubPro": {
+      "name": "communeClubPro",
+      "description": "Commune de rattachement de la section professionnelle d'un club.",
+      "category": "geographie",
+      "usage": "Distinction géographique entre structure amateur et structure pro."
+    },
+    "nom_club_pro": {
+      "name": "nom_club_pro",
+      "description": "Dénomination officielle de la structure professionnelle (SASP / SAOS) rattachée à l'association.",
+      "category": "identification",
+      "usage": "Affichage et distinction des clubs professionnels."
+    },
+    "dateAffiliation": {
+      "name": "dateAffiliation",
+      "description": "Date d'affiliation officielle de l'organisme auprès de la fédération.",
+      "category": "statut",
+      "usage": "Historique et ancienneté du club."
+    },
+    "date_affiliation": {
+      "name": "date_affiliation",
+      "description": "Date d'affiliation officielle de l'organisme auprès de la fédération (format snake_case).",
+      "category": "statut",
+      "usage": "Historique et ancienneté du club."
+    },
+    "saison_en_cours": {
+      "name": "saison_en_cours",
+      "description": "Indicateur booléen signalant si l'organisme est actif sur la saison sportive courante.",
+      "category": "statut",
+      "usage": "Filtrage des structures actives."
+    },
+    "type": {
+      "name": "type",
+      "description": "Typologie administrative de l'organisme (Club, Comité départemental, Ligue régionale, Groupement, etc.).",
+      "category": "statut",
+      "usage": "Facette de filtrage Meilisearch."
+    },
+    "mail": {
+      "name": "mail",
+      "description": "Adresse email de contact officiel de l'organisme ou du correspondant.",
+      "category": "contact",
+      "usage": "Coordonnées de communication."
+    },
+    "telephone": {
+      "name": "telephone",
+      "description": "Numéro de téléphone de contact officiel de l'organisme.",
+      "category": "contact",
+      "usage": "Coordonnées de communication."
+    },
+    "url_site_web": {
+      "name": "url_site_web",
+      "description": "URL du site internet officiel ou de la page de l'organisme.",
+      "category": "contact",
+      "usage": "Lien externe web."
+    },
+    "labellisation": {
+      "name": "labellisation",
+      "description": "Labels fédéraux obtenus par le club (École Française de MiniBasket, Club Formateur, Basket Santé, Citoyen, etc.).",
+      "category": "sportif",
+      "usage": "Valorisation des compétences et labels FFBB."
+    },
+    "offres_pratiques": {
+      "name": "offres_pratiques",
+      "description": "Types de pratiques basket proposées (5x5, 3x3, Micro-Basket, Basket Santé, Basket Inclusif, etc.).",
+      "category": "sportif",
+      "usage": "Recherche d'offres de pratique pour les licenciés."
+    },
+    "engagements_noms": {
+      "name": "engagements_noms",
+      "description": "Noms textuels des équipes engagées par le club dans les championnats.",
+      "category": "sportif",
+      "usage": "Recherche textuelle d'équipes par club."
+    },
+    "code_structure": {
+      "name": "code_structure",
+      "description": "Code identifiant de la structure organisatrice ou hôte.",
+      "category": "identification",
+      "usage": "Rattachement administratif."
+    },
+    "date_validation_ffbb": {
+      "name": "date_validation_ffbb",
+      "description": "Date à laquelle la FFBB a formellement validé l'élément ou l'offre de pratique.",
+      "category": "statut",
+      "usage": "Suivi d'homologation."
+    },
+    "date_validation_ffbb_timestamp": {
+      "name": "date_validation_ffbb_timestamp",
+      "description": "Timestamp Unix de la date de validation FFBB.",
+      "category": "statut",
+      "usage": "Tri chronologique performant dans Meilisearch."
+    },
+    "_geo": {
+      "name": "_geo",
+      "description": "Coordonnées géographiques de localisation (latitude, longitude) au format standard Meilisearch.",
+      "category": "geographie",
+      "usage": "Recherche géographique de proximité (_geoRadius, _geoBoundingBox)."
+    },
+    "typeCompetitionGenerique": {
+      "name": "typeCompetitionGenerique",
+      "description": "Niveau générique de compétition (Championnat de France, Régional, Départemental, Coupe, Tournoi).",
+      "category": "sportif",
+      "usage": "Filtrage et classification des compétitions."
+    },
+    "sexe": {
+      "name": "sexe",
+      "description": "Genre de la compétition ou de l'équipe (Masculin, Féminin, Mixte).",
+      "category": "sportif",
+      "usage": "Filtrage par genre."
+    },
+    "age": {
+      "name": "age",
+      "description": "Tranche d'âge de la compétition (Seniors, U20, U18, U15, U13, etc.).",
+      "category": "sportif",
+      "usage": "Filtrage par catégorie d'âge."
+    },
+    "certification": {
+      "name": "certification",
+      "description": "Type de diplôme ou brevet délivré par une session de formation (ex: CQP, Brevet Fédéral).",
+      "category": "formation",
+      "usage": "Recherche et filtrage des formations FFBB."
+    },
+    "count": {
+      "name": "count",
+      "description": "Nombre total d'éléments (photos, items, participants) associés.",
+      "category": "statistique",
+      "usage": "Indicateur quantitatif."
+    },
+    "cover": {
+      "name": "cover",
+      "description": "URL ou identifiant de l'image de couverture / affiche.",
+      "category": "media",
+      "usage": "Affichage visuel de miniature."
+    },
+    "creator": {
+      "name": "creator",
+      "description": "Auteur ou créateur de la ressource dans le CMS Directus FFBB.",
+      "category": "metadonnees",
+      "usage": "Traçabilité éditoriale."
+    },
+    "date": {
+      "name": "date",
+      "description": "Date de l'événement, de la rencontre ou de la publication.",
+      "category": "temporel",
+      "usage": "Tri et affichage chronologique."
+    },
+    "date_created": {
+      "name": "date_created",
+      "description": "Date de création initiale de l'enregistrement dans la base Directus.",
+      "category": "metadonnees",
+      "usage": "Audit et tri."
+    },
+    "date_updated": {
+      "name": "date_updated",
+      "description": "Date de dernière mise à jour de l'enregistrement dans la base Directus.",
+      "category": "metadonnees",
+      "usage": "Gestion du cache et synchronisation."
+    },
+    "date_published": {
+      "name": "date_published",
+      "description": "Date de mise en ligne ou publication publique de l'article/contenu.",
+      "category": "temporel",
+      "usage": "Tri chronologique des flux d'actualités."
+    },
+    "date_timestamp": {
+      "name": "date_timestamp",
+      "description": "Timestamp Unix de la date principale pour tri numérique rapide.",
+      "category": "temporel",
+      "usage": "Tri indexé Meilisearch."
+    },
+    "title": {
+      "name": "title",
+      "description": "Titre officiel du contenu, événement ou entité.",
+      "category": "contenu",
+      "usage": "Recherche textuelle et affichage."
+    },
+    "titre": {
+      "name": "titre",
+      "description": "Titre du contenu ou de l'actualité en français.",
+      "category": "contenu",
+      "usage": "Recherche textuelle et affichage."
+    },
+    "surtitle": {
+      "name": "surtitle",
+      "description": "Surtitre ou chapeau introductif de l'article ou de la galerie.",
+      "category": "contenu",
+      "usage": "Mise en page éditoriale."
+    },
+    "description": {
+      "name": "description",
+      "description": "Texte descriptif détaillé de la ressource.",
+      "category": "contenu",
+      "usage": "Information détaillée et recherche full-text."
+    },
+    "latitude": {
+      "name": "latitude",
+      "description": "Coordonnée de latitude géographique.",
+      "category": "geographie",
+      "usage": "Positionnement cartographique."
+    },
+    "longitude": {
+      "name": "longitude",
+      "description": "Coordonnée de longitude géographique.",
+      "category": "geographie",
+      "usage": "Positionnement cartographique."
+    },
+    "code_postal": {
+      "name": "code_postal",
+      "description": "Code postal de localisation.",
+      "category": "geographie",
+      "usage": "Filtrage territorial et recherche locale."
+    },
+    "ville": {
+      "name": "ville",
+      "description": "Nom de la ville de localisation.",
+      "category": "geographie",
+      "usage": "Filtrage et recherche textuelle géographique."
+    },
+    "capacite": {
+      "name": "capacite",
+      "description": "Capacité d'accueil en nombre de places assises / spectateurs de la salle ou tribune.",
+      "category": "infrastructure",
+      "usage": "Caractéristiques techniques des salles FFBB."
+    },
+    "type_sol": {
+      "name": "type_sol",
+      "description": "Revêtement du terrain (Parquet, Synthétique, Résine, Bitume, etc.).",
+      "category": "infrastructure",
+      "usage": "Homologation et confort de jeu."
+    },
+    "type_salle": {
+      "name": "type_salle",
+      "description": "Catégorisation technique de l'équipement sportif (Gymnase, Palais des Sports, Complexe, Terrain extérieur 3x3).",
+      "category": "infrastructure",
+      "usage": "Filtrage des installations sportives."
+    },
+    "status": {
+      "name": "status",
+      "description": "État de publication de l'enregistrement dans Directus (published, draft, archived).",
+      "category": "statut",
+      "usage": "Filtrage des données actives."
+    },
+    "horaire": {
+      "name": "horaire",
+      "description": "Heure programmée de la rencontre (format HH:MM).",
+      "category": "temporel",
+      "usage": "Calendrier et programmation des matchs."
+    },
+    "pro": {
+      "name": "pro",
+      "description": "Indicateur booléen signalant si la rencontre ou la compétition concerne le secteur professionnel (LNB, LFB, etc.).",
+      "category": "sportif",
+      "usage": "Séparation des compétitions fédérales et professionnelles."
+    }
+  }
+}

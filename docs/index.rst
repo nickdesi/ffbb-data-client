@@ -31,6 +31,7 @@ Contents
 
    Overview <readme>
    Architecture <architecture>
+   Data Dictionary <data_dictionary>
    Examples <examples>
    Migration <migration>
    License <license>

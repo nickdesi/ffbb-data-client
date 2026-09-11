@@ -370,3 +370,83 @@ class TestBuildChangeSummary:
         )
         assert "## OpenAPI paths (items, assets, files)" in summary
         assert "- Total: `3`" in summary
+
+
+class TestFieldDictionaryAndBusinessContext:
+    def test_field_dictionary_schema_and_keys(self) -> None:
+        dict_path = PROJECT_ROOT / "data" / "field_dictionary.json"
+        assert dict_path.exists()
+        data = json.loads(dict_path.read_text(encoding="utf-8"))
+        assert "fields" in data
+        assert "code_emploi" in data["fields"]
+        assert "description" in data["fields"]["code_emploi"]
+        assert "category" in data["fields"]["code_emploi"]
+
+    def test_build_business_context_section_with_drift(self, disc: ModuleType) -> None:
+        meili_drift = {
+            "ffbbserver_organismes": {"added": ["code_emploi"], "removed": []}
+        }
+        openapi_drift = {
+            "modified_schemas": {
+                "ItemsFfbbserverOrganismes": {
+                    "added_properties": ["code_emploi"],
+                    "removed_properties": [],
+                }
+            }
+        }
+        field_dict = {
+            "fields": {
+                "code_emploi": {
+                    "name": "code_emploi",
+                    "description": "Code employeur",
+                    "category": "statut",
+                    "usage": "Meilisearch filter",
+                }
+            }
+        }
+        lines = disc._build_business_context_section(
+            openapi_drift=openapi_drift,
+            meili_drift=meili_drift,
+            field_dict=field_dict,
+        )
+        joined = "\n".join(lines)
+        assert "📖 Analyse & Contexte Métier des Nouveautés" in joined
+        assert "code_emploi" in joined
+        assert "Code employeur" in joined
+
+    def test_generate_sphinx_data_dictionary(
+        self, disc: ModuleType, tmp_path: Path
+    ) -> None:
+        indexes_payload = {
+            "indexes": [
+                {
+                    "indexUid": "ffbbserver_organismes",
+                    "estimatedTotalHits": 4500,
+                    "sampleKeys": ["nom", "code_emploi"],
+                }
+            ]
+        }
+        collections_payload = {"collections": ["organismes"]}
+        field_dict = {
+            "fields": {
+                "nom": {"name": "nom", "description": "Nom", "category": "id"},
+                "code_emploi": {
+                    "name": "code_emploi",
+                    "description": "Code",
+                    "category": "statut",
+                },
+            }
+        }
+        with patch.object(disc, "PROJECT_ROOT", tmp_path):
+            (tmp_path / "docs").mkdir()
+            updated = disc._generate_sphinx_data_dictionary(
+                indexes_payload=indexes_payload,
+                collections_payload=collections_payload,
+                field_dict=field_dict,
+            )
+            assert updated is True
+            target = tmp_path / "docs" / "data_dictionary.rst"
+            assert target.exists()
+            content = target.read_text(encoding="utf-8")
+            assert "ffbbserver_organismes" in content
+            assert "code_emploi" in content

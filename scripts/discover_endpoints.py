@@ -61,6 +61,7 @@ INDEXES_PATH = DATA_DIR / "indexes.json"
 OPENAPI_PATH = DATA_DIR / "openapi.json"
 OPENAPI_FULL_PATH = DATA_DIR / "openapi_full.json"
 CHANGE_SUMMARY_PATH = DATA_DIR / "api_update_summary.md"
+FIELD_DICTIONARY_PATH = DATA_DIR / "field_dictionary.json"
 # openapi_full.json est volontairement absent : conservé sous data/ pour le dev
 # mais exclu du package (cf. setup.cfg [options.exclude_package_data]).
 PACKAGED_ARTEFACT_PATHS = [
@@ -68,6 +69,7 @@ PACKAGED_ARTEFACT_PATHS = [
     REPORT_PATH,
     INDEXES_PATH,
     OPENAPI_PATH,
+    FIELD_DICTIONARY_PATH,
 ]
 
 MEILI_CANDIDATE_INDEXES = [
@@ -400,6 +402,172 @@ def _diff_meili_attributes(before_payload: Any, after_payload: Any) -> dict[str,
     return drift
 
 
+def _build_business_context_section(
+    openapi_drift: dict[str, Any],
+    meili_drift: dict[str, Any],
+    field_dict: dict[str, Any] | None,
+) -> list[str]:
+    fields = (field_dict or {}).get("fields", {})
+    context_lines: list[str] = []
+
+    meili_items: list[tuple[str, str, str]] = []
+    for idx_uid, changes in sorted(meili_drift.items()):
+        for attr in changes.get("added", []):
+            meili_items.append((idx_uid, attr, "ajouté"))
+        for attr in changes.get("removed", []):
+            meili_items.append((idx_uid, attr, "supprimé"))
+
+    schema_items: list[tuple[str, str, str]] = []
+    for schema_name, changes in sorted(
+        openapi_drift.get("modified_schemas", {}).items()
+    ):
+        for prop in changes.get("added_properties", []):
+            schema_items.append((schema_name, prop, "ajouté"))
+        for prop in changes.get("removed_properties", []):
+            schema_items.append((schema_name, prop, "supprimé"))
+
+    if not meili_items and not schema_items:
+        return []
+
+    context_lines.append("---")
+    context_lines.append("")
+    context_lines.append("## 📖 Analyse & Contexte Métier des Nouveautés")
+    context_lines.append("")
+
+    if meili_items:
+        context_lines.append("### Index Meilisearch")
+        for idx_uid, attr, action in meili_items:
+            info = fields.get(attr)
+            if info:
+                context_lines.append(
+                    f"- **`{idx_uid}` &rarr; Champ `{attr}`** ({action}) :"
+                )
+                context_lines.append(
+                    f"  - **Rôle métier** : {info.get('description', 'N/A')}"
+                )
+                context_lines.append(
+                    f"  - **Usage technique** : {info.get('usage', 'N/A')}"
+                )
+                context_lines.append(
+                    f"  - **Catégorie** : `{info.get('category', 'général')}`"
+                )
+            else:
+                context_lines.append(
+                    f"- **`{idx_uid}` &rarr; Champ `{attr}`** ({action}) :"
+                )
+                context_lines.append(
+                    "  - *Nouvel attribut non documenté dans le dictionnaire de référence.*"
+                )
+        context_lines.append("")
+
+    if schema_items:
+        context_lines.append("### Schémas Directus OpenAPI")
+        for schema_name, prop, action in schema_items:
+            info = fields.get(prop)
+            if info:
+                context_lines.append(
+                    f"- **`{schema_name}` &rarr; Propriété `{prop}`** ({action}) :"
+                )
+                context_lines.append(
+                    f"  - **Rôle métier** : {info.get('description', 'N/A')}"
+                )
+                context_lines.append(
+                    f"  - **Usage technique** : {info.get('usage', 'N/A')}"
+                )
+                context_lines.append(
+                    f"  - **Catégorie** : `{info.get('category', 'général')}`"
+                )
+            else:
+                context_lines.append(
+                    f"- **`{schema_name}` &rarr; Propriété `{prop}`** ({action}) :"
+                )
+                context_lines.append(
+                    "  - *Nouvelle propriété non documentée dans le dictionnaire de référence.*"
+                )
+        context_lines.append("")
+
+    return context_lines
+
+
+def _generate_sphinx_data_dictionary(
+    indexes_payload: dict[str, Any],
+    collections_payload: dict[str, Any],
+    field_dict: dict[str, Any] | None,
+) -> bool:
+    docs_dir = PROJECT_ROOT / "docs"
+    if not docs_dir.exists():
+        return False
+    target = docs_dir / "data_dictionary.rst"
+    fields = (field_dict or {}).get("fields", {})
+
+    lines = [
+        ".. _data_dictionary:",
+        "",
+        "========================================",
+        "Dictionnaire de Données & Cartographie",
+        "========================================",
+        "",
+        "Ce document présente la cartographie des index de recherche Meilisearch et des collections Directus",
+        "ainsi que la définition des champs et attributs de l'écosystème FFBB.",
+        "",
+        ".. note::",
+        "",
+        "    Ce fichier est synchronisé automatiquement par ``scripts/discover_endpoints.py`` lors des phases de découverte.",
+        "",
+        "Index Meilisearch Surveillés",
+        "============================",
+        "",
+    ]
+
+    for idx in indexes_payload.get("indexes", []):
+        uid = idx.get("indexUid", "")
+        keys = idx.get("sampleKeys", [])
+        lines.append(f"Index ``{uid}``")
+        lines.append("-" * (len(uid) + 10))
+        lines.append("")
+        lines.append(
+            f"- **Nombre d'enregistrements estimés** : ``{idx.get('estimatedTotalHits', 'N/A')}``"
+        )
+        lines.append("")
+        lines.append(".. list-table::")
+        lines.append("   :header-rows: 1")
+        lines.append("   :widths: 25 20 55")
+        lines.append("")
+        lines.append("   * - Attribut")
+        lines.append("     - Catégorie")
+        lines.append("     - Description & Usage")
+        for k in sorted(keys):
+            f_info = fields.get(k, {})
+            desc = f_info.get("description", "Attribut exposé dans l'index.")
+            cat = f_info.get("category", "général")
+            lines.append(f"   * - ``{k}``")
+            lines.append(f"     - ``{cat}``")
+            lines.append(f"     - {desc}")
+        lines.append("")
+
+    lines.append("Champs & Attributs de Référence")
+    lines.append("===============================")
+    lines.append("")
+    lines.append(".. list-table::")
+    lines.append("   :header-rows: 1")
+    lines.append("   :widths: 25 15 60")
+    lines.append("")
+    lines.append("   * - Champ")
+    lines.append("     - Catégorie")
+    lines.append("     - Description & Rôle Métier")
+    for fname, finfo in sorted(fields.items()):
+        lines.append(f"   * - ``{fname}``")
+        lines.append(f"     - ``{finfo.get('category', 'général')}``")
+        lines.append(f"     - {finfo.get('description', '')}")
+    lines.append("")
+
+    content = "\n".join(lines) + "\n"
+    if target.exists() and target.read_text(encoding="utf-8") == content:
+        return False
+    target.write_text(content, encoding="utf-8")
+    return True
+
+
 def _build_change_summary(
     *,
     previous_report: Any,
@@ -410,6 +578,7 @@ def _build_change_summary(
     collections_payload: dict[str, Any],
     indexes_payload: dict[str, Any],
     openapi_snapshot: dict[str, Any],
+    field_dict: dict[str, Any] | None = None,
 ) -> str:
     collections_diff = _diff_lists(
         _previous_collections(previous_collections or previous_report),
@@ -506,6 +675,14 @@ def _build_change_summary(
                 )
         lines.append("")
 
+    context_lines = _build_business_context_section(
+        openapi_drift=openapi_drift,
+        meili_drift=meili_drift,
+        field_dict=field_dict,
+    )
+    if context_lines:
+        lines.extend(context_lines)
+
     lines.append("Generated by `python scripts/discover_endpoints.py`.")
     return "\n".join(lines) + "\n"
 
@@ -552,6 +729,7 @@ def main() -> None:
     previous_collections = _load_json(COLLECTIONS_PATH)
     previous_indexes = _load_json(INDEXES_PATH)
     previous_openapi_snapshot = _load_json(OPENAPI_PATH)
+    field_dict = _load_json(FIELD_DICTIONARY_PATH)
 
     tokens = TokenManager.get_tokens(cache_config=CacheConfig(enabled=False))
 
@@ -632,6 +810,7 @@ def main() -> None:
         collections_payload=collections_payload,
         indexes_payload=indexes_payload,
         openapi_snapshot=openapi_snapshot,
+        field_dict=field_dict,
     )
 
     changed = [
@@ -645,6 +824,14 @@ def main() -> None:
         CHANGE_SUMMARY_PATH.write_text(summary, encoding="utf-8")
 
     packaged_changed = _sync_packaged_artefacts(PACKAGED_ARTEFACT_PATHS)
+
+    doc_updated = _generate_sphinx_data_dictionary(
+        indexes_payload=indexes_payload,
+        collections_payload=collections_payload,
+        field_dict=field_dict,
+    )
+    if doc_updated:
+        print("Sphinx data dictionary documentation updated: docs/data_dictionary.rst")
 
     _update_readme_discovery_metrics(len(collections), len(available_indexes))
     print(f"Directus collections: {len(collections)}")
