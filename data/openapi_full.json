@@ -12181,7 +12181,7 @@
   "info": {
     "description": "This is a dynamically generated API specification for all endpoints existing on the current project.",
     "title": "Dynamic API Specification",
-    "version": "e5f76d83e876077e80ab344bbb4fc03606f63ca4"
+    "version": "5e5f138eae2de296226e37d6c0ac5a9ee7a96f2e"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -36954,6 +36954,10 @@
       "x-collection": "ffbbserver_officiels_rencontres"
     },
     {
+      "name": "ItemsFfbbserverOrganismes",
+      "x-collection": "ffbbserver_organismes"
+    },
+    {
       "name": "ItemsFfbbserverOfficiels",
       "x-collection": "ffbbserver_officiels"
     },
@@ -36984,10 +36988,6 @@
     {
       "name": "ItemsFfbbserverOrganismesFfbbserverOffresPratiques",
       "x-collection": "ffbbserver_organismes_ffbbserver_offres_pratiques"
-    },
-    {
-      "name": "ItemsFfbbserverOrganismes",
-      "x-collection": "ffbbserver_organismes"
     },
     {
       "name": "ItemsFfbbserverTournois",

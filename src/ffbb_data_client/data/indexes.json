@@ -40,7 +40,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 253,
+      "estimatedTotalHits": 429,
       "indexUid": "ffbbnational_pratiques",
       "sampleKeys": [
         "_geo",
@@ -97,7 +97,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 4104,
+      "estimatedTotalHits": 4228,
       "indexUid": "ffbbnational_rss",
       "sampleKeys": [
         "categories",
@@ -127,7 +127,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 571,
+      "estimatedTotalHits": 1680,
       "indexUid": "ffbbserver_competitions",
       "sampleKeys": [
         "age",
@@ -207,7 +207,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 144,
+      "estimatedTotalHits": 146,
       "indexUid": "ffbbserver_formations",
       "sampleKeys": [
         "certification",
@@ -242,7 +242,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 4642,
+      "estimatedTotalHits": 4714,
       "indexUid": "ffbbserver_organismes",
       "sampleKeys": [
         "_geo",
@@ -250,6 +250,7 @@
         "adresseClubPro",
         "cartographie",
         "code",
+        "code_emploi",
         "commune",
         "communeClubPro",
         "dateAffiliation",
@@ -277,7 +278,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 96,
+      "estimatedTotalHits": 5000,
       "indexUid": "ffbbserver_rencontres",
       "sampleKeys": [
         "_geo",
@@ -369,7 +370,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 19,
+      "estimatedTotalHits": 7,
       "indexUid": "ffbbserver_tournois",
       "sampleKeys": [
         "_geo",
@@ -408,7 +409,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 6106,
+      "estimatedTotalHits": 6229,
       "indexUid": "ffbbsite_news",
       "sampleKeys": [
         "author",
@@ -437,7 +438,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 1842,
+      "estimatedTotalHits": 1858,
       "indexUid": "youtube_videos",
       "sampleKeys": [
         "channelId",
@@ -470,7 +471,7 @@
   ],
   "metadata": {
     "source": "https://meilisearch-prod.ffbb.app/multi-search",
-    "timestamp": "2026-08-10T19:59:19.080946+00:00"
+    "timestamp": "2026-09-11T09:44:26.132076+00:00"
   },
   "unavailable_indexes": [
     {
