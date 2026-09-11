@@ -657,7 +657,7 @@ async def get_club_details(
         le=99999999,
         description="ID Organisme FFBB (ex: 9326)",
         examples=[9326],
-    )
+    ),
 ):
     """Retourne les informations détaillées d'un club (nom, contacts, adresse, engagements)."""
     client = get_client()
@@ -679,7 +679,7 @@ async def get_club_details(
 async def get_poule(
     poule_id: int = PathParam(
         ..., ge=1, le=99999999, description="ID de la poule FFBB", examples=[129759]
-    )
+    ),
 ):
     """Retourne les détails complets, classements et rencontres d'une poule."""
     client = get_client()
@@ -701,7 +701,7 @@ async def get_poule(
 async def get_poule_classement(
     poule_id: int = PathParam(
         ..., ge=1, le=99999999, description="ID de la poule FFBB", examples=[129759]
-    )
+    ),
 ):
     """Retourne le classement officiel d'une poule avec victoires, défaites, points et goal-average."""
     client = get_client()

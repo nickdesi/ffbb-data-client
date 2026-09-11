@@ -76,9 +76,13 @@ jobs:
             data/openapi.json
             data/openapi_full.json
             data/api_update_summary.md
+            data/field_dictionary.json
             src/ffbb_data_client/data/__init__.py
             src/ffbb_data_client/data/collections.json
             src/ffbb_data_client/data/endpoint_discovery.json
             src/ffbb_data_client/data/indexes.json
             src/ffbb_data_client/data/openapi.json
+            src/ffbb_data_client/data/field_dictionary.json
+            docs/data_dictionary.rst
+            docs/index.rst
             README.md

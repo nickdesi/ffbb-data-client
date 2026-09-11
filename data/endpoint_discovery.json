@@ -329,9 +329,9 @@
       "items/youtube_videos_youtube_tags"
     ],
     "metadata": {
-      "openapi_version": "5e5f138eae2de296226e37d6c0ac5a9ee7a96f2e",
+      "openapi_version": "326edbfd6bf4f57c9f1e22a17f0a177e9c85619b",
       "source": "https://api.ffbb.app/server/specs/oas",
-      "timestamp": "2026-09-11T09:44:26.132076+00:00"
+      "timestamp": "2026-09-11T10:11:11.270973+00:00"
     },
     "paths": {
       "items/configuration": [
@@ -1356,14 +1356,7 @@
       "modified_schemas": {},
       "removed_schemas": []
     },
-    "meilisearch_indexes": {
-      "ffbbserver_organismes": {
-        "added": [
-          "code_emploi"
-        ],
-        "removed": []
-      }
-    }
+    "meilisearch_indexes": {}
   },
   "meilisearch": {
     "available_indexes": [
@@ -1838,7 +1831,7 @@
     ],
     "metadata": {
       "source": "https://meilisearch-prod.ffbb.app/multi-search",
-      "timestamp": "2026-09-11T09:44:26.132076+00:00"
+      "timestamp": "2026-09-11T10:11:11.270973+00:00"
     },
     "unavailable_indexes": [
       {
@@ -1874,9 +1867,9 @@
   "metadata": {
     "api_base_url": "https://api.ffbb.app/",
     "meilisearch_base_url": "https://meilisearch-prod.ffbb.app/",
-    "openapi_sha256": "6769caa03ee9be1fe2722bab2fd734d66f4efa436caa1e0031d4254120bcc28c",
-    "openapi_snapshot_sha256": "93e278fcfb74b4fceb6eef145020bef5bb2b0c0ea6fb3826d3d6d6c5b4b2ac16",
-    "openapi_version": "5e5f138eae2de296226e37d6c0ac5a9ee7a96f2e",
-    "timestamp": "2026-09-11T09:44:26.132076+00:00"
+    "openapi_sha256": "1c6ecdab182113ad582b154df4d66bc1416a387d6fc4d57dd5b6788f39288a51",
+    "openapi_snapshot_sha256": "ddaf588729dc2f1f68ced57a5d4dd6fb5afc3f807be028ef1d4e8e439a3b6219",
+    "openapi_version": "326edbfd6bf4f57c9f1e22a17f0a177e9c85619b",
+    "timestamp": "2026-09-11T10:11:11.270973+00:00"
   }
 }
