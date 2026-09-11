@@ -561,7 +561,7 @@ def _generate_sphinx_data_dictionary(
         lines.append(f"     - {finfo.get('description', '')}")
     lines.append("")
 
-    content = "\n".join(lines) + "\n"
+    content = "\n".join(lines).rstrip() + "\n"
     if target.exists() and target.read_text(encoding="utf-8") == content:
         return False
     target.write_text(content, encoding="utf-8")

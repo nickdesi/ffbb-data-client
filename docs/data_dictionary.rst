@@ -1381,4 +1381,3 @@ Champs & Attributs de Référence
    * - ``ville``
      - ``geographie``
      - Nom de la ville de localisation.
-
