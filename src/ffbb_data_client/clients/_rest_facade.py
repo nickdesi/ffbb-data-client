@@ -644,10 +644,19 @@ class _RestFacade:
         )
 
     async def get_poule_async(
-        self, poule_id: int, deep_limit: str | None = "1000"
+        self,
+        poule_id: int,
+        deep_limit: str | None = "1000",
+        fields: list[str] | None = None,
+        cached_session: httpx.AsyncClient | None = None,
     ) -> GetPouleResponse | None:
         """Retrieves detailed information about a poule asynchronously."""
-        return await self._api.get_poule_async(poule_id, deep_limit=deep_limit)
+        return await self._api.get_poule_async(
+            poule_id,
+            deep_limit=deep_limit,
+            fields=fields,
+            cached_session=cached_session,
+        )
 
     async def get_classement_async(self, poule_id: int) -> list[TeamRanking] | None:
         """Retrieves ONLY the ranking (classement) for a specific poule asynchronously."""

@@ -6,9 +6,12 @@ Swagger UI at /swagger, ReDoc at /redoc, and hosts the official website at /.
 
 from __future__ import annotations
 
+import asyncio
 import re
+import time
+from collections import OrderedDict
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -21,6 +24,7 @@ from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
 from .clients.ffbb_data_client import FFBBDataClient
+from .models.query_fields_manager import QueryFieldsManager
 from .utils.retry_utils import aclose_default_clients
 
 # Directories
@@ -192,10 +196,56 @@ def clean_opponent_name(opp_raw: str) -> str:
     return cleaned.strip()
 
 
-# Cache dictionaries
-_org_cache: dict[int, Any] = {}
-_logo_cache: dict[str, str | None] = {}
-_salle_cache: dict[str, str] = {}
+class LRUCache:
+    """Bounded LRU cache with TTL eviction using collections.OrderedDict."""
+
+    def __init__(self, maxsize: int = 1024, default_ttl: float | None = 3600.0):
+        self.maxsize = maxsize
+        self.default_ttl = default_ttl
+        self._cache: OrderedDict[Any, tuple[Any, float | None]] = OrderedDict()
+
+    def get(self, key: Any, default: Any = None) -> Any:
+        if key not in self._cache:
+            return default
+        val, expiry = self._cache[key]
+        if expiry is not None and time.monotonic() > expiry:
+            del self._cache[key]
+            return default
+        self._cache.move_to_end(key)
+        return val
+
+    def set(self, key: Any, value: Any, ttl: float | None = None) -> None:
+        effective_ttl = ttl if ttl is not None else self.default_ttl
+        expiry = time.monotonic() + effective_ttl if effective_ttl is not None else None
+        if key in self._cache:
+            self._cache.move_to_end(key)
+        self._cache[key] = (value, expiry)
+        if len(self._cache) > self.maxsize:
+            self._cache.popitem(last=False)
+
+    def __contains__(self, key: Any) -> bool:
+        if key not in self._cache:
+            return False
+        val, expiry = self._cache[key]
+        if expiry is not None and time.monotonic() > expiry:
+            del self._cache[key]
+            return False
+        return True
+
+    def __getitem__(self, key: Any) -> Any:
+        val = self.get(key)
+        if val is None and key not in self:
+            raise KeyError(key)
+        return val
+
+    def __setitem__(self, key: Any, value: Any) -> None:
+        self.set(key, value)
+
+
+# Cache dictionaries with bounded capacity
+_org_cache = LRUCache(maxsize=1024)
+_logo_cache = LRUCache(maxsize=2048)
+_salle_cache = LRUCache(maxsize=2048)
 
 
 def get_cached_organisme(client, org_id: Any):
@@ -209,7 +259,26 @@ def get_cached_organisme(client, org_id: Any):
         return _org_cache[oid]
     try:
         org = client.get_organisme(oid)
-        _org_cache[oid] = org
+        if org:
+            _org_cache[oid] = org
+        return org
+    except Exception:
+        return None
+
+
+async def get_cached_organisme_async(client, org_id: Any):
+    if not org_id:
+        return None
+    try:
+        oid = int(org_id)
+    except Exception:
+        return None
+    if oid in _org_cache:
+        return _org_cache[oid]
+    try:
+        org = await client.get_organisme_async(oid)
+        if org:
+            _org_cache[oid] = org
         return org
     except Exception:
         return None
@@ -218,8 +287,18 @@ def get_cached_organisme(client, org_id: Any):
 def resolve_exact_salle_address(
     client, salle_id: Any = None, org_id: Any = None, default_name: str = ""
 ) -> str:
-    """Résout l'adresse complète et exacte du gymnase via l'API FFBB (Nom, Rue, CP Ville)."""
-    cache_key = f"{salle_id}_{org_id}"
+    """Résout l'adresse complète et exacte du gymnase via l'API FFBB (Nom, Rue, CP Ville) de façon synchrone."""
+    s_id_clean = (
+        str(getattr(salle_id, "id", None) or salle_id or "").strip() if salle_id else ""
+    )
+    org_id_clean = str(org_id or "").strip() if org_id else ""
+
+    # Mutualisation de cache : recherche par salle directe, par organisme, ou par clé composite
+    if s_id_clean and f"salle_{s_id_clean}" in _salle_cache:
+        return _salle_cache[f"salle_{s_id_clean}"]
+    if not s_id_clean and org_id_clean and f"org_{org_id_clean}" in _salle_cache:
+        return _salle_cache[f"org_{org_id_clean}"]
+    cache_key = f"{s_id_clean}_{org_id_clean}"
     if cache_key in _salle_cache:
         return _salle_cache[cache_key]
 
@@ -238,10 +317,8 @@ def resolve_exact_salle_address(
                 cp = getattr(salle, "codePostal", "") or getattr(salle, "cp", "") or ""
                 ville = getattr(salle, "ville", "") or ""
         except Exception:
-            # Fallback gracefully if salle lookup fails or salle does not exist
             pass
 
-    # 2. Si CP ou Ville manque, chercher dans Meilisearch par adresse ou ID salle
     if salle_id and (not cp or not ville):
         try:
             s_id_str = str(getattr(salle_id, "id", None) or salle_id)
@@ -250,7 +327,7 @@ def resolve_exact_salle_address(
                 queries.append(nom)
             for q in queries:
                 res = client.search_salles(q)
-                if res and res.hits:
+                if res and getattr(res, "hits", None):
                     for h in res.hits:
                         carto_id = getattr(
                             getattr(h, "cartographie", None), "cartographie_id", ""
@@ -271,7 +348,6 @@ def resolve_exact_salle_address(
                 if cp and ville:
                     break
         except Exception:
-            # Fallback gracefully if Meilisearch salle search fails
             pass
 
     if org_id and (not cp or not ville or not nom or not adresse):
@@ -311,7 +387,6 @@ def resolve_exact_salle_address(
                         if not ville:
                             ville = getattr(c, "libelle", "") or ""
         except Exception:
-            # Fallback gracefully if host organism details cannot be retrieved
             pass
 
     cp_ville = f"{cp} {ville}".strip()
@@ -319,6 +394,129 @@ def resolve_exact_salle_address(
     if parts:
         res = ", ".join(parts)
         _salle_cache[cache_key] = res
+        if s_id_clean:
+            _salle_cache[f"salle_{s_id_clean}"] = res
+        if org_id_clean and not s_id_clean:
+            _salle_cache[f"org_{org_id_clean}"] = res
+        return res
+
+    return default_name or "Lieu à confirmer"
+
+
+async def resolve_exact_salle_address_async(
+    client, salle_id: Any = None, org_id: Any = None, default_name: str = ""
+) -> str:
+    """Résout l'adresse complète et exacte du gymnase de façon asynchrone non-bloquante."""
+    s_id_clean = (
+        str(getattr(salle_id, "id", None) or salle_id or "").strip() if salle_id else ""
+    )
+    org_id_clean = str(org_id or "").strip() if org_id else ""
+
+    # Mutualisation de cache : recherche par salle directe, par organisme, ou par clé composite
+    if s_id_clean and f"salle_{s_id_clean}" in _salle_cache:
+        return _salle_cache[f"salle_{s_id_clean}"]
+    if not s_id_clean and org_id_clean and f"org_{org_id_clean}" in _salle_cache:
+        return _salle_cache[f"org_{org_id_clean}"]
+    cache_key = f"{s_id_clean}_{org_id_clean}"
+    if cache_key in _salle_cache:
+        return _salle_cache[cache_key]
+
+    nom = ""
+    adresse = ""
+    cp = ""
+    ville = ""
+
+    if salle_id:
+        try:
+            s_id = getattr(salle_id, "id", None) or salle_id
+            salle = await client.get_salle_async(str(s_id))
+            if salle:
+                nom = getattr(salle, "libelle", "") or getattr(salle, "nom", "") or ""
+                adresse = getattr(salle, "adresse", "") or ""
+                cp = getattr(salle, "codePostal", "") or getattr(salle, "cp", "") or ""
+                ville = getattr(salle, "ville", "") or ""
+        except Exception:
+            pass
+
+    if salle_id and (not cp or not ville):
+        try:
+            s_id_str = str(getattr(salle_id, "id", None) or salle_id)
+            queries = [adresse] if adresse else []
+            if nom:
+                queries.append(nom)
+            for q in queries:
+                res = await client.search_salles_async(q)
+                if res and getattr(res, "hits", None):
+                    for h in res.hits:
+                        carto_id = getattr(
+                            getattr(h, "cartographie", None), "cartographie_id", ""
+                        )
+                        if (
+                            carto_id == f"S-{s_id_str}"
+                            or str(getattr(h, "id", "")) == s_id_str
+                        ):
+                            c = getattr(h, "commune", None)
+                            if c:
+                                cp = (
+                                    getattr(c, "code_postal", "")
+                                    or getattr(c, "codePostal", "")
+                                    or ""
+                                )
+                                ville = getattr(c, "libelle", "") or ""
+                            break
+                if cp and ville:
+                    break
+        except Exception:
+            pass
+
+    if org_id and (not cp or not ville or not nom or not adresse):
+        try:
+            org = await get_cached_organisme_async(client, org_id)
+            if org:
+                o_salle = getattr(org, "salle", None)
+                if o_salle:
+                    if not nom:
+                        nom = (
+                            getattr(o_salle, "libelle", "")
+                            or getattr(o_salle, "nom", "")
+                            or ""
+                        )
+                    if not adresse:
+                        adresse = getattr(o_salle, "adresse", "") or ""
+                    c = getattr(o_salle, "commune", None)
+                    if c:
+                        if not cp:
+                            cp = (
+                                getattr(c, "codePostal", "")
+                                or getattr(c, "code_postal", "")
+                                or ""
+                            )
+                        if not ville:
+                            ville = getattr(c, "libelle", "") or ""
+
+                if not cp or not ville:
+                    c = getattr(org, "commune", None)
+                    if c:
+                        if not cp:
+                            cp = (
+                                getattr(c, "codePostal", "")
+                                or getattr(c, "code_postal", "")
+                                or ""
+                            )
+                        if not ville:
+                            ville = getattr(c, "libelle", "") or ""
+        except Exception:
+            pass
+
+    cp_ville = f"{cp} {ville}".strip()
+    parts = [p for p in [nom, adresse, cp_ville] if p]
+    if parts:
+        res = ", ".join(parts)
+        _salle_cache[cache_key] = res
+        if s_id_clean:
+            _salle_cache[f"salle_{s_id_clean}"] = res
+        if org_id_clean and not s_id_clean:
+            _salle_cache[f"org_{org_id_clean}"] = res
         return res
 
     return default_name or "Lieu à confirmer"
@@ -332,7 +530,7 @@ async def health():
     return {
         "status": "healthy",
         "service": "ffbb-data-client-api",
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -410,11 +608,13 @@ async def get_club_matches(
     client = get_client()
 
     try:
-        org = client.get_organisme(organisme_id)
+        org = await client.get_organisme_async(organisme_id)
         if not org:
             raise HTTPException(
                 status_code=404, detail=f"Club {organisme_id} introuvable."
             )
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur FFBB: {e}")
 
@@ -426,49 +626,86 @@ async def get_club_matches(
             club_logo_url = f"https://api.ffbb.com/assets/{logo_id}"
 
     engagements = getattr(org, "engagements", []) or []
-    candidate_matches = []
-    seen_match_ids: set[str] = set()
     _poule_name_cache: dict[str, str] = {}
 
+    # 1. Déduplication et préparation des requêtes de poules
+    poule_meta: dict[int, dict[str, Any]] = {}
     for eng in engagements:
         poule_obj = getattr(eng, "idPoule", None)
         comp_obj = getattr(eng, "idCompetition", None)
-        poule_id = getattr(poule_obj, "id", None) or (
+        poule_id_raw = getattr(poule_obj, "id", None) or (
             str(poule_obj) if poule_obj else None
         )
+        if not poule_id_raw:
+            continue
+        try:
+            pid = int(poule_id_raw)
+        except Exception:
+            continue
+
         comp_nom = getattr(comp_obj, "nom", "") or ""
         comp_id = getattr(comp_obj, "id", None) or getattr(
             comp_obj, "competition_origine", None
         )
+        if pid not in poule_meta:
+            poule_meta[pid] = {
+                "comp_nom": comp_nom,
+                "comp_id": int(comp_id) if comp_id else None,
+            }
 
-        if not poule_id:
-            continue
+    # 2. Récupération asynchrone concurrente de l'ensemble des poules
+    sem_poule = asyncio.Semaphore(10)
 
-        try:
-            poule = client.get_poule(int(poule_id))
-            rencontres = getattr(poule, "rencontres", []) or []
-            poule_nom = getattr(poule, "nom", None) or _poule_name_cache.get(
-                str(poule_id), ""
-            )
-            if not poule_nom and comp_id:
-                # Fallback: resolve poule name via competition's poule list (covers cases where poule.nom is null)
-                try:
-                    comp_data = client.get_competition(int(comp_id))
-                    if comp_data and getattr(comp_data, "poules", None):
-                        for p in comp_data.poules:
-                            if str(getattr(p, "id", "")) == str(poule_id):
-                                poule_nom = getattr(p, "nom", "") or ""
-                                break
-                    if poule_nom:
-                        _poule_name_cache[str(poule_id)] = poule_nom
-                except Exception:
-                    pass
-            if poule_nom:
-                _poule_name_cache[str(poule_id)] = poule_nom
-            else:
-                poule_nom = _poule_name_cache.get(str(poule_id), "")
-        except Exception:
+    async def fetch_poule(pid: int):
+        async with sem_poule:
+            try:
+                p = await client.get_poule_async(pid)
+                return pid, p
+            except Exception:
+                return pid, None
+
+    poule_results = await asyncio.gather(*(fetch_poule(pid) for pid in poule_meta))
+    poules_by_id = dict(poule_results)
+
+    # 3. Résolution des noms de poules manquants via get_competition_async
+    missing_comp_tasks = []
+    for pid, p in poules_by_id.items():
+        if p:
+            p_nom = getattr(p, "nom", None)
+            cid = poule_meta[pid]["comp_id"]
+            if not p_nom and cid:
+                missing_comp_tasks.append((pid, cid))
+
+    if missing_comp_tasks:
+
+        async def fetch_comp_poule_name(pid: int, cid: int):
+            try:
+                comp_data = await client.get_competition_async(cid)
+                if comp_data and getattr(comp_data, "poules", None):
+                    for cp in comp_data.poules:
+                        if str(getattr(cp, "id", "")) == str(pid):
+                            return pid, getattr(cp, "nom", "") or ""
+            except Exception:
+                pass
+            return pid, ""
+
+        comp_results = await asyncio.gather(
+            *(fetch_comp_poule_name(p, c) for p, c in missing_comp_tasks)
+        )
+        for pid, resolved_nom in comp_results:
+            if resolved_nom:
+                _poule_name_cache[str(pid)] = resolved_nom
+
+    # 4. Identification des rencontres candidates pour le club
+    candidate_matches = []
+    seen_match_ids: set[str] = set()
+
+    for pid, poule in poules_by_id.items():
+        if not poule:
             continue
+        rencontres = getattr(poule, "rencontres", []) or []
+        comp_nom = poule_meta[pid]["comp_nom"]
+        poule_nom = getattr(poule, "nom", None) or _poule_name_cache.get(str(pid), "")
 
         for m in rencontres:
             m_id = str(getattr(m, "id", "") or "")
@@ -492,35 +729,39 @@ async def get_club_matches(
 
             seen_match_ids.add(m_id)
             candidate_matches.append(
-                (m_id, comp_nom, str(poule_id), poule_nom or "", is_club1, is_club2)
+                (m_id, comp_nom, str(pid), poule_nom or "", is_club1, is_club2)
             )
 
-    from concurrent.futures import ThreadPoolExecutor
+    # 5. Récupération asynchrone non-bloquante des fiches rencontres détaillées
+    sem_rencontre = asyncio.Semaphore(10)
 
-    def fetch_full_rencontre(item):
+    async def fetch_full_rencontre_async(item):
         m_id, comp_nom, poule_id, poule_nom, is_club1, is_club2 = item
-        try:
-            full_r = client.get_rencontre(m_id)
-            return {
-                "raw_match": full_r,
-                "comp_nom": comp_nom,
-                "poule_id": poule_id,
-                "poule_nom": poule_nom,
-                "is_club1": is_club1,
-                "is_club2": is_club2,
-            }
-        except Exception:
-            return None
+        async with sem_rencontre:
+            try:
+                full_r = await client.get_rencontre_async(m_id)
+                return {
+                    "raw_match": full_r,
+                    "comp_nom": comp_nom,
+                    "poule_id": poule_id,
+                    "poule_nom": poule_nom,
+                    "is_club1": is_club1,
+                    "is_club2": is_club2,
+                }
+            except Exception:
+                return None
 
-    with ThreadPoolExecutor(max_workers=8) as executor:
-        detailed_items = list(executor.map(fetch_full_rencontre, candidate_matches))
+    detailed_items = await asyncio.gather(
+        *(fetch_full_rencontre_async(c) for c in candidate_matches)
+    )
 
-    matches_list: list[dict[str, Any]] = []
-
-    for item in detailed_items:
+    # 6. Construction et enrichissement des cartes de matchs
+    async def build_match_card(item):
         if not item:
-            continue
+            return None
         m = item["raw_match"]
+        if not m:
+            return None
         comp_nom = item["comp_nom"]
         poule_id = item.get("poule_id", "")
         poule_nom = item.get("poule_nom", "")
@@ -540,7 +781,7 @@ async def get_club_matches(
         opponent = clean_opponent_name(opp_team_raw)
 
         if team and team != "ALL" and team.upper() not in scba_team.upper():
-            continue
+            return None
 
         # Date & time
         date_raw = str(getattr(m, "date_rencontre", "") or getattr(m, "date", "") or "")
@@ -561,7 +802,7 @@ async def get_club_matches(
             if ":" in time_part and time_part not in ("00:00", "00:00:00"):
                 time_str = time_part
 
-        # Résolution de la salle exacte
+        # Résolution de la salle exacte de façon asynchrone
         salle_id = getattr(m, "salle", None)
         if is_home:
             fallback_name = (
@@ -569,14 +810,14 @@ async def get_club_matches(
                 if organisme_id == 9326
                 else "Domicile"
             )
-            location = resolve_exact_salle_address(
+            location = await resolve_exact_salle_address_async(
                 client,
                 salle_id=salle_id,
                 org_id=organisme_id,
                 default_name=fallback_name,
             )
         else:
-            location = resolve_exact_salle_address(
+            location = await resolve_exact_salle_address_async(
                 client,
                 salle_id=salle_id,
                 org_id=opp_org_id,
@@ -591,7 +832,7 @@ async def get_club_matches(
                 opponent_logo = _logo_cache[s_opp_org]
             else:
                 try:
-                    opp_org = get_cached_organisme(client, opp_org_id)
+                    opp_org = await get_cached_organisme_async(client, opp_org_id)
                     if opp_org and getattr(opp_org, "logo", None):
                         opp_logo_id = getattr(opp_org.logo, "id", None) or opp_org.logo
                         if opp_logo_id:
@@ -617,7 +858,12 @@ async def get_club_matches(
         if opponent_logo:
             match_data["opponentLogo"] = opponent_logo
 
-        matches_list.append(match_data)
+        return match_data
+
+    built_matches = await asyncio.gather(
+        *(build_match_card(item) for item in detailed_items if item)
+    )
+    matches_list = [m for m in built_matches if m is not None]
 
     matches_list.sort(key=lambda x: (x.get("dateISO", ""), x.get("time", "")))
 
@@ -646,9 +892,11 @@ async def get_club_teams(
     """Retourne la liste des équipes engagées pour un organisme/club."""
     client = get_client()
     try:
-        org = client.get_organisme(organisme_id)
+        org = await client.get_organisme_async(organisme_id)
         if not org:
             raise HTTPException(status_code=404, detail="Club introuvable.")
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -693,10 +941,12 @@ async def get_club_details(
     """Retourne les informations détaillées d'un club (nom, contacts, adresse, engagements)."""
     client = get_client()
     try:
-        org = client.get_organisme(organisme_id)
+        org = await client.get_organisme_async(organisme_id)
         if not org:
             raise HTTPException(status_code=404, detail="Club introuvable.")
         return org
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -715,10 +965,12 @@ async def get_poule(
     """Retourne les détails complets, classements et rencontres d'une poule."""
     client = get_client()
     try:
-        poule = client.get_poule(poule_id)
+        poule = await client.get_poule_async(poule_id)
         if not poule:
             raise HTTPException(status_code=404, detail="Poule introuvable.")
         return poule
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -737,16 +989,25 @@ async def get_poule_classement(
     """Retourne le classement officiel d'une poule avec victoires, défaites, points et goal-average."""
     client = get_client()
     try:
-        poule = client.get_poule(poule_id)
+        poule = await client.get_poule_async(
+            poule_id,
+            fields=QueryFieldsManager.get_classement_fields(),
+        )
         if not poule:
             raise HTTPException(status_code=404, detail="Poule introuvable.")
-        classement = getattr(poule, "classement", []) or []
+        classement = (
+            getattr(poule, "classement", None)
+            or getattr(poule, "classements", [])
+            or []
+        )
         return {
             "poule_id": poule_id,
             "nom": getattr(poule, "nom", "") or getattr(poule, "libelle", ""),
             "classement": classement,
             "count": len(classement),
         }
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -761,7 +1022,7 @@ async def get_lives():
     """Retourne les matchs en direct avec score en temps réel sur l'ensemble des championnats."""
     client = get_client()
     try:
-        return client.get_lives()
+        return await client.get_lives_async()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

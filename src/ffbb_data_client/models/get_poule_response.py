@@ -19,6 +19,11 @@ class GetPouleResponse:
     rencontres: list[PouleRencontreItemModel] = field(default_factory=list)
     classements: list[TeamRanking] | None = None
 
+    @property
+    def classement(self) -> list[TeamRanking] | None:
+        """Backward compatibility alias for singular 'classement'."""
+        return self.classements
+
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> GetPouleResponse | None:
         """Convert dictionary to PoulesModel instance."""
