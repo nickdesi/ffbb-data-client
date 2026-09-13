@@ -535,15 +535,17 @@ async def get_club_matches(
         # Résolution de la salle exacte
         salle_id = getattr(m, "salle", None)
         if is_home:
-            if organisme_id == 9326:
-                location = "Maison des Sports, Place des Bughes, 63000 Clermont-Ferrand"
-            else:
-                location = resolve_exact_salle_address(
-                    client,
-                    salle_id=salle_id,
-                    org_id=organisme_id,
-                    default_name="Domicile",
-                )
+            fallback_name = (
+                "Maison des Sports, Place des Bughes, 63000 Clermont-Ferrand"
+                if organisme_id == 9326
+                else "Domicile"
+            )
+            location = resolve_exact_salle_address(
+                client,
+                salle_id=salle_id,
+                org_id=organisme_id,
+                default_name=fallback_name,
+            )
         else:
             location = resolve_exact_salle_address(
                 client,

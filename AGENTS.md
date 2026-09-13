@@ -40,9 +40,10 @@ ou interroge l'API publique en cache en cas d'absence :
   documentation (`AGENTS.md`), de site/landing page ou autres tâches de synchronisation de
   manière autonome. Si vous estimez qu'une mise à jour automatique est pertinente ou non, prenez
   la décision par vous-même sans attendre la validation explicite de l'utilisateur.
-- **Validation pre-commit systématique (Zéro échec de CI)** : Pour éviter tout échec de build ou de formatage en CI,
-  exécutez systématiquement la validation complète locale via `rtk pre-commit run --all-files` avant de pousser
-  tout commit vers origin. Résolvez toutes les alertes (formatage, imports `isort`, typage) localement.
+- **Protocole Strict Pre-Commit & Re-Stage (Zéro échec de CI)** :
+  1. Toujours appliquer `.rstrip() + "\n"` dans les générateurs de fichiers (RST, MD, JSON).
+  2. Exécuter systématiquement `rtk pre-commit run --all-files`.
+  3. Si un hook (end-of-file-fixer, black, isort...) modifie un fichier sur disque : **OBLIGATION de ré-indexer (`rtk git add -u`) et de ré-exécuter `rtk pre-commit run --all-files`** jusqu'à un passage 100% propre avant de créer le commit (`git commit`).
 
 
 ## Karpathy Guidelines (Règles de développement)
