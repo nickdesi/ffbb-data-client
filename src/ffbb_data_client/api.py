@@ -394,7 +394,6 @@ async def get_club_matches(
     organisme_id: int = PathParam(
         ...,
         ge=1,
-        le=99999999,
         description="ID Organisme FFBB (ex: 9326 pour SCBA)",
         examples=[9326],
     ),
@@ -519,9 +518,9 @@ async def get_club_matches(
         if re.match(r"^\d{4}-\d{2}-\d{2}", date_raw):
             date_iso = date_raw[:10]
 
-        time_str = "15:00"
-        horaire = str(getattr(m, "horaire", "") or "")
-        if horaire:
+        time_str = ""
+        horaire = str(getattr(m, "horaire", "") or "").strip()
+        if horaire and horaire not in ("0", "00:00", "00h00"):
             h_clean = re.sub(r"[hH:]", "", horaire).strip()
             if len(h_clean) == 4:
                 time_str = f"{h_clean[:2]}:{h_clean[2:]}"
@@ -529,7 +528,7 @@ async def get_club_matches(
                 time_str = f"{h_clean}:00"
         elif " " in date_raw:
             time_part = date_raw.split(" ")[1][:5]
-            if ":" in time_part:
+            if ":" in time_part and time_part not in ("00:00", "00:00:00"):
                 time_str = time_part
 
         # Résolution de la salle exacte
@@ -608,7 +607,6 @@ async def get_club_teams(
     organisme_id: int = PathParam(
         ...,
         ge=1,
-        le=99999999,
         description="ID Organisme FFBB (ex: 9326)",
         examples=[9326],
     ),
@@ -656,7 +654,6 @@ async def get_club_details(
     organisme_id: int = PathParam(
         ...,
         ge=1,
-        le=99999999,
         description="ID Organisme FFBB (ex: 9326)",
         examples=[9326],
     ),
@@ -680,7 +677,7 @@ async def get_club_details(
 )
 async def get_poule(
     poule_id: int = PathParam(
-        ..., ge=1, le=99999999, description="ID de la poule FFBB", examples=[129759]
+        ..., ge=1, description="ID de la poule FFBB", examples=[129759]
     ),
 ):
     """Retourne les détails complets, classements et rencontres d'une poule."""
@@ -702,7 +699,7 @@ async def get_poule(
 )
 async def get_poule_classement(
     poule_id: int = PathParam(
-        ..., ge=1, le=99999999, description="ID de la poule FFBB", examples=[129759]
+        ..., ge=1, description="ID de la poule FFBB", examples=[129759]
     ),
 ):
     """Retourne le classement officiel d'une poule avec victoires, défaites, points et goal-average."""
