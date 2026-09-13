@@ -11,6 +11,7 @@ from .team_ranking import TeamRanking
 @dataclass
 class GetPouleResponse:
     id: str
+    nom: str | None = None
 
     # Keep nested alias for backward compatibility
     RencontresitemModel = PouleRencontreItemModel
@@ -63,6 +64,7 @@ class GetPouleResponse:
 
         return cls(
             id=str(data.get("id", "")),
+            nom=str(data.get("nom", "")) if data.get("nom") else None,
             rencontres=rencontres,
             classements=classements if classements else None,
         )

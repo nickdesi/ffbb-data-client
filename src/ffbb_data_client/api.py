@@ -428,6 +428,7 @@ async def get_club_matches(
     engagements = getattr(org, "engagements", []) or []
     candidate_matches = []
     seen_match_ids: set[str] = set()
+    _poule_name_cache: dict[str, str] = {}
 
     for eng in engagements:
         poule_obj = getattr(eng, "idPoule", None)
@@ -436,6 +437,9 @@ async def get_club_matches(
             str(poule_obj) if poule_obj else None
         )
         comp_nom = getattr(comp_obj, "nom", "") or ""
+        comp_id = getattr(comp_obj, "id", None) or getattr(
+            comp_obj, "competition_origine", None
+        )
 
         if not poule_id:
             continue
@@ -443,6 +447,26 @@ async def get_club_matches(
         try:
             poule = client.get_poule(int(poule_id))
             rencontres = getattr(poule, "rencontres", []) or []
+            poule_nom = getattr(poule, "nom", None) or _poule_name_cache.get(
+                str(poule_id), ""
+            )
+            if not poule_nom and comp_id:
+                # Fallback: resolve poule name via competition's poule list (covers cases where poule.nom is null)
+                try:
+                    comp_data = client.get_competition(int(comp_id))
+                    if comp_data and getattr(comp_data, "poules", None):
+                        for p in comp_data.poules:
+                            if str(getattr(p, "id", "")) == str(poule_id):
+                                poule_nom = getattr(p, "nom", "") or ""
+                                break
+                    if poule_nom:
+                        _poule_name_cache[str(poule_id)] = poule_nom
+                except Exception:
+                    pass
+            if poule_nom:
+                _poule_name_cache[str(poule_id)] = poule_nom
+            else:
+                poule_nom = _poule_name_cache.get(str(poule_id), "")
         except Exception:
             continue
 
@@ -467,17 +491,21 @@ async def get_club_matches(
                 continue
 
             seen_match_ids.add(m_id)
-            candidate_matches.append((m_id, comp_nom, is_club1, is_club2))
+            candidate_matches.append(
+                (m_id, comp_nom, str(poule_id), poule_nom or "", is_club1, is_club2)
+            )
 
     from concurrent.futures import ThreadPoolExecutor
 
     def fetch_full_rencontre(item):
-        m_id, comp_nom, is_club1, is_club2 = item
+        m_id, comp_nom, poule_id, poule_nom, is_club1, is_club2 = item
         try:
             full_r = client.get_rencontre(m_id)
             return {
                 "raw_match": full_r,
                 "comp_nom": comp_nom,
+                "poule_id": poule_id,
+                "poule_nom": poule_nom,
                 "is_club1": is_club1,
                 "is_club2": is_club2,
             }
@@ -494,6 +522,8 @@ async def get_club_matches(
             continue
         m = item["raw_match"]
         comp_nom = item["comp_nom"]
+        poule_id = item.get("poule_id", "")
+        poule_nom = item.get("poule_nom", "")
         is_home = item["is_club1"]
 
         nom_eq1 = getattr(m, "nomEquipe1", "") or ""
@@ -580,6 +610,8 @@ async def get_club_matches(
             "location": location,
             "isHome": is_home,
             "competition": comp_nom,
+            "poule": poule_nom,
+            "pouleId": poule_id,
             "teamLogo": club_logo_url,
         }
         if opponent_logo:
