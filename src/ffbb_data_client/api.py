@@ -7,6 +7,7 @@ Swagger UI at /swagger, ReDoc at /redoc, and hosts the official website at /.
 from __future__ import annotations
 
 import asyncio
+import logging
 import re
 import time
 from collections import OrderedDict
@@ -26,6 +27,8 @@ from fastapi.staticfiles import StaticFiles
 from .clients.ffbb_data_client import FFBBDataClient
 from .models.query_fields_manager import QueryFieldsManager
 from .utils.retry_utils import aclose_default_clients
+
+logger = logging.getLogger(__name__)
 
 # Directories
 _BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -316,8 +319,8 @@ def resolve_exact_salle_address(
                 adresse = getattr(salle, "adresse", "") or ""
                 cp = getattr(salle, "codePostal", "") or getattr(salle, "cp", "") or ""
                 ville = getattr(salle, "ville", "") or ""
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Erreur résolution salle %s: %s", salle_id, exc)
 
     if salle_id and (not cp or not ville):
         try:
@@ -347,8 +350,8 @@ def resolve_exact_salle_address(
                             break
                 if cp and ville:
                     break
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Erreur recherche salle %s: %s", salle_id, exc)
 
     if org_id and (not cp or not ville or not nom or not adresse):
         try:
@@ -386,8 +389,8 @@ def resolve_exact_salle_address(
                             )
                         if not ville:
                             ville = getattr(c, "libelle", "") or ""
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Erreur résolution salle org %s: %s", org_id, exc)
 
     cp_ville = f"{cp} {ville}".strip()
     parts = [p for p in [nom, adresse, cp_ville] if p]
@@ -435,8 +438,8 @@ async def resolve_exact_salle_address_async(
                 adresse = getattr(salle, "adresse", "") or ""
                 cp = getattr(salle, "codePostal", "") or getattr(salle, "cp", "") or ""
                 ville = getattr(salle, "ville", "") or ""
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Erreur résolution async salle %s: %s", salle_id, exc)
 
     if salle_id and (not cp or not ville):
         try:
@@ -466,8 +469,8 @@ async def resolve_exact_salle_address_async(
                             break
                 if cp and ville:
                     break
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Erreur recherche async salle %s: %s", salle_id, exc)
 
     if org_id and (not cp or not ville or not nom or not adresse):
         try:
@@ -505,8 +508,8 @@ async def resolve_exact_salle_address_async(
                             )
                         if not ville:
                             ville = getattr(c, "libelle", "") or ""
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Erreur résolution async salle org %s: %s", org_id, exc)
 
     cp_ville = f"{cp} {ville}".strip()
     parts = [p for p in [nom, adresse, cp_ville] if p]
@@ -685,8 +688,10 @@ async def get_club_matches(
                     for cp in comp_data.poules:
                         if str(getattr(cp, "id", "")) == str(pid):
                             return pid, getattr(cp, "nom", "") or ""
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug(
+                    "Erreur résolution nom poule %s via comp %s: %s", pid, cid, exc
+                )
             return pid, ""
 
         comp_results = await asyncio.gather(
