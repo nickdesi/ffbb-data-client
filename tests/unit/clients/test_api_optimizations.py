@@ -1,16 +1,23 @@
 import time
 from datetime import datetime
 
-from starlette.testclient import TestClient
+import pytest
 
-from ffbb_data_client.api import (
+from ffbb_data_client.models.get_poule_response import GetPouleResponse
+from ffbb_data_client.models.team_ranking import TeamRanking
+
+pytest.importorskip("starlette")
+pytest.importorskip("fastapi")
+
+# isort: split
+from starlette.testclient import TestClient  # noqa: E402
+
+from ffbb_data_client.api import (  # noqa: E402
     LRUCache,
     _salle_cache,
     app,
     resolve_exact_salle_address,
 )
-from ffbb_data_client.models.get_poule_response import GetPouleResponse
-from ffbb_data_client.models.team_ranking import TeamRanking
 
 
 def test_lru_cache_eviction_and_access():
