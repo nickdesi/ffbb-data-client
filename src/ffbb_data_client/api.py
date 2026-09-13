@@ -319,8 +319,8 @@ def resolve_exact_salle_address(
                 adresse = getattr(salle, "adresse", "") or ""
                 cp = getattr(salle, "codePostal", "") or getattr(salle, "cp", "") or ""
                 ville = getattr(salle, "ville", "") or ""
-        except Exception as exc:
-            logger.debug("Erreur résolution salle %s: %s", salle_id, exc)
+        except Exception:
+            logger.debug("Erreur lors de la récupération des détails de la salle")
 
     if salle_id and (not cp or not ville):
         try:
@@ -350,8 +350,8 @@ def resolve_exact_salle_address(
                             break
                 if cp and ville:
                     break
-        except Exception as exc:
-            logger.debug("Erreur recherche salle %s: %s", salle_id, exc)
+        except Exception:
+            logger.debug("Erreur lors de la recherche complémentaire de la salle")
 
     if org_id and (not cp or not ville or not nom or not adresse):
         try:
@@ -389,8 +389,8 @@ def resolve_exact_salle_address(
                             )
                         if not ville:
                             ville = getattr(c, "libelle", "") or ""
-        except Exception as exc:
-            logger.debug("Erreur résolution salle org %s: %s", org_id, exc)
+        except Exception:
+            logger.debug("Erreur lors de la récupération de la salle organisme")
 
     cp_ville = f"{cp} {ville}".strip()
     parts = [p for p in [nom, adresse, cp_ville] if p]
@@ -438,8 +438,8 @@ async def resolve_exact_salle_address_async(
                 adresse = getattr(salle, "adresse", "") or ""
                 cp = getattr(salle, "codePostal", "") or getattr(salle, "cp", "") or ""
                 ville = getattr(salle, "ville", "") or ""
-        except Exception as exc:
-            logger.debug("Erreur résolution async salle %s: %s", salle_id, exc)
+        except Exception:
+            logger.debug("Erreur lors de la récupération async des détails de la salle")
 
     if salle_id and (not cp or not ville):
         try:
@@ -469,8 +469,8 @@ async def resolve_exact_salle_address_async(
                             break
                 if cp and ville:
                     break
-        except Exception as exc:
-            logger.debug("Erreur recherche async salle %s: %s", salle_id, exc)
+        except Exception:
+            logger.debug("Erreur lors de la recherche complémentaire async de la salle")
 
     if org_id and (not cp or not ville or not nom or not adresse):
         try:
@@ -508,8 +508,8 @@ async def resolve_exact_salle_address_async(
                             )
                         if not ville:
                             ville = getattr(c, "libelle", "") or ""
-        except Exception as exc:
-            logger.debug("Erreur résolution async salle org %s: %s", org_id, exc)
+        except Exception:
+            logger.debug("Erreur lors de la récupération async de la salle organisme")
 
     cp_ville = f"{cp} {ville}".strip()
     parts = [p for p in [nom, adresse, cp_ville] if p]
@@ -688,9 +688,9 @@ async def get_club_matches(
                     for cp in comp_data.poules:
                         if str(getattr(cp, "id", "")) == str(pid):
                             return pid, getattr(cp, "nom", "") or ""
-            except Exception as exc:
+            except Exception:
                 logger.debug(
-                    "Erreur résolution nom poule %s via comp %s: %s", pid, cid, exc
+                    "Erreur lors de la résolution du nom de poule via la compétition"
                 )
             return pid, ""
 
