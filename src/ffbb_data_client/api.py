@@ -295,12 +295,12 @@ def resolve_exact_salle_address(
 
     # Mutualisation de cache : recherche par salle directe, par organisme, ou par clé composite
     if s_id_clean and f"salle_{s_id_clean}" in _salle_cache:
-        return _salle_cache[f"salle_{s_id_clean}"]
+        return str(_salle_cache[f"salle_{s_id_clean}"])
     if not s_id_clean and org_id_clean and f"org_{org_id_clean}" in _salle_cache:
-        return _salle_cache[f"org_{org_id_clean}"]
+        return str(_salle_cache[f"org_{org_id_clean}"])
     cache_key = f"{s_id_clean}_{org_id_clean}"
     if cache_key in _salle_cache:
-        return _salle_cache[cache_key]
+        return str(_salle_cache[cache_key])
 
     nom = ""
     adresse = ""
@@ -414,12 +414,12 @@ async def resolve_exact_salle_address_async(
 
     # Mutualisation de cache : recherche par salle directe, par organisme, ou par clé composite
     if s_id_clean and f"salle_{s_id_clean}" in _salle_cache:
-        return _salle_cache[f"salle_{s_id_clean}"]
+        return str(_salle_cache[f"salle_{s_id_clean}"])
     if not s_id_clean and org_id_clean and f"org_{org_id_clean}" in _salle_cache:
-        return _salle_cache[f"org_{org_id_clean}"]
+        return str(_salle_cache[f"org_{org_id_clean}"])
     cache_key = f"{s_id_clean}_{org_id_clean}"
     if cache_key in _salle_cache:
-        return _salle_cache[cache_key]
+        return str(_salle_cache[cache_key])
 
     nom = ""
     adresse = ""
