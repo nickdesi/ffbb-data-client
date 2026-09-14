@@ -849,9 +849,25 @@ async def get_club_matches(
                 except Exception:
                     _logo_cache[s_opp_org] = None
 
+        parsed_cat = parse_categorie(f"{local_team_raw} {comp_nom}".strip())
+        team_category = parsed_cat.categorie or "SENIOR"
+        team_gender = parsed_cat.sexe or "M"
+        if "MIXTE" in f"{local_team_raw} {comp_nom}".upper():
+            team_gender = "MIXTE"
+
+        m_num = re.search(r"[- ](\d+)$", (local_team_raw or "").strip())
+        team_num = (
+            int(m_num.group(1))
+            if m_num
+            else (parsed_cat.numero_equipe if parsed_cat.numero_equipe else 1)
+        )
+
         match_data: dict[str, Any] = {
             "ffbbMatchId": m_id,
             "team": scba_team,
+            "sexe": team_gender,
+            "categorie": team_category,
+            "numeroEquipe": team_num,
             "opponent": opponent,
             "date": format_french_date(date_iso),
             "dateISO": date_iso,
