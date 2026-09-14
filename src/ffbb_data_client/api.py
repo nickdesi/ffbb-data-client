@@ -167,28 +167,40 @@ def format_french_date(iso_str: str) -> str:
 def normalize_team_name(team_raw: str, comp_name: str = "") -> str:
     raw = (team_raw or "").upper().strip()
     comp = (comp_name or "").upper().strip()
+    combined = f"{raw} {comp}"
 
-    m_cat = re.search(r"U\s*(\d+)", raw) or re.search(r"U\s*(\d+)", comp)
+    # Détection précise du genre (Féminin, Mixte, Masculin)
+    gender = "M"
+    if re.search(r"\b(F[EÉ]MININ[ES]?|NF\d*|RF\d*|DF\d*|PNF|U\d+F)\b", combined):
+        gender = "F"
+    elif re.search(r"\b(MIXTE|MIXED|U\d+MIXTE)\b", combined):
+        gender = "MIXTE"
+    elif re.search(r"\b(MASCULIN[ES]?|NM\d*|RM\d*|DM\d*|PNM|U\d+M)\b", combined):
+        gender = "M"
+
+    m_cat = re.search(r"U\s*(\d+)", combined)
     if m_cat:
         cat = m_cat.group(1)
         m_num = re.search(r"[- ](\d+)$", raw)
         num = m_num.group(1) if m_num else "1"
-        return f"U{cat} M{num}"
+        if gender == "MIXTE":
+            return f"U{cat} MIXTE" if num == "1" else f"U{cat} MIXTE {num}"
+        return f"U{cat} {gender}{num}"
 
     m_num = re.search(r"[- ](\d+)$", raw)
     num = m_num.group(1) if m_num else None
 
     if not num:
-        if "RM2" in comp or "DIVISION 2" in comp:
+        if "RM2" in comp or "RF2" in comp or "DIVISION 2" in comp:
             num = "2"
-        elif "RM3" in comp or "DIVISION 3" in comp:
+        elif "RM3" in comp or "RF3" in comp or "DIVISION 3" in comp:
             num = "3"
-        elif "PNM" in comp or "PRE NATIONALE" in comp or "PRÉ NATIONALE" in comp:
+        elif any(k in comp for k in ["PNM", "PNF", "PRE NATIONALE", "PRÉ NATIONALE"]):
             num = "1"
         else:
             num = "1"
 
-    return f"SENIOR M{num}"
+    return f"SENIOR {gender}{num}"
 
 
 def clean_opponent_name(opp_raw: str) -> str:
