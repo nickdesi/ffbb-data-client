@@ -25,6 +25,7 @@ from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
 from .clients.ffbb_data_client import FFBBDataClient
+from .helpers.normalization import parse_categorie
 from .models.query_fields_manager import QueryFieldsManager
 from .utils.retry_utils import aclose_default_clients
 
@@ -165,42 +166,32 @@ def format_french_date(iso_str: str) -> str:
 
 
 def normalize_team_name(team_raw: str, comp_name: str = "") -> str:
-    raw = (team_raw or "").upper().strip()
-    comp = (comp_name or "").upper().strip()
-    combined = f"{raw} {comp}"
+    """Normalise le nom d'une équipe en réutilisant le parser centralisé parse_categorie."""
+    raw = (team_raw or "").strip()
+    comp = (comp_name or "").strip()
+    combined = f"{raw} {comp}".strip()
 
-    # Détection précise du genre (Féminin, Mixte, Masculin)
-    gender = "M"
-    if re.search(r"\b(F[EÉ]MININ[ES]?|NF\d*|RF\d*|DF\d*|PNF|U\d+F)\b", combined):
-        gender = "F"
-    elif re.search(r"\b(MIXTE|MIXED|U\d+MIXTE)\b", combined):
+    parsed = parse_categorie(combined)
+    cat = parsed.categorie or "SENIOR"
+    gender = parsed.sexe or "M"
+
+    if "MIXTE" in combined.upper() or "MIXED" in combined.upper():
         gender = "MIXTE"
-    elif re.search(r"\b(MASCULIN[ES]?|NM\d*|RM\d*|DM\d*|PNM|U\d+M)\b", combined):
-        gender = "M"
 
-    m_cat = re.search(r"U\s*(\d+)", combined)
-    if m_cat:
-        cat = m_cat.group(1)
-        m_num = re.search(r"[- ](\d+)$", raw)
-        num = m_num.group(1) if m_num else "1"
-        if gender == "MIXTE":
-            return f"U{cat} MIXTE" if num == "1" else f"U{cat} MIXTE {num}"
-        return f"U{cat} {gender}{num}"
-
+    # Priorité au numéro d'équipe explicitement présent dans le nom brut (ex: "STADE CLERMONTOIS - 2")
     m_num = re.search(r"[- ](\d+)$", raw)
-    num = m_num.group(1) if m_num else None
+    num = (
+        m_num.group(1)
+        if m_num
+        else (str(parsed.numero_equipe) if parsed.numero_equipe else "1")
+    )
 
-    if not num:
-        if "RM2" in comp or "RF2" in comp or "DIVISION 2" in comp:
-            num = "2"
-        elif "RM3" in comp or "RF3" in comp or "DIVISION 3" in comp:
-            num = "3"
-        elif any(k in comp for k in ["PNM", "PNF", "PRE NATIONALE", "PRÉ NATIONALE"]):
-            num = "1"
-        else:
-            num = "1"
+    if cat.startswith("U"):
+        if gender == "MIXTE":
+            return f"{cat} MIXTE" if num == "1" else f"{cat} MIXTE {num}"
+        return f"{cat} {gender}{num}"
 
-    return f"SENIOR {gender}{num}"
+    return f"{cat} {gender}{num}"
 
 
 def clean_opponent_name(opp_raw: str) -> str:
