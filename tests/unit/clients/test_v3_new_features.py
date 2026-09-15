@@ -6,6 +6,7 @@ import respx
 from ffbb_data_client.clients.api_ffbb_app_client import ApiFFBBAppClient
 from ffbb_data_client.clients.ffbb_data_client import FFBBDataClient
 from ffbb_data_client.clients.meilisearch_ffbb_client import MeilisearchFFBBClient
+from ffbb_data_client.exceptions import FFBBServerError
 
 
 # ---------------------------------------------------------------------------
@@ -239,13 +240,12 @@ async def test_get_lives_async_returns_empty_list():
 
 
 @pytest.mark.asyncio
-async def test_get_lives_async_returns_none_on_error():
-    """get_lives_async should return None when the server fails."""
+async def test_get_lives_async_raises_on_server_error():
+    """get_lives_async should expose a typed server failure."""
     client = ApiFFBBAppClient(bearer_token="test-token")
 
     with respx.mock:
         respx.get("https://api.ffbb.app/json/lives.json").respond(503)
 
-        lives = await client.get_lives_async()
-        # Error responses trigger JSON parse failure → exception → None
-        assert lives is None
+        with pytest.raises(FFBBServerError, match="HTTP 503"):
+            await client.get_lives_async()

@@ -415,23 +415,36 @@ class _SearchFacade:
         return rencontres_results
 
     async def search_rencontres_async(
-        self, name: str | None = None, categorie: str | None = None
+        self,
+        name: str | None = None,
+        categorie: str | None = None,
+        filter: list[str] | None = None,
+        sort: list[str] | None = None,
+        limit: int | None = 10,
     ) -> RencontresMultiSearchResult | None:
         """Search for rencontres asynchronously."""
         if not name:
             return None
-        results = await self.search_multiple_rencontres_async([name], categorie)
+        results = await self.search_multiple_rencontres_async(
+            [name], categorie, filter=filter, sort=sort, limit=limit
+        )
         return results[0] if results else None
 
     async def search_multiple_rencontres_async(
         self,
         names: list[str | None] | None = None,
         categorie: str | None = None,
+        filter: list[str] | None = None,
+        sort: list[str] | None = None,
+        limit: int | None = 10,
     ) -> list[RencontresMultiSearchResult] | None:
         """Search for multiple rencontres asynchronously."""
         if not names:
             return None
-        queries = [RencontresMultiSearchQuery(name) for name in names]
+        queries = [
+            RencontresMultiSearchQuery(name, limit=limit, filter=filter, sort=sort)
+            for name in names
+        ]
         results = await self._meilisearch.recursive_smart_multi_search_async(queries)
         if not results or not results.results:
             return None

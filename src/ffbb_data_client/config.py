@@ -1,11 +1,17 @@
 """Centralized configuration for FFBB API client."""
 
+from importlib.metadata import PackageNotFoundError, version
+
 # API URLs
 API_FFBB_BASE_URL = "https://api.ffbb.app/"
 MEILISEARCH_BASE_URL = "https://meilisearch-prod.ffbb.app/"
 
 # HTTP Headers
-DEFAULT_USER_AGENT = "okhttp/4.12.0"
+try:
+    _PACKAGE_VERSION = version("ffbb-data-client")
+except PackageNotFoundError:
+    _PACKAGE_VERSION = "development"
+DEFAULT_USER_AGENT = f"ffbb-data-client/{_PACKAGE_VERSION}"
 
 # Environment variable names for tokens
 ENV_API_TOKEN = "API_FFBB_APP_BEARER_TOKEN"  # noqa: S105

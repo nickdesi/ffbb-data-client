@@ -6,8 +6,14 @@ import json
 import unittest
 from unittest.mock import MagicMock, Mock, patch
 
-from httpx import ReadTimeout
+from httpx import ReadTimeout, Request, Response
 
+from ffbb_data_client import (
+    FFBBNotFoundError,
+    FFBBRateLimitError,
+    FFBBResponseValidationError,
+    FFBBTransportError,
+)
 from ffbb_data_client.helpers.http_requests_helper import catch_result
 from ffbb_data_client.helpers.http_requests_utils import (
     encode_params,
@@ -188,6 +194,33 @@ class Test045HttpHelpers(unittest.TestCase):
 
         self.assertEqual(result, {"ok": True})
         mock_resp.raise_for_status.assert_called_once()
+
+    @patch("ffbb_data_client.helpers.http_requests_utils.httpx.Client.get")
+    def test_http_get_json_translates_status_errors(self, mock_get: MagicMock) -> None:
+        request = Request("GET", "https://example.com")
+        for status_code, expected_error in (
+            (404, FFBBNotFoundError),
+            (429, FFBBRateLimitError),
+        ):
+            response = Response(status_code, request=request)
+            mock_get.return_value = response
+            with self.assertRaises(expected_error):
+                http_get_json("https://example.com", {})
+
+    @patch("ffbb_data_client.helpers.http_requests_utils.http_get")
+    def test_http_get_json_translates_transport_error(
+        self, mock_get: MagicMock
+    ) -> None:
+        mock_get.side_effect = ReadTimeout("timeout")
+        with self.assertRaises(FFBBTransportError):
+            http_get_json("https://example.com", {})
+
+    def test_to_json_from_response_translates_invalid_json(self) -> None:
+        response = Mock()
+        response.text = "not-json"
+        response.json.side_effect = ValueError("invalid")
+        with self.assertRaises(FFBBResponseValidationError):
+            to_json_from_response(response)
 
     # -- encode_params / url_with_params --
 

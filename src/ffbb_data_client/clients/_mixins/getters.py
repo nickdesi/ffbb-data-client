@@ -21,6 +21,7 @@ from ...config import (
     ENDPOINT_TERRAINS,
     ENDPOINT_TOURNOIS,
 )
+from ...exceptions import FFBBNotFoundError
 from ...helpers.http_requests_utils import http_get_json_async, url_with_params
 from ...models.configuration_models import GetConfigurationResponse
 from ...models.get_commune_response import GetCommuneResponse
@@ -83,11 +84,11 @@ class GettersMixin:
                 final_url,
                 self.headers,
                 debug=self.debug,
-                cached_session=self.async_cached_session or self.async_cached_session,
+                cached_session=cached_session or self.async_cached_session,
                 retry_config=self.retry_config,
                 timeout_config=self.timeout_config,
             )
-        except Exception as e:
+        except FFBBNotFoundError as e:
             if self.debug:
                 self.logger.error(f"Error in _get_directus_item_async: {e}")
             return None
@@ -149,11 +150,11 @@ class GettersMixin:
                 final_url,
                 self.headers,
                 debug=self.debug,
-                cached_session=self.async_cached_session or self.async_cached_session,
+                cached_session=cached_session or self.async_cached_session,
                 retry_config=self.retry_config,
                 timeout_config=self.timeout_config,
             )
-        except Exception as e:
+        except FFBBNotFoundError as e:
             if self.debug:
                 self.logger.error(f"Error in _list_directus_items_async: {e}")
             return []
@@ -182,12 +183,12 @@ class GettersMixin:
                 url,
                 self.headers,
                 debug=self.debug,
-                cached_session=self.async_cached_session or self.async_cached_session,
+                cached_session=cached_session or self.async_cached_session,
                 retry_config=self.retry_config,
                 timeout_config=self.timeout_config,
             )
             return data if isinstance(data, dict) else None
-        except Exception as e:
+        except FFBBNotFoundError as e:
             if self.debug:
                 self.logger.error(f"Error in get_openapi_spec_async: {e}")
             return None
@@ -210,7 +211,7 @@ class GettersMixin:
                 url,
                 self.headers,
                 debug=self.debug,
-                cached_session=self.async_cached_session or self.async_cached_session,
+                cached_session=cached_session or self.async_cached_session,
                 retry_config=self.retry_config,
                 timeout_config=self.timeout_config,
             )
@@ -220,7 +221,7 @@ class GettersMixin:
                 if not isinstance(raw_data, list):
                     return []
                 return lives_from_dict(raw_data)
-        except Exception as e:
+        except FFBBNotFoundError as e:
             if self.debug:
                 self.logger.error(f"Error in get_lives_async: {e}")
         return None
@@ -247,7 +248,7 @@ class GettersMixin:
                 url,
                 self.headers,
                 debug=self.debug,
-                cached_session=self.async_cached_session or self.async_cached_session,
+                cached_session=cached_session or self.async_cached_session,
                 retry_config=self.retry_config,
                 timeout_config=self.timeout_config,
             )
@@ -255,7 +256,7 @@ class GettersMixin:
             if actual_data:
                 return GetConfigurationResponse.from_dict(actual_data)
             return None
-        except Exception as e:
+        except FFBBNotFoundError as e:
             if self.debug:
                 self.logger.error(f"Error in get_configuration_async: {e}")
             return None
@@ -282,11 +283,11 @@ class GettersMixin:
                 url,
                 self.headers,
                 debug=self.debug,
-                cached_session=self.async_cached_session or self.async_cached_session,
+                cached_session=cached_session or self.async_cached_session,
             )
             actual_data = data.get("data") if data and isinstance(data, dict) else data
             return GetRencontreResponse.from_dict(actual_data) if actual_data else None
-        except Exception as e:
+        except FFBBNotFoundError as e:
             if self.debug:
                 self.logger.error(f"Error in get_rencontre_async: {e}")
             return None
@@ -309,11 +310,11 @@ class GettersMixin:
                 url,
                 self.headers,
                 debug=self.debug,
-                cached_session=self.async_cached_session or self.async_cached_session,
+                cached_session=cached_session or self.async_cached_session,
             )
             actual_data = data.get("data") if data and isinstance(data, dict) else data
             return GetEngagementResponse.from_dict(actual_data) if actual_data else None
-        except Exception as e:
+        except FFBBNotFoundError as e:
             if self.debug:
                 self.logger.error(f"Error in get_engagement_async: {e}")
             return None
@@ -340,11 +341,11 @@ class GettersMixin:
                 url,
                 self.headers,
                 debug=self.debug,
-                cached_session=self.async_cached_session or self.async_cached_session,
+                cached_session=cached_session or self.async_cached_session,
             )
             actual_data = data.get("data") if data and isinstance(data, dict) else data
             return GetFormationResponse.from_dict(actual_data) if actual_data else None
-        except Exception as e:
+        except FFBBNotFoundError as e:
             if self.debug:
                 self.logger.error(f"Error in get_formation_async: {e}")
             return None
@@ -367,11 +368,11 @@ class GettersMixin:
                 url,
                 self.headers,
                 debug=self.debug,
-                cached_session=self.async_cached_session or self.async_cached_session,
+                cached_session=cached_session or self.async_cached_session,
             )
             actual_data = data.get("data") if data and isinstance(data, dict) else data
             return GetEntraineurResponse.from_dict(actual_data) if actual_data else None
-        except Exception as e:
+        except FFBBNotFoundError as e:
             if self.debug:
                 self.logger.error(f"Error in get_entraineur_async: {e}")
             return None
@@ -398,11 +399,11 @@ class GettersMixin:
                 url,
                 self.headers,
                 debug=self.debug,
-                cached_session=self.async_cached_session or self.async_cached_session,
+                cached_session=cached_session or self.async_cached_session,
             )
             actual_data = data.get("data") if data and isinstance(data, dict) else data
             return GetCommuneResponse.from_dict(actual_data) if actual_data else None
-        except Exception as e:
+        except FFBBNotFoundError as e:
             if self.debug:
                 self.logger.error(f"Error in get_commune_async: {e}")
             return None
@@ -425,11 +426,11 @@ class GettersMixin:
                 url,
                 self.headers,
                 debug=self.debug,
-                cached_session=self.async_cached_session or self.async_cached_session,
+                cached_session=cached_session or self.async_cached_session,
             )
             actual_data = data.get("data") if data and isinstance(data, dict) else data
             return GetOfficielResponse.from_dict(actual_data) if actual_data else None
-        except Exception as e:
+        except FFBBNotFoundError as e:
             if self.debug:
                 self.logger.error(f"Error in get_officiel_async: {e}")
             return None
@@ -452,11 +453,11 @@ class GettersMixin:
                 url,
                 self.headers,
                 debug=self.debug,
-                cached_session=self.async_cached_session or self.async_cached_session,
+                cached_session=cached_session or self.async_cached_session,
             )
             actual_data = data.get("data") if data and isinstance(data, dict) else data
             return GetSalleResponse.from_dict(actual_data) if actual_data else None
-        except Exception as e:
+        except FFBBNotFoundError as e:
             if self.debug:
                 self.logger.error(f"Error in get_salle_async: {e}")
             return None
@@ -479,11 +480,11 @@ class GettersMixin:
                 url,
                 self.headers,
                 debug=self.debug,
-                cached_session=self.async_cached_session or self.async_cached_session,
+                cached_session=cached_session or self.async_cached_session,
             )
             actual_data = data.get("data") if data and isinstance(data, dict) else data
             return GetTerrainResponse.from_dict(actual_data) if actual_data else None
-        except Exception as e:
+        except FFBBNotFoundError as e:
             if self.debug:
                 self.logger.error(f"Error in get_terrain_async: {e}")
             return None
@@ -506,11 +507,11 @@ class GettersMixin:
                 url,
                 self.headers,
                 debug=self.debug,
-                cached_session=self.async_cached_session or self.async_cached_session,
+                cached_session=cached_session or self.async_cached_session,
             )
             actual_data = data.get("data") if data and isinstance(data, dict) else data
             return GetTournoiResponse.from_dict(actual_data) if actual_data else None
-        except Exception as e:
+        except FFBBNotFoundError as e:
             if self.debug:
                 self.logger.error(f"Error in get_tournoi_async: {e}")
             return None
@@ -533,11 +534,11 @@ class GettersMixin:
                 url,
                 self.headers,
                 debug=self.debug,
-                cached_session=self.async_cached_session or self.async_cached_session,
+                cached_session=cached_session or self.async_cached_session,
             )
             actual_data = data.get("data") if data and isinstance(data, dict) else data
             return GetPratiqueResponse.from_dict(actual_data) if actual_data else None
-        except Exception as e:
+        except FFBBNotFoundError as e:
             if self.debug:
                 self.logger.error(f"Error in get_pratique_async: {e}")
             return None

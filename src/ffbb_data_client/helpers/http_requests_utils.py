@@ -20,6 +20,15 @@ except ImportError:
 import httpx
 from httpx import Client, Response
 
+from ..exceptions import (
+    FFBBAuthenticationError,
+    FFBBHTTPError,
+    FFBBNotFoundError,
+    FFBBRateLimitError,
+    FFBBResponseValidationError,
+    FFBBServerError,
+    FFBBTransportError,
+)
 from ..utils.retry_utils import (
     RetryConfig,
     TimeoutConfig,
@@ -34,6 +43,27 @@ from ..utils.retry_utils import (
 from ..utils.secure_logging import get_secure_logger
 
 logger = get_secure_logger(__name__)
+
+
+def _raise_for_status(response: Response) -> None:
+    """Translate HTTPX status failures into stable public SDK exceptions."""
+    try:
+        response.raise_for_status()
+    except httpx.HTTPStatusError as exc:
+        status_code = response.status_code
+        message = f"FFBB service returned HTTP {status_code}"
+        exception_type: type[FFBBHTTPError]
+        if status_code == 404:
+            exception_type = FFBBNotFoundError
+        elif status_code in (401, 403):
+            exception_type = FFBBAuthenticationError
+        elif status_code == 429:
+            exception_type = FFBBRateLimitError
+        elif status_code >= 500:
+            exception_type = FFBBServerError
+        else:
+            exception_type = FFBBHTTPError
+        raise exception_type(message, status_code) from exc
 
 
 _ALLOWED_SCHEMES = frozenset({"http", "https"})
@@ -149,8 +179,10 @@ def to_json_from_response(response: Response) -> Any:
         logger.warning(f"Error in to_json_from_response: {e}")
         try:
             return response.json()
-        except Exception:
-            raise e
+        except Exception as fallback_error:
+            raise FFBBResponseValidationError(
+                "FFBB service returned invalid JSON"
+            ) from fallback_error
 
 
 def http_get(
@@ -184,7 +216,7 @@ def http_get(
         start_time = time.time()
 
     t_config = timeout_config or TimeoutConfig(total_timeout=timeout)
-    r_config = retry_config or RetryConfig(max_attempts=0)
+    r_config = retry_config or RetryConfig(max_attempts=1)
 
     response = make_http_request_with_retry(
         "GET",
@@ -251,7 +283,7 @@ def http_post(
         start_time = time.time()
 
     t_config = timeout_config or TimeoutConfig(total_timeout=timeout)
-    r_config = retry_config or RetryConfig(max_attempts=0)
+    r_config = retry_config or RetryConfig(max_attempts=1)
 
     response = make_http_request_with_retry(
         "POST",
@@ -311,16 +343,19 @@ def http_get_json(
     Returns:
         Dict[str, Any]: The result of the request in JSON format.
     """
-    response = http_get(
-        url,
-        headers,
-        debug=debug,
-        cached_session=cached_session,
-        timeout=timeout,
-        retry_config=retry_config,
-        timeout_config=timeout_config,
-    )
-    response.raise_for_status()
+    try:
+        response = http_get(
+            url,
+            headers,
+            debug=debug,
+            cached_session=cached_session,
+            timeout=timeout,
+            retry_config=retry_config,
+            timeout_config=timeout_config,
+        )
+    except httpx.RequestError as exc:
+        raise FFBBTransportError("Unable to reach FFBB service") from exc
+    _raise_for_status(response)
     return to_json_from_response(response)
 
 
@@ -352,17 +387,20 @@ def http_post_json(
     """
     filtered_data = {k: v for k, v in data.items() if v is not None} if data else None
 
-    response = http_post(
-        url,
-        headers,
-        filtered_data,
-        debug=debug,
-        cached_session=cached_session,
-        timeout=timeout,
-        retry_config=retry_config,
-        timeout_config=timeout_config,
-    )
-    response.raise_for_status()
+    try:
+        response = http_post(
+            url,
+            headers,
+            filtered_data,
+            debug=debug,
+            cached_session=cached_session,
+            timeout=timeout,
+            retry_config=retry_config,
+            timeout_config=timeout_config,
+        )
+    except httpx.RequestError as exc:
+        raise FFBBTransportError("Unable to reach FFBB service") from exc
+    _raise_for_status(response)
     return to_json_from_response(response)
 
 
@@ -385,7 +423,7 @@ async def http_get_async(
         start_time = time.time()
 
     t_config = timeout_config or TimeoutConfig(total_timeout=timeout)
-    r_config = retry_config or RetryConfig(max_attempts=0)
+    r_config = retry_config or RetryConfig(max_attempts=1)
 
     response = await make_http_request_with_retry_async(
         "GET",
@@ -431,16 +469,19 @@ async def http_get_json_async(
     """
     Performs an HTTP GET request and returns the result in JSON format asynchroniously.
     """
-    response = await http_get_async(
-        url,
-        headers,
-        debug=debug,
-        cached_session=cached_session,
-        timeout=timeout,
-        retry_config=retry_config,
-        timeout_config=timeout_config,
-    )
-    response.raise_for_status()
+    try:
+        response = await http_get_async(
+            url,
+            headers,
+            debug=debug,
+            cached_session=cached_session,
+            timeout=timeout,
+            retry_config=retry_config,
+            timeout_config=timeout_config,
+        )
+    except httpx.RequestError as exc:
+        raise FFBBTransportError("Unable to reach FFBB service") from exc
+    _raise_for_status(response)
     return to_json_from_response(response)
 
 
@@ -548,17 +589,20 @@ async def http_post_json_async(
     """
     Performs an HTTP POST request and returns the result in JSON format asynchroniously.
     """
-    response = await http_post_async(
-        url,
-        headers,
-        data,
-        debug=debug,
-        cached_session=cached_session,
-        timeout=timeout,
-        retry_config=retry_config,
-        timeout_config=timeout_config,
-    )
-    response.raise_for_status()
+    try:
+        response = await http_post_async(
+            url,
+            headers,
+            data,
+            debug=debug,
+            cached_session=cached_session,
+            timeout=timeout,
+            retry_config=retry_config,
+            timeout_config=timeout_config,
+        )
+    except httpx.RequestError as exc:
+        raise FFBBTransportError("Unable to reach FFBB service") from exc
+    _raise_for_status(response)
     return to_json_from_response(response)
 
 

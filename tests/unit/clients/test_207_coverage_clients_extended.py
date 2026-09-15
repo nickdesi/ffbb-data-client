@@ -34,8 +34,8 @@ class TestMeilisearchClientCoverage(unittest.IsolatedAsyncioTestCase):
     async def test_multi_search_async_http_error(self, mock_post_async):
         mock_post_async.side_effect = httpx.RequestError("error")
         client = MeilisearchClient("token123", debug=True)
-        res = await client.multi_search_async([])
-        self.assertIsNone(res)
+        with self.assertRaises(httpx.RequestError):
+            await client.multi_search_async([])
 
     @patch(
         "ffbb_data_client.clients.meilisearch_client.http_post_json_async",
@@ -44,8 +44,8 @@ class TestMeilisearchClientCoverage(unittest.IsolatedAsyncioTestCase):
     async def test_multi_search_async_exception(self, mock_post_async):
         mock_post_async.side_effect = Exception("generic error")
         client = MeilisearchClient("token123", debug=True)
-        res = await client.multi_search_async([])
-        self.assertIsNone(res)
+        with self.assertRaisesRegex(Exception, "generic error"):
+            await client.multi_search_async([])
 
 
 class TestApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
@@ -96,8 +96,8 @@ class TestApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
     async def test_get_configuration_async_error(self, mock_get_async):
         mock_get_async.side_effect = Exception("test error")
         client = ApiFFBBAppClient("token123", debug=True)
-        res = await client.get_configuration_async()
-        self.assertIsNone(res)
+        with self.assertRaisesRegex(Exception, "test error"):
+            await client.get_configuration_async()
 
     @patch(
         "ffbb_data_client.clients._mixins.getters.http_get_json_async",
@@ -106,8 +106,8 @@ class TestApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
     async def test_get_lives_async_error(self, mock_get_async):
         mock_get_async.side_effect = Exception("test error")
         client = ApiFFBBAppClient("token123", debug=True)
-        res = await client.get_lives_async()
-        self.assertIsNone(res)
+        with self.assertRaisesRegex(Exception, "test error"):
+            await client.get_lives_async()
 
     @patch(
         "ffbb_data_client.clients._mixins.competition.http_get_json_async",
@@ -116,8 +116,8 @@ class TestApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
     async def test_get_competition_async_error(self, mock_get_async):
         mock_get_async.side_effect = Exception("test error")
         client = ApiFFBBAppClient("token123", debug=True)
-        res = await client.get_competition_async(1)
-        self.assertIsNone(res)
+        with self.assertRaisesRegex(Exception, "test error"):
+            await client.get_competition_async(1)
 
     @patch(
         "ffbb_data_client.clients._mixins.competition.http_get_json_async",
@@ -126,8 +126,8 @@ class TestApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
     async def test_get_poule_async_error(self, mock_get_async):
         mock_get_async.side_effect = Exception("test error")
         client = ApiFFBBAppClient("token123", debug=True)
-        res = await client.get_poule_async(1)
-        self.assertIsNone(res)
+        with self.assertRaisesRegex(Exception, "test error"):
+            await client.get_poule_async(1)
 
     @patch(
         "ffbb_data_client.clients._mixins.organisme.http_get_json_async",
@@ -136,8 +136,8 @@ class TestApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
     async def test_list_competitions_async_error(self, mock_get_async):
         mock_get_async.side_effect = Exception("test error")
         client = ApiFFBBAppClient("token123", debug=True)
-        res = await client.list_competitions_async()
-        self.assertEqual(res, [])
+        with self.assertRaisesRegex(Exception, "test error"):
+            await client.list_competitions_async()
 
     @patch(
         "ffbb_data_client.clients._mixins.competition.http_get_json_async",
@@ -146,8 +146,8 @@ class TestApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
     async def test_get_saisons_async_error(self, mock_get_async):
         mock_get_async.side_effect = Exception("test error")
         client = ApiFFBBAppClient("token123", debug=True)
-        res = await client.get_saisons_async()
-        self.assertEqual(res, [])
+        with self.assertRaisesRegex(Exception, "test error"):
+            await client.get_saisons_async()
 
     @patch(
         "ffbb_data_client.clients._mixins.organisme.http_get_json_async",
@@ -156,8 +156,8 @@ class TestApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
     async def test_get_organisme_async_error(self, mock_get_async):
         mock_get_async.side_effect = Exception("test error")
         client = ApiFFBBAppClient("token123", debug=True)
-        res = await client.get_organisme_async(1)
-        self.assertIsNone(res)
+        with self.assertRaisesRegex(Exception, "test error"):
+            await client.get_organisme_async(1)
 
     @patch(
         "ffbb_data_client.clients._mixins.organisme.http_get_json_async",

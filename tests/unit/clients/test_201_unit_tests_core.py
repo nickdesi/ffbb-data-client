@@ -8,6 +8,7 @@ from httpx import Client
 from ffbb_data_client import FFBBDataClient
 from ffbb_data_client.clients.api_ffbb_app_client import ApiFFBBAppClient
 from ffbb_data_client.clients.meilisearch_ffbb_client import MeilisearchFFBBClient
+from ffbb_data_client.config import DEFAULT_USER_AGENT
 
 
 class Test001FfbbApiClientV2Core(unittest.TestCase):
@@ -192,7 +193,7 @@ class Test001ApiFfbbAppCore(unittest.TestCase):
             self.client.headers,
             {
                 "Authorization": f"Bearer {self.bearer_token}",
-                "user-agent": "okhttp/4.12.0",
+                "user-agent": DEFAULT_USER_AGENT,
             },
         )
 

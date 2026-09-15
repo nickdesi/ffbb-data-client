@@ -6,7 +6,7 @@ import os
 import unittest
 from unittest.mock import patch
 
-from ffbb_data_client import FFBBTokens, TokenManager
+from ffbb_data_client import FFBBResponseValidationError, FFBBTokens, TokenManager
 from ffbb_data_client.config import ENV_API_TOKEN, ENV_MEILISEARCH_TOKEN
 
 
@@ -103,6 +103,15 @@ class Test020TokenManager(unittest.TestCase):
         self.assertIn("Failed to fetch configuration", str(context.exception))
 
     @patch("ffbb_data_client.utils.token_manager.make_http_request_with_retry")
+    def test_get_tokens_rejects_missing_token_fields(self, mock_http):
+        os.environ.pop(ENV_API_TOKEN, None)
+        os.environ.pop(ENV_MEILISEARCH_TOKEN, None)
+        mock_http.return_value.text = '{"data": {"id": 1}}'
+
+        with self.assertRaises(FFBBResponseValidationError):
+            TokenManager.get_tokens()
+
+    @patch("ffbb_data_client.utils.token_manager.make_http_request_with_retry")
     def test_get_tokens_partial_env_fetches_from_api(self, mock_http):
         """Test API fetch when only one env var is set."""
         # Set only one env var
@@ -125,6 +134,10 @@ class Test020TokenManager(unittest.TestCase):
         self.assertEqual(tokens.meilisearch_token, "ms_from_fetch")
 
 
+@unittest.skipUnless(
+    os.getenv("RUN_FFBB_INTEGRATION") == "1",
+    "set RUN_FFBB_INTEGRATION=1 to call the live FFBB API",
+)
 class Test020TokenManagerIntegration(unittest.TestCase):
     """Integration tests for TokenManager with real API."""
 

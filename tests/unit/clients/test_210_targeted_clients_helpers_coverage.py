@@ -262,8 +262,15 @@ class TestTargetedApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
         self, mock_get: AsyncMock
     ) -> None:
         client = self._client()
+        custom_session = AsyncMock()
         mock_get.return_value = {"data": {"id": "1"}}
-        self.assertEqual(await client._get_directus_item_async("items", 1), {"id": "1"})
+        self.assertEqual(
+            await client._get_directus_item_async(
+                "items", 1, cached_session=custom_session
+            ),
+            {"id": "1"},
+        )
+        self.assertIs(mock_get.call_args.kwargs["cached_session"], custom_session)
 
         mock_get.return_value = {"data": [{"id": "1"}]}
         self.assertEqual(
@@ -271,8 +278,10 @@ class TestTargetedApiFFBBAppClientCoverage(unittest.IsolatedAsyncioTestCase):
         )
 
         mock_get.side_effect = RuntimeError("boom")
-        self.assertIsNone(await client._get_directus_item_async("items", 1))
-        self.assertEqual(await client._list_directus_items_async("items"), [])
+        with self.assertRaises(RuntimeError):
+            await client._get_directus_item_async("items", 1)
+        with self.assertRaises(RuntimeError):
+            await client._list_directus_items_async("items")
 
     async def test_typed_list_wrappers_convert_raw_items_sync_and_async(self) -> None:
         client = self._client()
@@ -753,8 +762,16 @@ class TestTargetedFFBBDataClientCoverage(unittest.IsolatedAsyncioTestCase):
 
         self.assertIsNone(await client.search_multiple_rencontres_async([]))
         filtered_async = await client.search_multiple_rencontres_async(
-            ["club"], categorie="U11M"
+            ["club"],
+            categorie="U11M",
+            filter=["status = played"],
+            sort=["date:desc"],
+            limit=5,
         )
+        async_query = meili.recursive_smart_multi_search_async.call_args.args[0][0]
+        self.assertEqual(async_query.filter, ["status = played"])
+        self.assertEqual(async_query.sort, ["date:desc"])
+        self.assertEqual(async_query.limit, 5)
         self.assertIsNotNone(filtered_async)
         assert filtered_async is not None
         self.assertEqual(filtered_async[0].hits, [kept])

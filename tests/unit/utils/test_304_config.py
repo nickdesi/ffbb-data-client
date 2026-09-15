@@ -23,7 +23,7 @@ class Test019Config(unittest.TestCase):
     def test_user_agent_not_empty(self):
         """Test user agent is defined."""
         self.assertIsNotNone(config.DEFAULT_USER_AGENT)
-        self.assertGreater(len(config.DEFAULT_USER_AGENT), 0)
+        self.assertTrue(config.DEFAULT_USER_AGENT.startswith("ffbb-data-client/"))
 
     def test_env_token_names_defined(self):
         """Test environment variable names are defined."""

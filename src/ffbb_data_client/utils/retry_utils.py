@@ -113,6 +113,8 @@ class RetryConfig:
             retry_on_status_codes: HTTP status codes to retry on.
             retry_on_exceptions: Exception types to retry on.
         """
+        if max_attempts < 1:
+            raise ValueError("max_attempts must be at least 1")
         self.max_attempts = max_attempts
         self.base_delay = base_delay
         self.max_delay = max_delay
@@ -153,6 +155,16 @@ class TimeoutConfig:
         self.connect_timeout = connect_timeout
         self.read_timeout = read_timeout
         self.total_timeout = total_timeout or (connect_timeout + read_timeout)
+
+    def to_httpx(self) -> httpx.Timeout:
+        """Build an HTTPX timeout preserving phase-specific limits."""
+        return httpx.Timeout(
+            self.total_timeout,
+            connect=self.connect_timeout,
+            read=self.read_timeout,
+            write=self.read_timeout,
+            pool=self.connect_timeout,
+        )
 
 
 # Default configurations
@@ -243,15 +255,15 @@ def execute_with_retry(
 
     # Update timeout in kwargs if not already set
     if "timeout" not in kwargs:
-        kwargs["timeout"] = timeout_config.total_timeout
+        kwargs["timeout"] = timeout_config.to_httpx()
 
-    for attempt in range(config.max_attempts + 1):
+    for attempt in range(config.max_attempts):
         try:
             response = func(*args, **kwargs)
 
             # Check if we should retry based on response
             if should_retry(attempt, response, None, config):
-                if attempt < config.max_attempts:
+                if attempt < config.max_attempts - 1:
                     delay = calculate_delay(attempt, config)
                     time.sleep(delay)
                     continue
@@ -268,7 +280,7 @@ def execute_with_retry(
 
             # Check if we should retry based on exception
             if should_retry(attempt, None, e, config):
-                if attempt < config.max_attempts:
+                if attempt < config.max_attempts - 1:
                     delay = calculate_delay(attempt, config)
                     time.sleep(delay)
                     continue
@@ -319,14 +331,14 @@ def make_http_request_with_retry(
         if cached_session:
             if method.upper() == "GET":
                 return cached_session.get(
-                    url, headers=headers, timeout=timeout_config.total_timeout
+                    url, headers=headers, timeout=timeout_config.to_httpx()
                 )
             elif method.upper() == "POST":
                 return cached_session.post(
                     url,
                     headers=headers,
                     json=data,
-                    timeout=timeout_config.total_timeout,
+                    timeout=timeout_config.to_httpx(),
                 )
             else:
                 raise ValueError(f"Unsupported HTTP method: {method}")
@@ -334,14 +346,14 @@ def make_http_request_with_retry(
             session = _get_default_client()
             if method.upper() == "GET":
                 return session.get(
-                    url, headers=headers, timeout=timeout_config.total_timeout
+                    url, headers=headers, timeout=timeout_config.to_httpx()
                 )
             elif method.upper() == "POST":
                 return session.post(
                     url,
                     headers=headers,
                     json=data,
-                    timeout=timeout_config.total_timeout,
+                    timeout=timeout_config.to_httpx(),
                 )
             else:
                 raise ValueError(f"Unsupported HTTP method: {method}")
@@ -378,9 +390,9 @@ async def execute_with_retry_async(
 
     # Update timeout in kwargs if not already set
     if "timeout" not in kwargs:
-        kwargs["timeout"] = timeout_config.total_timeout
+        kwargs["timeout"] = timeout_config.to_httpx()
 
-    for attempt in range(config.max_attempts + 1):
+    for attempt in range(config.max_attempts):
         try:
             response = await func(*args, **kwargs)
 
@@ -391,7 +403,7 @@ async def execute_with_retry_async(
                 None,
                 config,
             ):
-                if attempt < config.max_attempts:
+                if attempt < config.max_attempts - 1:
                     delay = calculate_delay(attempt, config)
                     await asyncio.sleep(delay)
                     continue
@@ -408,7 +420,7 @@ async def execute_with_retry_async(
 
             # Check if we should retry based on exception
             if should_retry(attempt, None, e, config):
-                if attempt < config.max_attempts:
+                if attempt < config.max_attempts - 1:
                     delay = calculate_delay(attempt, config)
                     await asyncio.sleep(delay)
                     continue
@@ -464,14 +476,14 @@ async def make_http_request_with_retry_async(
 
         if method.upper() == "GET":
             return await session.get(
-                url, headers=headers, timeout=timeout_config.total_timeout
+                url, headers=headers, timeout=timeout_config.to_httpx()
             )
         elif method.upper() == "POST":
             return await session.post(
                 url,
                 headers=headers,
                 json=data,
-                timeout=timeout_config.total_timeout,
+                timeout=timeout_config.to_httpx(),
             )
         else:
             raise ValueError(f"Unsupported HTTP method: {method}")

@@ -350,8 +350,8 @@ class TestNewMethodsCoverage(unittest.IsolatedAsyncioTestCase):
     )
     async def test_get_rencontre_async_error(self, mock_get_async):
         mock_get_async.side_effect = Exception("API error")
-        res = await self.api_client.get_rencontre_async("123")
-        self.assertIsNone(res)
+        with self.assertRaisesRegex(Exception, "API error"):
+            await self.api_client.get_rencontre_async("123")
 
 
 if __name__ == "__main__":

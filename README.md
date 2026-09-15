@@ -38,7 +38,7 @@
 `ffbb_data_client` simplifie l'accès aux API FFBB et à leurs index Meilisearch avec :
 
 - une façade unique : `FFBBDataClient` ;
-- des modèles Pydantic v2 typés ;
+- des modèles typés, avec validation Pydantic v2 sur les contrats sensibles ;
 - une API utilisable en synchrone ou en `async/await` ;
 - une gestion automatique des tokens via `TokenManager` ;
 - du cache HTTP configurable via `hishel` ;
@@ -98,7 +98,7 @@ lives = client.get_lives()
 | API FFBB | clubs, compétitions, organismes, saisons, poules, classements, rencontres, lives |
 | Entités additionnelles | EDF (matches, joueurs, rosters, équipes), Genius Sport, Rematch Videos |
 | Recherche | organismes, compétitions, rencontres, salles, terrains, pratiques, tournois, engagements et formations |
-| REST typé | récupération de ressources individuelles avec modèles Pydantic v2 |
+| REST typé | récupération de ressources individuelles avec modèles typés et conversion contrôlée |
 | Async | méthodes `*_async()` — source de vérité ; sync délègue via `_run_async()` |
 | Cache | cache HTTP `hishel`, sessions `httpx` réutilisées, retries configurables, SQLite séparés sync/async |
 | Sécurité | masquage des tokens dans les logs, CodeQL scanning, Dependabot |
@@ -173,7 +173,7 @@ entraineur = client.get_entraineur(44444)
 
 Les assets Directus et autres collections peuvent être exploités via les méthodes REST/listing dédiées exposées par le client lorsque disponibles.
 
-Les réponses sont converties en modèles Pydantic lorsque le schéma est connu, ce qui apporte validation, autocomplétion et sérialisation propre.
+Les réponses sont converties en modèles typés lorsque le schéma est connu. Les contrats sensibles, notamment la configuration des tokens, utilisent une validation Pydantic stricte.
 
 ---
 
@@ -227,7 +227,7 @@ src/ffbb_data_client/
 │   ├── api_ffbb_app_client.py    # Client REST FFBB (async source of truth)
 │   └── meilisearch_ffbb_client.py # Client recherche Meilisearch
 ├── helpers/                       # Requêtes HTTP, multi-search, conversions
-├── models/                        # Modèles Pydantic v2
+├── models/                        # Modèles typés (dataclasses et Pydantic v2)
 ├── utils/                         # cache (sync/async séparés), tokens, logging sécurisé
 └── data/                          # schémas et métadonnées embarqués
 ```

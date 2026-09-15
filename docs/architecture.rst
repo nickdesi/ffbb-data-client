@@ -64,7 +64,8 @@ Usage:
 
 .. code-block:: python
 
-    from ffbb_data_client import Live, MultiSearchQuery, CompetitionType
+    from ffbb_data_client import MultiSearchQuery
+    from ffbb_data_client.models import CompetitionType, Live
 
     # Create search queries
     query = MultiSearchQuery("basketball")

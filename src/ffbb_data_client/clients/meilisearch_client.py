@@ -212,25 +212,18 @@ class MeilisearchClient:
 
         url = f"{self.url}{MEILISEARCH_ENDPOINT_MULTI_SEARCH}"
         params = {"queries": [query.to_dict() for query in queries] if queries else []}
-        try:
-            raw_data = await http_post_json_async(
-                url,
-                self.headers,
-                params,
-                debug=self.debug,
-                cached_session=cached_session or self.async_cached_session,
-                retry_config=self.retry_config,
-                timeout_config=self.timeout_config,
-            )
-            result: MultiSearchResults | None = (
-                MultiSearchResults.from_dict(raw_data) if raw_data else None
-            )
-        except (httpx.HTTPStatusError, httpx.RequestError) as e:
-            self.logger.warning("multi_search_async request failed: %s", e)
-            result = None
-        except Exception as e:
-            self.logger.error("multi_search_async unexpected error: %s", e)
-            result = None
+        raw_data = await http_post_json_async(
+            url,
+            self.headers,
+            params,
+            debug=self.debug,
+            cached_session=cached_session or self.async_cached_session,
+            retry_config=self.retry_config,
+            timeout_config=self.timeout_config,
+        )
+        result: MultiSearchResults | None = (
+            MultiSearchResults.from_dict(raw_data) if raw_data else None
+        )
 
         if result is not None:
             _cache_result_object(key, result)

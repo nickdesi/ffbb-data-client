@@ -2,16 +2,19 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
-@dataclass
-class GetConfigurationResponse:
+class GetConfigurationResponse(BaseModel):
     """Response model for /items/configuration endpoint."""
 
+    model_config = ConfigDict(extra="ignore")
+
     id: int
-    key_dh: str
-    key_ms: str
+    key_dh: str = Field(min_length=1)
+    key_ms: str = Field(min_length=1)
     key_directus_website: str | None = None
     key_directus_competitions: str | None = None
     ios_version: str | None = None
@@ -20,19 +23,9 @@ class GetConfigurationResponse:
     date_updated: str | None = None
 
     @classmethod
-    def from_dict(cls, data: dict) -> GetConfigurationResponse:
+    def from_dict(cls, data: dict[str, Any]) -> GetConfigurationResponse:
         """Create a GetConfigurationResponse from a dictionary."""
-        return cls(
-            id=data.get("id", 0),
-            key_dh=data.get("key_dh", ""),
-            key_ms=data.get("key_ms", ""),
-            key_directus_website=data.get("key_directus_website"),
-            key_directus_competitions=data.get("key_directus_competitions"),
-            ios_version=data.get("ios_version"),
-            android_version=data.get("android_version"),
-            date_created=data.get("date_created"),
-            date_updated=data.get("date_updated"),
-        )
+        return cls.model_validate(data)
 
     @property
     def api_bearer_token(self) -> str:

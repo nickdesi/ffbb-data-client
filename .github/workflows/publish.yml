@@ -13,8 +13,45 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
+  verify:
+    name: Verify Python ${{ matrix.python }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - python: "3.10"
+            toxenv: py310
+          - python: "3.11"
+            toxenv: py311
+          - python: "3.12"
+            toxenv: py312
+          - python: "3.13"
+            toxenv: py313
+          - python: "3.14"
+            toxenv: py314
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        id: setup-python
+        with:
+          python-version: ${{ matrix.python }}
+          cache: 'pip'
+      - name: Run test suite
+        env:
+          API_FFBB_APP_BEARER_TOKEN: ${{ secrets.API_FFBB_APP_BEARER_TOKEN }}
+          MEILISEARCH_BEARER_TOKEN: ${{ secrets.MEILISEARCH_BEARER_TOKEN }}
+        run: >-
+          pipx run --python '${{ steps.setup-python.outputs.python-path }}'
+          tox -e ${{ matrix.toxenv }}
+
   build:
     name: Build distribution
+    needs: verify
     runs-on: ubuntu-latest
     permissions:
       attestations: write

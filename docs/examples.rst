@@ -77,7 +77,7 @@ Cache Management
     from ffbb_data_client.utils.cache_manager import CacheManager
 
     # Clear token cache
-    CacheManager().clear()
+    CacheManager().clear_cache()
 
 Configuration Management (v1.2.0+)
 ====================================
@@ -296,8 +296,7 @@ Robust Error Handling
 
 .. code-block:: python
 
-    from ffbb_data_client import FFBBDataClient
-    import requests
+    from ffbb_data_client import FFBBDataClient, FFBBError
 
     try:
         client = FFBBDataClient.create(MEILISEARCH_TOKEN, API_TOKEN)
@@ -307,8 +306,8 @@ Robust Error Handling
 
     except ValueError as e:
         print(f"Configuration error: {e}")
-    except requests.RequestException as e:
-        print(f"Network error: {e}")
+    except FFBBError as e:
+        print(f"FFBB error: {e}")
     except Exception as e:
         print(f"Unexpected error: {e}")
 
@@ -320,29 +319,17 @@ Using Cached Sessions
 
 .. code-block:: python
 
-    from requests_cache import CachedSession
     from ffbb_data_client import FFBBDataClient
+    from ffbb_data_client.utils.cache_manager import CacheConfig, CacheManager
 
-    # Create custom cached session
-    cached_session = CachedSession(
-        'ffbb_cache',
-        backend='sqlite',
-        expire_after=3600  # 1 hour cache
+    cache = CacheManager(CacheConfig(backend="sqlite", expire_after=3600))
+
+    client = FFBBDataClient.create(
+        api_bearer_token=API_TOKEN,
+        meilisearch_bearer_token=MEILISEARCH_TOKEN,
+        cached_session=cache.session,
+        async_cached_session=cache.async_session,
     )
-
-    # Create client with custom session
-    api_client = ApiFFBBAppClient(
-        bearer_token=API_TOKEN,
-        cached_session=cached_session
-    )
-
-    meilisearch_client = MeilisearchFFBBClient(
-        bearer_token=MEILISEARCH_TOKEN,
-        cached_session=cached_session
-    )
-
-    # Create main client
-    client = FFBBDataClient(api_client, meilisearch_client)
 
 Data Export and Processing
 ==========================

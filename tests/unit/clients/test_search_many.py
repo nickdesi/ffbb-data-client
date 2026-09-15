@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import time
 import unittest
 from unittest.mock import AsyncMock, MagicMock
 
@@ -35,35 +34,39 @@ class TestSearchMany(unittest.IsolatedAsyncioTestCase):
         self.rencontres_mock.assert_called_once_with(["J1"], "U13")
 
     async def test_search_many_async_runs_concurrently(self):
-        sleep = 0.02
+        all_started = asyncio.Event()
+        started = 0
 
-        async def _slow_organismes(names, filter, sort, limit):
-            await asyncio.sleep(sleep)
-            return ["ORG"]
+        def concurrent_result(value):
+            async def wait_for_peers(*_args):
+                nonlocal started
+                started += 1
+                if started == 3:
+                    all_started.set()
+                await asyncio.wait_for(all_started.wait(), timeout=0.5)
+                return [value]
 
-        async def _slow_competitions(names, filter, sort, limit):
-            await asyncio.sleep(sleep)
-            return ["COMP"]
+            return wait_for_peers
 
-        async def _slow_rencontres(names, categorie):
-            await asyncio.sleep(sleep)
-            return ["REN"]
-
-        self.facade.search_multiple_organismes_async.side_effect = _slow_organismes
-        self.facade.search_multiple_competitions_async.side_effect = _slow_competitions
-        self.facade.search_multiple_rencontres_async.side_effect = _slow_rencontres
+        self.facade.search_multiple_organismes_async.side_effect = concurrent_result(
+            "ORG"
+        )
+        self.facade.search_multiple_competitions_async.side_effect = concurrent_result(
+            "COMP"
+        )
+        self.facade.search_multiple_rencontres_async.side_effect = concurrent_result(
+            "REN"
+        )
 
         searches = [
             SearchSpec(resource="organismes", name="a"),
             SearchSpec(resource="competitions", name="b"),
             SearchSpec(resource="rencontres", name="c"),
         ]
-        start = time.monotonic()
         results = await self.facade.search_many_async(searches)
-        elapsed = time.monotonic() - start
 
         self.assertEqual(results, [["ORG"], ["COMP"], ["REN"]])
-        self.assertLess(elapsed, sleep * 2)
+        self.assertEqual(started, 3)
 
     async def test_search_many_empty_returns_empty(self):
         self.assertEqual(await self.facade.search_many_async([]), [])

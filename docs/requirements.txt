@@ -4,7 +4,6 @@ pydantic>=2.13.4
 python-dateutil>=2.9.0.post0
 python-dotenv>=1.2.2
 readme_renderer[md]>=44.0
-requests_cache
 # Requirements file for ReadTheDocs, check .readthedocs.yml.
 # To build the module reference correctly, make sure every external package
 # under `install_requires` in `setup.cfg` is also listed here!

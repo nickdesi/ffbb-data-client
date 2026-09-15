@@ -151,7 +151,7 @@ class TestRetryUtilsCoverage(unittest.TestCase):
         response = MagicMock()
         response.status_code = 200
         func = MagicMock(return_value=response)
-        config = RetryConfig(max_attempts=0, jitter=False)
+        config = RetryConfig(max_attempts=1, jitter=False)
 
         result = execute_with_retry(
             func, config=config, timeout_config=TimeoutConfig(), timeout=99
@@ -187,7 +187,7 @@ class TestRetryUtilsCoverage(unittest.TestCase):
                 "https://example.com/api",
                 {"Content-Type": "application/json"},
                 data={"key": "value"},
-                retry_config=RetryConfig(max_attempts=0, jitter=False),
+                retry_config=RetryConfig(max_attempts=1, jitter=False),
                 timeout_config=TimeoutConfig(),
             )
             self.assertEqual(result.status_code, 200)
@@ -205,7 +205,7 @@ class TestRetryUtilsCoverage(unittest.TestCase):
                 "DELETE",
                 "https://example.com/api",
                 {},
-                retry_config=RetryConfig(max_attempts=0, jitter=False),
+                retry_config=RetryConfig(max_attempts=1, jitter=False),
                 timeout_config=TimeoutConfig(),
             )
         self.assertIn("Unsupported HTTP method", str(ctx.exception))
@@ -228,7 +228,7 @@ class TestRetryUtilsCoverage(unittest.TestCase):
                 "GET",
                 "https://example.com/api",
                 {},
-                retry_config=RetryConfig(max_attempts=0, jitter=False),
+                retry_config=RetryConfig(max_attempts=1, jitter=False),
                 timeout_config=TimeoutConfig(),
                 debug=True,
             )

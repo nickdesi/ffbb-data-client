@@ -102,12 +102,12 @@ Migration from v1.1.x to v1.2.0 (Upcoming)
     tokens = TokenManager.get_tokens(use_cache=False)
 
     # Use CacheManager directly for cache operations
-    CacheManager().clear()
+    CacheManager().clear_cache()
 
 **Migration Steps:**
 
 1. Update TokenManager.get_tokens() calls to use cache_config parameter
-2. Replace TokenManager.clear_cache() with CacheManager().clear()
+2. Replace TokenManager.clear_cache() with CacheManager().clear_cache()
 3. Import CacheManager from ffbb_data_client.utils.cache_manager
 
 ---
@@ -165,4 +165,4 @@ Token Management Updates
     # After v1.2.0
     tokens = TokenManager.get_tokens(use_cache=False)
     from ffbb_data_client.utils.cache_manager import CacheManager
-    CacheManager().clear()
+    CacheManager().clear_cache()

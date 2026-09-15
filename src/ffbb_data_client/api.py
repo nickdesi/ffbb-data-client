@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
 import re
 import time
 from collections import OrderedDict
@@ -112,11 +113,18 @@ l'ensemble des données publiques de la **Fédération Française de BasketBall*
     lifespan=lifespan,
 )
 
-# Enable CORS for all origins
+_cors_origins = [
+    origin.strip()
+    for origin in os.getenv(
+        "FFBB_CORS_ORIGINS", "http://localhost:3000,http://localhost:8000"
+    ).split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=_cors_origins,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )

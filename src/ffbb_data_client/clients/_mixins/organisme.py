@@ -6,6 +6,7 @@ import httpx
 from httpx import Client
 
 from ...config import ENDPOINT_COMPETITIONS, ENDPOINT_ORGANISMES
+from ...exceptions import FFBBNotFoundError
 from ...helpers.http_requests_utils import http_get_json_async, url_with_params
 from ...models.field_set import FieldSet
 from ...models.get_competition_response import GetCompetitionResponse
@@ -85,13 +86,13 @@ class OrganismeMixin:
                 final_url,
                 self.headers,
                 debug=self.debug,
-                cached_session=self.async_cached_session or self.async_cached_session,
+                cached_session=cached_session or self.async_cached_session,
             )
             actual_data = data.get("data") if data and isinstance(data, dict) else data
             if actual_data:
                 return GetOrganismeResponse.from_dict(actual_data)
             return None
-        except Exception as e:
+        except FFBBNotFoundError as e:
             if self.debug:
                 self.logger.error(f"Error in get_organisme_async: {e}")
             return None
@@ -158,7 +159,7 @@ class OrganismeMixin:
                 final_url,
                 self.headers,
                 debug=self.debug,
-                cached_session=self.async_cached_session or self.async_cached_session,
+                cached_session=cached_session or self.async_cached_session,
             )
             actual_data = data.get("data") if data and isinstance(data, dict) else data
             if actual_data and isinstance(actual_data, list):
@@ -168,7 +169,7 @@ class OrganismeMixin:
                     if item
                 ]
                 return [p for p in parsed if p is not None]
-        except Exception as e:
+        except FFBBNotFoundError as e:
             if self.debug:
                 self.logger.error(f"Error in list_competitions_async: {e}")
         return []

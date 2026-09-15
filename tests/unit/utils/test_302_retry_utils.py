@@ -154,11 +154,16 @@ class Test016RetryTimeout(unittest.TestCase):
     def test_execute_with_retry_max_retries_exceeded(self):
         """Test execute_with_retry when max retries are exceeded."""
 
+        call_count = 0
+
         def always_failing_func(**kwargs):
+            nonlocal call_count
+            call_count += 1
             raise ConnectionError("Always fails")
 
         with self.assertRaises(ConnectionError):
             execute_with_retry(always_failing_func, config=self.retry_config)
+        self.assertEqual(call_count, self.retry_config.max_attempts)
 
     @patch("time.sleep")
     def test_execute_with_retry_delays(self, mock_sleep):
@@ -207,6 +212,9 @@ class Test016RetryTimeout(unittest.TestCase):
             config.retry_on_exceptions,
             (httpx.RequestError, ConnectionError, TimeoutError),
         )
+
+        with self.assertRaisesRegex(ValueError, "at least 1"):
+            RetryConfig(max_attempts=0)
 
 
 if __name__ == "__main__":

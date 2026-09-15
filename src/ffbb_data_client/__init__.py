@@ -10,6 +10,16 @@ from .clients.api_ffbb_app_client import ApiFFBBAppClient
 from .clients.ffbb_data_client import FFBBDataClient
 from .clients.meilisearch_client import MeilisearchClient
 from .clients.meilisearch_ffbb_client import MeilisearchFFBBClient
+from .exceptions import (
+    FFBBAuthenticationError,
+    FFBBError,
+    FFBBHTTPError,
+    FFBBNotFoundError,
+    FFBBRateLimitError,
+    FFBBResponseValidationError,
+    FFBBServerError,
+    FFBBTransportError,
+)
 from .helpers.meilisearch_client_extension import MeilisearchClientExtension
 from .helpers.multi_search_query_helper import generate_queries
 from .models.club_contacts import ClubContacts
@@ -76,6 +86,15 @@ __all__ = [
     "FFBBDataClient",
     "MeilisearchClient",
     "MeilisearchFFBBClient",
+    # Exceptions
+    "FFBBError",
+    "FFBBHTTPError",
+    "FFBBNotFoundError",
+    "FFBBAuthenticationError",
+    "FFBBRateLimitError",
+    "FFBBServerError",
+    "FFBBTransportError",
+    "FFBBResponseValidationError",
     # Helpers
     "MeilisearchClientExtension",
     "generate_queries",

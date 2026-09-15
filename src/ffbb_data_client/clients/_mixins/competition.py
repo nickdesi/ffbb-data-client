@@ -10,6 +10,7 @@ from ...config import (
     ENDPOINT_POULES,
     ENDPOINT_SAISONS,
 )
+from ...exceptions import FFBBNotFoundError
 from ...helpers.http_requests_utils import http_get_json_async, url_with_params
 from ...models.field_set import FieldSet
 from ...models.get_competition_response import GetCompetitionResponse
@@ -75,13 +76,13 @@ class CompetitionMixin:
                 final_url,
                 self.headers,
                 debug=self.debug,
-                cached_session=self.async_cached_session or self.async_cached_session,
+                cached_session=cached_session or self.async_cached_session,
             )
             actual_data = data.get("data") if data and isinstance(data, dict) else data
             if actual_data:
                 return GetCompetitionResponse.from_dict(actual_data)
             return None
-        except Exception as e:
+        except FFBBNotFoundError as e:
             if self.debug:
                 self.logger.error(f"Error in get_competition_async: {e}")
             return None
@@ -129,13 +130,13 @@ class CompetitionMixin:
                 final_url,
                 self.headers,
                 debug=self.debug,
-                cached_session=self.async_cached_session or self.async_cached_session,
+                cached_session=cached_session or self.async_cached_session,
             )
             actual_data = data.get("data") if data and isinstance(data, dict) else data
             if actual_data:
                 return GetPouleResponse.from_dict(actual_data)
             return None
-        except Exception as e:
+        except FFBBNotFoundError as e:
             if self.debug:
                 self.logger.error(f"Error in get_poule_async: {e}")
             return None
@@ -205,13 +206,13 @@ class CompetitionMixin:
                 final_url,
                 self.headers,
                 debug=self.debug,
-                cached_session=self.async_cached_session or self.async_cached_session,
+                cached_session=cached_session or self.async_cached_session,
             )
             actual_data = data.get("data") if data and isinstance(data, dict) else data
             if actual_data and isinstance(actual_data, list):
                 return GetSaisonsResponse.from_list(actual_data)
             return []
-        except Exception as e:
+        except FFBBNotFoundError as e:
             if self.debug:
                 self.logger.error(f"Error in get_saisons_async: {e}")
             return []

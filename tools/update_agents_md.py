@@ -217,14 +217,14 @@ déjà publié sur PyPI. Tout correctif requiert un bump de version (ex: v2.3.6)
 
 def main():
     """Génère AGENTS.md et retourne 0 si le fichier a changé, 1 sinon."""
-    new_content = generate_agents_md()
-    existing = AGENTS_MD.read_text() if AGENTS_MD.exists() else ""
+    new_content = generate_agents_md().rstrip() + "\n"
+    existing = AGENTS_MD.read_text(encoding="utf-8") if AGENTS_MD.exists() else ""
 
     if new_content == existing:
         print("AGENTS.md — aucun changement détecté.")
         return 0
 
-    AGENTS_MD.write_text(new_content)
+    AGENTS_MD.write_text(new_content, encoding="utf-8")
     print("AGENTS.md — mis à jour avec succès.")
     return 0
 

@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from typing import Any, TypeVar, cast
 
 from httpx import ReadTimeout
+from pydantic import ValidationError as PydanticValidationError
 
 from ..config import (
     API_FFBB_BASE_URL,
@@ -17,8 +18,9 @@ from ..config import (
     ENV_API_TOKEN,
     ENV_MEILISEARCH_TOKEN,
 )
+from ..exceptions import FFBBResponseValidationError
 from ..models.configuration_models import GetConfigurationResponse
-from ..utils.cache_manager import CacheConfig, CacheManager
+from ..utils.cache_manager import CacheConfig
 from ..utils.retry_utils import (
     get_default_retry_config,
     get_default_timeout_config,
@@ -116,12 +118,9 @@ class TokenManager:
 
     @staticmethod
     def _fetch_configuration(
-        cache_config: CacheConfig | None = None,
+        _cache_config: CacheConfig | None = None,
     ) -> GetConfigurationResponse:
-        """Fetch configuration from FFBB API (public endpoint)."""
-        cache_manager = CacheManager(cache_config)
-        cached_session = cache_manager.session
-
+        """Fetch configuration without persisting its bearer tokens in HTTP cache."""
         config_url = f"{API_FFBB_BASE_URL}{ENDPOINT_CONFIGURATION}"
         headers = {"user-agent": DEFAULT_USER_AGENT}
 
@@ -130,7 +129,7 @@ class TokenManager:
                 "GET",
                 config_url,
                 headers,
-                cached_session=cached_session,
+                cached_session=None,
                 retry_config=get_default_retry_config(),
                 timeout_config=get_default_timeout_config(),
             )
@@ -155,4 +154,9 @@ class TokenManager:
         if not actual_data:
             raise RuntimeError("Failed to fetch configuration from FFBB API")
 
-        return GetConfigurationResponse.from_dict(actual_data)
+        try:
+            return GetConfigurationResponse.from_dict(actual_data)
+        except PydanticValidationError as exc:
+            raise FFBBResponseValidationError(
+                "FFBB configuration response is missing valid bearer tokens"
+            ) from exc

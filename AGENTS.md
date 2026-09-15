@@ -1,8 +1,8 @@
 # FFBB Data Client SDK
 
 > ⚠️ **Fichier auto-généré** par `tools/update_agents_md.py` — ne pas modifier manuellement.
-> Dernière mise à jour : ffbb-data-client | SDK total : ~18803 lignes de code
-> (clients: 5980, models: 9805, utils: 2003, helpers: 1015)
+> Dernière mise à jour : ffbb-data-client | SDK total : ~19037 lignes de code
+> (clients: 6014, models: 9806, utils: 2061, helpers: 1156)
 
 ## Langue
 Tous les documents de travail (walkthrough.md, implementation_plan.md) DOIVENT être en français.
@@ -40,10 +40,9 @@ ou interroge l'API publique en cache en cas d'absence :
   documentation (`AGENTS.md`), de site/landing page ou autres tâches de synchronisation de
   manière autonome. Si vous estimez qu'une mise à jour automatique est pertinente ou non, prenez
   la décision par vous-même sans attendre la validation explicite de l'utilisateur.
-- **Protocole Strict Pre-Commit & Re-Stage (Zéro échec de CI)** :
-  1. Toujours appliquer `.rstrip() + "\n"` dans les générateurs de fichiers (RST, MD, JSON).
-  2. Exécuter systématiquement `rtk pre-commit run --all-files`.
-  3. Si un hook (end-of-file-fixer, black, isort...) modifie un fichier sur disque : **OBLIGATION de ré-indexer (`rtk git add -u`) et de ré-exécuter `rtk pre-commit run --all-files`** jusqu'à un passage 100% propre avant de créer le commit (`git commit`).
+- **Validation pre-commit systématique (Zéro échec de CI)** : Pour éviter tout échec de build ou de formatage en CI,
+  exécutez systématiquement la validation complète locale via `rtk pre-commit run --all-files` avant de pousser
+  tout commit vers origin. Résolvez toutes les alertes (formatage, imports `isort`, typage) localement.
 
 
 ## Karpathy Guidelines (Règles de développement)
@@ -70,13 +69,13 @@ Ces directives inspirées d'Andrej Karpathy visent à éliminer les erreurs de c
 ```
 src/ffbb_data_client/
 ├── __init__.py            # Point d'entrée du SDK, expose FFBBDataClient et FFBBTokens
-├── clients/               # Clients d'API (REST et Meilisearch) et façades (≈5980 lignes)
+├── clients/               # Clients d'API (REST et Meilisearch) et façades (≈6014 lignes)
 ├── config.py              # Configuration centralisée (URLs, Headers, Endpoints, Facettes)
 ├── data/                  # Ressources et données statiques
-├── helpers/               # Méthodes utilitaires pour requêtes HTTP et mapping (≈1015 lignes)
-├── models/                # Modèles de données Pydantic type-safe (≈9805 lignes)
+├── helpers/               # Méthodes utilitaires pour requêtes HTTP et mapping (≈1156 lignes)
+├── models/                # Modèles de données Pydantic type-safe (≈9806 lignes)
 ├── py.typed               # Marqueur pour la compatibilité avec mypy
-└── utils/                 # Gestionnaires transversaux (cache, jetons de sécurité, validation) (≈2003 lignes)
+└── utils/                 # Gestionnaires transversaux (cache, jetons de sécurité, validation) (≈2061 lignes)
 ```
 
 ## Conventions de code
