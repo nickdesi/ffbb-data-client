@@ -135,18 +135,15 @@ MEILISEARCH_FACETS_FORMATIONS = [
 MEILISEARCH_FACETS_NEWS = [
     "category",
     "categories",
-    "tags",
     "type",
 ]
 MEILISEARCH_FACETS_YOUTUBE_VIDEOS = [
-    "channelTitle",
     "tags",
     "type",
 ]
 MEILISEARCH_FACETS_RSS = [
     "categories",
     "tags",
-    "type",
 ]
 MEILISEARCH_FACETS_GALERIES = [
     "tags",
