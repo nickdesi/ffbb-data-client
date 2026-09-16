@@ -95,7 +95,7 @@ l'ensemble des données publiques de la **Fédération Française de BasketBall*
 - ⭐ **Code Source GitHub** : [`https://github.com/nickdesi/ffbb-data-client`](https://github.com/nickdesi/ffbb-data-client)
 - 📖 **Documentation Sphinx complète** : [`https://nickdesi.github.io/ffbb-data-client/`](https://nickdesi.github.io/ffbb-data-client/)
 """,
-    version="2.3.4",
+    version="2.4.23",
     openapi_tags=TAGS_METADATA,
     docs_url=None,
     redoc_url=None,
@@ -113,13 +113,10 @@ l'ensemble des données publiques de la **Fédération Française de BasketBall*
     lifespan=lifespan,
 )
 
-_cors_origins = [
-    origin.strip()
-    for origin in os.getenv(
-        "FFBB_CORS_ORIGINS", "http://localhost:3000,http://localhost:8000"
-    ).split(",")
-    if origin.strip()
-]
+_cors_env = os.getenv("FFBB_CORS_ORIGINS", "*")
+_cors_origins = [origin.strip() for origin in _cors_env.split(",") if origin.strip()]
+if "*" in _cors_origins:
+    _cors_origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
