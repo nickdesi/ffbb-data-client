@@ -46,3 +46,12 @@ python_functions = ["test_*"]
 addopts = "-v --tb=short"
 pythonpath = ["src"]
 asyncio_mode = "auto"
+filterwarnings = [
+    "ignore::ResourceWarning",
+]
+markers = [
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "slow: marks tests as slow running",
+    "e2e: marks tests as end-to-end tests",
+]
