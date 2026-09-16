@@ -1,16 +1,13 @@
 import time
 from datetime import datetime
 
+import httpx
 import pytest
 
 from ffbb_data_client.models.get_poule_response import GetPouleResponse
 from ffbb_data_client.models.team_ranking import TeamRanking
 
-pytest.importorskip("starlette")
 pytest.importorskip("fastapi")
-
-# isort: split
-from starlette.testclient import TestClient  # noqa: E402
 
 from ffbb_data_client.api import (  # noqa: E402
     LRUCache,
@@ -77,9 +74,12 @@ def test_get_poule_response_classement_alias():
     assert poule.classement[0].organisme_nom == "SCBA"
 
 
-def test_health_endpoint_utc_timestamp():
-    with TestClient(app) as client:
-        res = client.get("/health")
+@pytest.mark.asyncio
+async def test_health_endpoint_utc_timestamp():
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        res = await client.get("/health")
         assert res.status_code == 200
         data = res.json()
         assert data["status"] == "healthy"
