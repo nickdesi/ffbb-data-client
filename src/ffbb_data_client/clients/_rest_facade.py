@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+from collections.abc import AsyncIterator
 from typing import Any
 
 import httpx
@@ -200,6 +201,27 @@ class _RestFacade:
         to produce a compact `ClubContacts` object.
         """
         organisme = self.get_organisme(organisme_id, cached_session=cached_session)
+        if not organisme:
+            return None
+        club_contact = extract_club_info(organisme)
+        membres = extract_membres_contacts(organisme)
+        return ClubContacts(
+            organisme=organisme, club_contact=club_contact, membres=membres
+        )
+
+    async def get_club_contacts_async(
+        self,
+        organisme_id: int,
+        cached_session: httpx.AsyncClient | None = None,
+    ) -> ClubContacts | None:
+        """Async version: return club contact information (club-level + membres) for an organisme.
+
+        This method delegates to `get_organisme_async()` and uses the extractor helpers
+        to produce a compact `ClubContacts` object.
+        """
+        organisme = await self.get_organisme_async(
+            organisme_id, cached_session=cached_session
+        )
         if not organisme:
             return None
         club_contact = extract_club_info(organisme)
@@ -1656,6 +1678,220 @@ class _RestFacade:
         cached_session: httpx.AsyncClient | None = None,
     ) -> list[GetPratiqueResponse]:
         return await self._api.list_all_pratiques_async(  # type: ignore[no-any-return]
+            filter_criteria=validate_filter_criteria(
+                filter_criteria, "filter_criteria"
+            ),
+            sort=validate_string_list(sort, "sort"),
+            search=validate_search_query(search, "search"),
+            page_size=page_size,
+            max_items=max_items,
+            cached_session=cached_session,
+        )
+
+    # ------------------------------------------------------------------
+    # Streaming async generators (aiter_all_*)
+    # ------------------------------------------------------------------
+
+    def aiter_all_rencontres(
+        self,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        search: str | None = None,
+        page_size: int = 100,
+        max_items: int = 10000,
+        cached_session: httpx.AsyncClient | None = None,
+    ) -> AsyncIterator[GetRencontreResponse]:
+        """Streaming async generator for rencontres."""
+        return self._api.aiter_all_rencontres(  # type: ignore[no-any-return]
+            filter_criteria=validate_filter_criteria(
+                filter_criteria, "filter_criteria"
+            ),
+            sort=validate_string_list(sort, "sort"),
+            search=validate_search_query(search, "search"),
+            page_size=page_size,
+            max_items=max_items,
+            cached_session=cached_session,
+        )
+
+    def aiter_all_salles(
+        self,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        search: str | None = None,
+        page_size: int = 100,
+        max_items: int = 10000,
+        cached_session: httpx.AsyncClient | None = None,
+    ) -> AsyncIterator[GetSalleResponse]:
+        """Streaming async generator for salles."""
+        return self._api.aiter_all_salles(  # type: ignore[no-any-return]
+            filter_criteria=validate_filter_criteria(
+                filter_criteria, "filter_criteria"
+            ),
+            sort=validate_string_list(sort, "sort"),
+            search=validate_search_query(search, "search"),
+            page_size=page_size,
+            max_items=max_items,
+            cached_session=cached_session,
+        )
+
+    def aiter_all_terrains(
+        self,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        search: str | None = None,
+        page_size: int = 100,
+        max_items: int = 10000,
+        cached_session: httpx.AsyncClient | None = None,
+    ) -> AsyncIterator[GetTerrainResponse]:
+        """Streaming async generator for terrains."""
+        return self._api.aiter_all_terrains(  # type: ignore[no-any-return]
+            filter_criteria=validate_filter_criteria(
+                filter_criteria, "filter_criteria"
+            ),
+            sort=validate_string_list(sort, "sort"),
+            search=validate_search_query(search, "search"),
+            page_size=page_size,
+            max_items=max_items,
+            cached_session=cached_session,
+        )
+
+    def aiter_all_tournois(
+        self,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        search: str | None = None,
+        page_size: int = 100,
+        max_items: int = 10000,
+        cached_session: httpx.AsyncClient | None = None,
+    ) -> AsyncIterator[GetTournoiResponse]:
+        """Streaming async generator for tournois."""
+        return self._api.aiter_all_tournois(  # type: ignore[no-any-return]
+            filter_criteria=validate_filter_criteria(
+                filter_criteria, "filter_criteria"
+            ),
+            sort=validate_string_list(sort, "sort"),
+            search=validate_search_query(search, "search"),
+            page_size=page_size,
+            max_items=max_items,
+            cached_session=cached_session,
+        )
+
+    def aiter_all_engagements(
+        self,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        search: str | None = None,
+        page_size: int = 100,
+        max_items: int = 10000,
+        cached_session: httpx.AsyncClient | None = None,
+    ) -> AsyncIterator[GetEngagementResponse]:
+        """Streaming async generator for engagements."""
+        return self._api.aiter_all_engagements(  # type: ignore[no-any-return]
+            filter_criteria=validate_filter_criteria(
+                filter_criteria, "filter_criteria"
+            ),
+            sort=validate_string_list(sort, "sort"),
+            search=validate_search_query(search, "search"),
+            page_size=page_size,
+            max_items=max_items,
+            cached_session=cached_session,
+        )
+
+    def aiter_all_formations(
+        self,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        search: str | None = None,
+        page_size: int = 100,
+        max_items: int = 10000,
+        cached_session: httpx.AsyncClient | None = None,
+    ) -> AsyncIterator[GetFormationResponse]:
+        """Streaming async generator for formations."""
+        return self._api.aiter_all_formations(  # type: ignore[no-any-return]
+            filter_criteria=validate_filter_criteria(
+                filter_criteria, "filter_criteria"
+            ),
+            sort=validate_string_list(sort, "sort"),
+            search=validate_search_query(search, "search"),
+            page_size=page_size,
+            max_items=max_items,
+            cached_session=cached_session,
+        )
+
+    def aiter_all_entraineurs(
+        self,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        search: str | None = None,
+        page_size: int = 100,
+        max_items: int = 10000,
+        cached_session: httpx.AsyncClient | None = None,
+    ) -> AsyncIterator[GetEntraineurResponse]:
+        """Streaming async generator for entraineurs."""
+        return self._api.aiter_all_entraineurs(  # type: ignore[no-any-return]
+            filter_criteria=validate_filter_criteria(
+                filter_criteria, "filter_criteria"
+            ),
+            sort=validate_string_list(sort, "sort"),
+            search=validate_search_query(search, "search"),
+            page_size=page_size,
+            max_items=max_items,
+            cached_session=cached_session,
+        )
+
+    def aiter_all_communes(
+        self,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        search: str | None = None,
+        page_size: int = 100,
+        max_items: int = 10000,
+        cached_session: httpx.AsyncClient | None = None,
+    ) -> AsyncIterator[GetCommuneResponse]:
+        """Streaming async generator for communes."""
+        return self._api.aiter_all_communes(  # type: ignore[no-any-return]
+            filter_criteria=validate_filter_criteria(
+                filter_criteria, "filter_criteria"
+            ),
+            sort=validate_string_list(sort, "sort"),
+            search=validate_search_query(search, "search"),
+            page_size=page_size,
+            max_items=max_items,
+            cached_session=cached_session,
+        )
+
+    def aiter_all_officiels(
+        self,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        search: str | None = None,
+        page_size: int = 100,
+        max_items: int = 10000,
+        cached_session: httpx.AsyncClient | None = None,
+    ) -> AsyncIterator[GetOfficielResponse]:
+        """Streaming async generator for officiels."""
+        return self._api.aiter_all_officiels(  # type: ignore[no-any-return]
+            filter_criteria=validate_filter_criteria(
+                filter_criteria, "filter_criteria"
+            ),
+            sort=validate_string_list(sort, "sort"),
+            search=validate_search_query(search, "search"),
+            page_size=page_size,
+            max_items=max_items,
+            cached_session=cached_session,
+        )
+
+    def aiter_all_pratiques(
+        self,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        search: str | None = None,
+        page_size: int = 100,
+        max_items: int = 10000,
+        cached_session: httpx.AsyncClient | None = None,
+    ) -> AsyncIterator[GetPratiqueResponse]:
+        """Streaming async generator for pratiques."""
+        return self._api.aiter_all_pratiques(  # type: ignore[no-any-return]
             filter_criteria=validate_filter_criteria(
                 filter_criteria, "filter_criteria"
             ),

@@ -22,6 +22,7 @@ from .exceptions import (
 )
 from .helpers.meilisearch_client_extension import MeilisearchClientExtension
 from .helpers.multi_search_query_helper import generate_queries
+from .models.categorie_type import CategorieType
 from .models.club_contacts import ClubContacts
 from .models.competitions_facet_distribution import CompetitionsFacetDistribution
 from .models.competitions_facet_stats import CompetitionsFacetStats
@@ -55,6 +56,9 @@ from .models.multi_search_result_rencontres import RencontresMultiSearchResult
 from .models.multi_search_result_salles import SallesMultiSearchResult
 from .models.multi_search_result_terrains import TerrainsMultiSearchResult
 from .models.multi_search_result_tournois import TournoisMultiSearchResult
+from .models.niveau_extractor import NiveauExtractor, get_niveau_from_idcompetition
+from .models.niveau_info import NiveauInfo
+from .models.niveau_type import NiveauType
 from .models.organismes_facet_distribution import OrganismesFacetDistribution
 from .models.organismes_facet_stats import OrganismesFacetStats
 from .models.organismes_hit import OrganismesHit
@@ -169,6 +173,12 @@ __all__ = [
     "FFBBTokens",
     "TokenManager",
     "gather_with_concurrency",
+    # Extraction & Helpers
+    "NiveauExtractor",
+    "NiveauInfo",
+    "NiveauType",
+    "CategorieType",
+    "get_niveau_from_idcompetition",
 ]
 
 from importlib.metadata import PackageNotFoundError, version

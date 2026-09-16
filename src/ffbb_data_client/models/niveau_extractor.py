@@ -31,31 +31,39 @@ class NiveauExtractor:
         NiveauType.REGIONAL: [
             re.compile(r"\bREGIONAL\b"),
             re.compile(r"\bRÉGIONAL\b"),
+            re.compile(r"\bREGIONALE\b"),
+            re.compile(r"\bRÉGIONALE\b"),
             re.compile(r"\bR1\b"),
             re.compile(r"\bR2\b"),
             re.compile(r"\bR3\b"),
-            re.compile(r"\bREGIONALE\b"),
-            re.compile(r"^RÉGIONALE\b"),  # Format simple: "Régionale masculine seniors"
+            re.compile(r"\bPRE\s*REGIONAL\b"),
+            re.compile(r"\bPRÉ\s*RÉGIONAL\b"),
         ],
         NiveauType.DEPARTEMENTAL: [
             re.compile(r"\bDEPARTEMENTAL\b"),
             re.compile(r"\bDÉPARTEMENTAL\b"),
+            re.compile(r"\bDEPARTEMENTALE\b"),
+            re.compile(r"\bDÉPARTEMENTALE\b"),
             re.compile(r"\bD1\b"),
             re.compile(r"\bD2\b"),
             re.compile(r"\bD3\b"),
-            re.compile(r"\bDEPARTEMENTALE\b"),
-            re.compile(
-                r"^DÉPARTEMENTALE\b"
-            ),  # Format simple: "Départementale masculine seniors"
+            re.compile(r"\bD4\b"),
+            re.compile(r"\bD5\b"),
         ],
     }
 
     # Patterns pour extraire les numéros de division
     DIVISION_PATTERNS = [
-        re.compile(r"\b[DR](\d+)\b"),  # R1, R2, D1, D2, etc.
-        re.compile(r"\bREGIONAL\s+(\d+)\b"),  # REGIONAL 1, REGIONAL 2
-        re.compile(r"\bDEPARTEMENTAL\s+(\d+)\b"),  # DEPARTEMENTAL 1, DEPARTEMENTAL 2
+        re.compile(r"\b[DR](\d+)\b"),  # R1, R2, D1, D2, N1, etc.
+        re.compile(
+            r"\bR[ÉE]GIONALE?\s+(\d+)\b"
+        ),  # REGIONAL 1, REGIONALE 2, RÉGIONALE 2
+        re.compile(
+            r"\bD[ÉE]PARTEMENTALE?\s+(\d+)\b"
+        ),  # DEPARTEMENTAL 1, DEPARTEMENTALE 2
+        re.compile(r"\bNATIONALE?\s+(\d+)\b"),  # NATIONAL 1, NATIONALE 2
         re.compile(r"-\s*DIVISION\s+(\d+)\b"),  # - Division 3, - DIVISION 1
+        re.compile(r"\bDIV(?:ISION)?\s*(\d+)\b"),  # DIV 1, DIVISION 2
     ]
 
     # Patterns pour les catégories
@@ -182,14 +190,12 @@ class NiveauExtractor:
         Returns:
             Objet Niveau ou None
         """
-        # Essayer d'abord avec le nom de la compétition
         nom = competition_data.get("nom", "")
         niveau = cls.extract_niveau(nom)
 
         if niveau:
             return niveau
 
-        # Essayer avec le code de la compétition
         code = competition_data.get("code", "")
         if code:
             niveau = cls.extract_niveau(code)
@@ -197,7 +203,6 @@ class NiveauExtractor:
         return niveau
 
 
-# Fonctions utilitaires pour l'analyse
 def get_niveau_from_idcompetition(idcompetition) -> NiveauInfo | None:
     """
     Extrait le niveau depuis un objet IdCompetitionModel.

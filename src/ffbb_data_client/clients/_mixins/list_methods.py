@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from collections.abc import AsyncIterator
 from typing import Any
 
 import httpx
@@ -219,6 +220,18 @@ class ListAllMixin:
     list_all_pratiques: Any
     list_all_pratiques_async: Any
 
+    # Method stubs for dynamically generated aiter_all generators
+    aiter_all_rencontres: Any
+    aiter_all_salles: Any
+    aiter_all_terrains: Any
+    aiter_all_tournois: Any
+    aiter_all_engagements: Any
+    aiter_all_formations: Any
+    aiter_all_entraineurs: Any
+    aiter_all_communes: Any
+    aiter_all_officiels: Any
+    aiter_all_pratiques: Any
+
     async def _list_all_directus_items_async(
         self,
         endpoint: str,
@@ -265,6 +278,43 @@ class ListAllMixin:
             if len(batch) < page_size:
                 break
         return results[:max_items]
+
+    async def _aiter_all_directus_items(
+        self,
+        endpoint: str,
+        model_cls: type,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        search: str | None = None,
+        page_size: int = 100,
+        max_items: int = 10000,
+        cached_session: httpx.AsyncClient | None = None,
+    ) -> AsyncIterator[Any]:
+        """Streaming async generator: yields items one by one across paginated Directus requests."""
+        offset = 0
+        yielded = 0
+        while yielded < max_items:
+            current_limit = min(page_size, max_items - yielded)
+            batch = await self._list_directus_items_async(
+                endpoint,
+                limit=current_limit,
+                filter_criteria=filter_criteria,
+                sort=sort,
+                offset=offset,
+                search=search,
+                cached_session=self.async_cached_session,
+            )
+            if not batch:
+                break
+            for r in batch:
+                if r:
+                    yield model_cls.from_dict(r)  # type: ignore[attr-defined]
+                    yielded += 1
+                    if yielded >= max_items:
+                        return
+            if len(batch) < current_limit:
+                break
+            offset += len(batch)
 
     def _list_all(
         self,
@@ -341,8 +391,38 @@ def _make_list_all_method(endpoint: str, model_cls: Any, name: str) -> tuple[Any
     return list_all_method, list_all_method_async
 
 
+def _make_aiter_all_method(endpoint: str, model_cls: Any, name: str) -> Any:
+    """Factory: creates async aiter_all_X generator on ListAllMixin."""
+
+    def aiter_all_method(
+        self: Any,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        search: str | None = None,
+        page_size: int = 100,
+        max_items: int = 10000,
+        cached_session: httpx.AsyncClient | None = None,
+    ) -> AsyncIterator[Any]:
+        return self._aiter_all_directus_items(  # type: ignore[no-any-return]
+            endpoint,
+            model_cls,
+            filter_criteria=filter_criteria,
+            sort=sort,
+            search=search,
+            page_size=page_size,
+            max_items=max_items,
+            cached_session=cached_session,
+        )
+
+    aiter_all_method.__name__ = name
+    aiter_all_method.__qualname__ = f"ListAllMixin.{name}"
+    return aiter_all_method
+
+
 for _name, _cls in _LIST_ENDPOINTS.items():
     _endpoint = _ENDPOINT_MODULES[_name]
     _sync, _async = _make_list_all_method(_endpoint, _cls, f"list_all_{_name}")
     setattr(ListAllMixin, f"list_all_{_name}", _sync)
     setattr(ListAllMixin, f"list_all_{_name}_async", _async)
+    _aiter = _make_aiter_all_method(_endpoint, _cls, f"aiter_all_{_name}")
+    setattr(ListAllMixin, f"aiter_all_{_name}", _aiter)
