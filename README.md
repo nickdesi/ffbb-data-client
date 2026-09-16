@@ -45,7 +45,7 @@
 
 ## 🏆 Pourquoi choisir `ffbb-data-client` ?
 
-| Fonctionnalité | Anciens clients (`ffbb-api-client`) | **`ffbb-data-client` (v2.4+)** |
+| Fonctionnalité | Ancien client (`ffbb-api-client`) | **`ffbb-data-client` (v2.4+)** |
 | :--- | :---: | :---: |
 | **Bypass WAF BunnyCDN** (anti-403) | ❌ Bloqué en 403 Forbidden | ✅ **Garanti (okhttp/4.12.0 emulated)** |
 | **Architecture Asynchrone Native** | ❌ 100% bloquant / synchrone | ✅ **Async native (`async/await` + `aiter`)** |
@@ -263,21 +263,23 @@ Accédez ensuite à la documentation Swagger interactive sur `http://localhost:8
 
 ---
 
-## 📚 Référence des Principales Méthodes
+## 📚 Référence des Méthodes (Sync & Async)
 
-| Domaine | Méthode Synchrone | Méthode Asynchrone | Description |
-| :--- | :--- | :--- | :--- |
-| **Multi-Search** | `client.multi_search()` | `client.multi_search_async()` | Recherche globale simultanée sur tous les index |
-| **Clubs / Organismes** | `client.search_organismes()` | `client.search_organismes_async()` | Recherche Meilisearch des clubs |
-| **Géo-Localisation** | `client.search_organismes_by_geo()` | `client.search_organismes_by_geo_async()` | Recherche de clubs par rayon GPS |
-| **Contacts Club** | `client.get_club_contacts()` | `client.get_club_contacts_async()` | Fiche contacts, président, emails officiels |
-| **Rencontres** | `client.search_rencontres()` | `client.search_rencontres_async()` | Recherche des matchs et résultats |
-| **Streaming Matchs** | — | `client.aiter_all_rencontres()` | Générateur asynchrone paginé |
-| **Salles / Gymnases** | `client.search_salles()` | `client.search_salles_async()` | Gymnases, adresses certifiées et coordonnées |
-| **Compétitions** | `client.search_competitions()` | `client.search_competitions_async()` | Championnats nationaux, régionaux, départementaux |
-| **Poules & Classements**| `client.get_poule()` | `client.get_poule_async()` | Classement complet et calendrier d'une poule |
-| **Tournois 3x3** | `client.search_tournois()` | `client.search_tournois_async()` | Tournois homologués 3x3 FFBB |
-| **Scores en Direct** | `client.get_lives()` | `client.get_lives_async()` | Flux des matchs live en cours |
+> 💡 **Pattern standard** : Toutes les méthodes existent en version synchrone (`nom()`) et asynchrone (`nom_async()`).
+
+| Domaine | Méthodes (Sync & Async) | Description |
+| :--- | :--- | :--- |
+| **🌐 Multi-Search** | `multi_search()`<br>`multi_search_async()` | Recherche globale simultanée sur tous les index Meilisearch |
+| **🏀 Clubs & Organismes** | `search_organismes()`<br>`search_organismes_async()` | Recherche par nom, commune, département ou code postal |
+| **📍 Géo-Localisation** | `search_organismes_by_geo()`<br>`search_organismes_by_geo_async()` | Recherche de clubs par rayon GPS (lat/lng, km) |
+| **👤 Contacts Club** | `get_club_contacts()`<br>`get_club_contacts_async()` | Fiche contacts officielle (président, correspondants, emails) |
+| **📅 Rencontres & Matchs** | `search_rencontres()`<br>`search_rencontres_async()` | Calendriers, résultats de matchs et scores |
+| **⚡ Streaming Continu** | `aiter_all_rencontres()` | Générateur asynchrone paginé en streaming (`aiter`) |
+| **🏟️ Salles & Gymnases** | `search_salles()`<br>`search_salles_async()` | Adresses physiques complètes, gymnases et coordonnées |
+| **🏆 Compétitions** | `search_competitions()`<br>`search_competitions_async()` | Championnats nationaux (NM1, LF2...), régionaux, départ. |
+| **📊 Poules & Classement** | `get_poule()`<br>`get_poule_async()` | Classement officiel complet (V/D, pts) et matchs de poule |
+| **⚡ Scores en Direct** | `get_lives()`<br>`get_lives_async()` | Flux officiel des scores en temps réel (Lives FFBB) |
+| **🎯 Tournois 3x3** | `search_tournois()`<br>`search_tournois_async()` | Tournois officiels homologués 3x3 FFBB |
 
 ---
 
