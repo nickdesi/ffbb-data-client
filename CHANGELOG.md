@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.25] - 2026-09-17
+
+### Features & Parity
+- **SDK Search Async Parity**: Standardisation de toutes les méthodes de recherche asynchrones (`search_organismes_async`, `search_competitions_async`, `search_pratiques_async`, `search_salles_async`, `search_terrains_async`, `search_tournois_async`, `search_engagements_async`, `search_formations_async`) avec support complet de `filter`, `sort` et `limit` (pagination).
+- **FastAPI Prometheus Monitoring**: Ajout d'un middleware de métriques et de l'endpoint `/metrics` officiel Prometheus pour le monitoring de la latence (histogram), du débit de requêtes, des jauges de requêtes en cours et de l'état des caches mémoires.
+
 ## [2.4.6] - 2026-08-29
 
 ### Performance & Modern Standards (FastAPI Lifespan)

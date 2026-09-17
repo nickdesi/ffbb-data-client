@@ -7,9 +7,11 @@ Swagger UI at /swagger, ReDoc at /redoc, and hosts the official website at /.
 from __future__ import annotations
 
 import asyncio
+import bisect
 import logging
 import os
 import re
+import threading
 import time
 from collections import OrderedDict
 from contextlib import asynccontextmanager
@@ -95,7 +97,7 @@ l'ensemble des données publiques de la **Fédération Française de BasketBall*
 - ⭐ **Code Source GitHub** : [`https://github.com/nickdesi/ffbb-data-client`](https://github.com/nickdesi/ffbb-data-client)
 - 📖 **Documentation Sphinx complète** : [`https://nickdesi.github.io/ffbb-data-client/`](https://nickdesi.github.io/ffbb-data-client/)
 """,
-    version="2.4.23",
+    version="2.4.25",
     openapi_tags=TAGS_METADATA,
     docs_url=None,
     redoc_url=None,
@@ -125,6 +127,48 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ---------------------------------------------------------------------------
+# Prometheus Metrics State & Middleware
+# ---------------------------------------------------------------------------
+_API_START_TIME = time.time()
+_LATENCY_BUCKETS = (0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0)
+_http_requests: dict[tuple[str, str, int], int] = {}
+_http_latency_bucket_counts: list[int] = [0] * (len(_LATENCY_BUCKETS) + 1)
+_http_latency_sum: float = 0.0
+_http_latency_count: int = 0
+_http_inflight: int = 0
+_metrics_lock = threading.Lock()
+
+
+@app.middleware("http")
+async def prometheus_metrics_middleware(request: Request, call_next):
+    global _http_inflight, _http_latency_sum, _http_latency_count
+    with _metrics_lock:
+        _http_inflight += 1
+    t0 = time.perf_counter()
+    status_code = 500
+    try:
+        response = await call_next(request)
+        status_code = response.status_code
+        return response
+    finally:
+        latency = time.perf_counter() - t0
+        path = request.url.path
+        # Normalize dynamic numeric IDs to prevent metric cardinality explosion
+        norm_path = re.sub(r"/\d+", "/{id}", path)
+        method = request.method
+        with _metrics_lock:
+            _http_inflight -= 1
+            key = (method, norm_path, status_code)
+            _http_requests[key] = _http_requests.get(key, 0) + 1
+            _http_latency_sum += latency
+            _http_latency_count += 1
+            idx = bisect.bisect_left(_LATENCY_BUCKETS, latency)
+            if idx < len(_LATENCY_BUCKETS):
+                _http_latency_bucket_counts[idx] += 1
+            _http_latency_bucket_counts[len(_LATENCY_BUCKETS)] += 1
+
 
 # Global Client Singleton
 _client: FFBBDataClient | None = None
@@ -548,6 +592,70 @@ async def health():
 @app.head("/health", include_in_schema=False)
 async def health_head():
     return Response(status_code=200)
+
+
+@app.get(
+    "/metrics",
+    tags=["Monitoring & Diagnostic"],
+    summary="Métriques Prometheus de l'API (/metrics)",
+    response_class=Response,
+)
+async def metrics():
+    """Expose les métriques temps réel du serveur au format officiel Prometheus."""
+    with _metrics_lock:
+        uptime = time.time() - _API_START_TIME
+        requests = dict(_http_requests)
+        lat_buckets = list(_http_latency_bucket_counts)
+        lat_sum = _http_latency_sum
+        lat_count = _http_latency_count
+        inflight = _http_inflight
+
+    lines: list[str] = [
+        "# HELP ffbb_api_uptime_seconds Uptime du serveur API en secondes",
+        "# TYPE ffbb_api_uptime_seconds gauge",
+        f"ffbb_api_uptime_seconds {uptime:.2f}",
+        "",
+        "# HELP ffbb_api_http_requests_total Total des requetes HTTP reçues par methode, route et statut",
+        "# TYPE ffbb_api_http_requests_total counter",
+    ]
+    for (method, path, status), count in sorted(requests.items()):
+        lines.append(
+            f'ffbb_api_http_requests_total{{method="{method}",path="{path}",status="{status}"}} {count}'
+        )
+
+    lines += [
+        "",
+        "# HELP ffbb_api_http_latency_seconds Latence des requetes HTTP en secondes",
+        "# TYPE ffbb_api_http_latency_seconds histogram",
+    ]
+    cumulative = 0
+    for i, bound in enumerate(_LATENCY_BUCKETS):
+        cumulative += lat_buckets[i]
+        lines.append(
+            f'ffbb_api_http_latency_seconds_bucket{{le="{bound}"}} {cumulative}'
+        )
+    lines.append(f'ffbb_api_http_latency_seconds_bucket{{le="+Inf"}} {lat_count}')
+    lines.append(f"ffbb_api_http_latency_seconds_sum {lat_sum:.4f}")
+    lines.append(f"ffbb_api_http_latency_seconds_count {lat_count}")
+
+    lines += [
+        "",
+        "# HELP ffbb_api_http_inflight_requests Requetes HTTP actuellement en cours d'execution",
+        "# TYPE ffbb_api_http_inflight_requests gauge",
+        f"ffbb_api_http_inflight_requests {inflight}",
+        "",
+        "# HELP ffbb_api_cache_entries Nombre d'elements dans les caches LRU en memoire",
+        "# TYPE ffbb_api_cache_entries gauge",
+        f'ffbb_api_cache_entries{{cache="organisme"}} {len(_org_cache._cache)}',
+        f'ffbb_api_cache_entries{{cache="logo"}} {len(_logo_cache._cache)}',
+        f'ffbb_api_cache_entries{{cache="salle"}} {len(_salle_cache._cache)}',
+        "",
+    ]
+
+    return Response(
+        content="\n".join(lines) + "\n",
+        media_type="text/plain; version=0.0.4; charset=utf-8",
+    )
 
 
 @app.get(

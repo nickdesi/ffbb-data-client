@@ -137,18 +137,20 @@ class _SearchFacade:
         )
 
     async def search_competitions_async(
-        self, name: str | None = None
+        self,
+        name: str | None = None,
+        filter: list[str] | None = None,
+        sort: list[str] | None = None,
+        limit: int | None = 10,
     ) -> CompetitionsMultiSearchResult | None:
         """Search for competitions asynchronously."""
-        if not name:
-            return None
-        queries = [CompetitionsMultiSearchQuery(name)]
-        results = await self._meilisearch.recursive_smart_multi_search_async(queries)
-        return (
-            cast(CompetitionsMultiSearchResult, results.results[0])
-            if results and results.results
-            else None
+        results = await self.search_multiple_competitions_async(
+            [name] if name is not None else None,
+            filter=filter,
+            sort=sort,
+            limit=limit,
         )
+        return results[0] if results else None
 
     async def search_multiple_competitions_async(
         self,
@@ -247,18 +249,20 @@ class _SearchFacade:
         )
 
     async def search_organismes_async(
-        self, name: str | None = None
+        self,
+        name: str | None = None,
+        filter: list[str] | None = None,
+        sort: list[str] | None = None,
+        limit: int | None = 10,
     ) -> OrganismesMultiSearchResult | None:
         """Search for organismes asynchronously."""
-        if not name:
-            return None
-        queries = [OrganismesMultiSearchQuery(name)]
-        results = await self._meilisearch.recursive_smart_multi_search_async(queries)
-        return (
-            cast(OrganismesMultiSearchResult, results.results[0])
-            if results and results.results
-            else None
+        results = await self.search_multiple_organismes_async(
+            [name] if name is not None else None,
+            filter=filter,
+            sort=sort,
+            limit=limit,
         )
+        return results[0] if results else None
 
     async def search_multiple_organismes_async(
         self,
@@ -324,18 +328,20 @@ class _SearchFacade:
         )
 
     async def search_pratiques_async(
-        self, name: str | None = None
+        self,
+        name: str | None = None,
+        filter: list[str] | None = None,
+        sort: list[str] | None = None,
+        limit: int | None = 10,
     ) -> PratiquesMultiSearchResult | None:
         """Search for pratiques asynchronously."""
-        if not name:
-            return None
-        queries = [PratiquesMultiSearchQuery(name)]
-        results = await self._meilisearch.recursive_smart_multi_search_async(queries)
-        return (
-            cast(PratiquesMultiSearchResult, results.results[0])
-            if results and results.results
-            else None
+        results = await self.search_multiple_pratiques_async(
+            [name] if name is not None else None,
+            filter=filter,
+            sort=sort,
+            limit=limit,
         )
+        return results[0] if results else None
 
     async def search_multiple_pratiques_async(
         self,
@@ -524,18 +530,20 @@ class _SearchFacade:
         return cast(list[SallesMultiSearchResult], results.results) if results else None
 
     async def search_salles_async(
-        self, name: str | None = None
+        self,
+        name: str | None = None,
+        filter: list[str] | None = None,
+        sort: list[str] | None = None,
+        limit: int | None = 10,
     ) -> SallesMultiSearchResult | None:
         """Search for salles asynchronously."""
-        if not name:
-            return None
-        queries = [SallesMultiSearchQuery(name)]
-        results = await self._meilisearch.recursive_smart_multi_search_async(queries)
-        return (
-            cast(SallesMultiSearchResult, results.results[0])
-            if results and results.results
-            else None
+        results = await self.search_multiple_salles_async(
+            [name] if name is not None else None,
+            filter=filter,
+            sort=sort,
+            limit=limit,
         )
+        return results[0] if results else None
 
     async def search_multiple_salles_async(
         self,
@@ -597,18 +605,20 @@ class _SearchFacade:
         )
 
     async def search_terrains_async(
-        self, name: str | None = None
+        self,
+        name: str | None = None,
+        filter: list[str] | None = None,
+        sort: list[str] | None = None,
+        limit: int | None = 10,
     ) -> TerrainsMultiSearchResult | None:
         """Search for terrains asynchronously."""
-        if not name:
-            return None
-        queries = [TerrainsMultiSearchQuery(name)]
-        results = await self._meilisearch.recursive_smart_multi_search_async(queries)
-        return (
-            cast(TerrainsMultiSearchResult, results.results[0])
-            if results and results.results
-            else None
+        results = await self.search_multiple_terrains_async(
+            [name] if name is not None else None,
+            filter=filter,
+            sort=sort,
+            limit=limit,
         )
+        return results[0] if results else None
 
     async def search_multiple_terrains_async(
         self,
@@ -672,18 +682,20 @@ class _SearchFacade:
         )
 
     async def search_tournois_async(
-        self, name: str | None = None
+        self,
+        name: str | None = None,
+        filter: list[str] | None = None,
+        sort: list[str] | None = None,
+        limit: int | None = 10,
     ) -> TournoisMultiSearchResult | None:
         """Search for tournois asynchronously."""
-        if not name:
-            return None
-        queries = [TournoisMultiSearchQuery(name)]
-        results = await self._meilisearch.recursive_smart_multi_search_async(queries)
-        return (
-            cast(TournoisMultiSearchResult, results.results[0])
-            if results and results.results
-            else None
+        results = await self.search_multiple_tournois_async(
+            [name] if name is not None else None,
+            filter=filter,
+            sort=sort,
+            limit=limit,
         )
+        return results[0] if results else None
 
     async def search_multiple_tournois_async(
         self,
@@ -791,18 +803,20 @@ class _SearchFacade:
         )
 
     async def search_engagements_async(
-        self, name: str | None = None
+        self,
+        name: str | None = None,
+        filter: list[str] | None = None,
+        sort: list[str] | None = None,
+        limit: int | None = 10,
     ) -> EngagementsMultiSearchResult | None:
         """Search for engagements asynchronously."""
-        if not name:
-            return None
-        queries = [EngagementsMultiSearchQuery(name)]
-        results = await self._meilisearch.recursive_smart_multi_search_async(queries)
-        return (
-            cast(EngagementsMultiSearchResult, results.results[0])
-            if results and results.results
-            else None
+        results = await self.search_multiple_engagements_async(
+            [name] if name is not None else None,
+            filter=filter,
+            sort=sort,
+            limit=limit,
         )
+        return results[0] if results else None
 
     async def search_multiple_engagements_async(
         self,
@@ -870,18 +884,20 @@ class _SearchFacade:
         )
 
     async def search_formations_async(
-        self, name: str | None = None
+        self,
+        name: str | None = None,
+        filter: list[str] | None = None,
+        sort: list[str] | None = None,
+        limit: int | None = 10,
     ) -> FormationsMultiSearchResult | None:
         """Search for formations asynchronously."""
-        if not name:
-            return None
-        queries = [FormationsMultiSearchQuery(name)]
-        results = await self._meilisearch.recursive_smart_multi_search_async(queries)
-        return (
-            cast(FormationsMultiSearchResult, results.results[0])
-            if results and results.results
-            else None
+        results = await self.search_multiple_formations_async(
+            [name] if name is not None else None,
+            filter=filter,
+            sort=sort,
+            limit=limit,
         )
+        return results[0] if results else None
 
     async def search_multiple_formations_async(
         self,

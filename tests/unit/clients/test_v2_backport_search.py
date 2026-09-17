@@ -122,3 +122,53 @@ class TestV2BackportSearch(unittest.TestCase):
         mock_rms.assert_called_once()
         queries = mock_rms.call_args[0][0]
         self.assertEqual(queries[0].limit, 3)
+
+
+class TestV2BackportSearchAsync(unittest.IsolatedAsyncioTestCase):
+    """Async tests for search_*_async filter/sort/limit parameters."""
+
+    async def asyncSetUp(self) -> None:
+        with patch("ffbb_data_client.clients.meilisearch_client.CacheManager"):
+            api_client = MagicMock(spec=ApiFFBBAppClient)
+            api_client.cached_session = None
+            api_client.async_cached_session = None
+            meilisearch_client = MeilisearchFFBBClient(bearer_token="test-token")
+            self.client = FFBBDataClient(api_client, meilisearch_client)
+
+    def _make_mock_results(self, result_mock: MagicMock) -> MultiSearchResults:
+        results = MagicMock(spec=MultiSearchResults)
+        results.results = [result_mock]
+        return results
+
+    @patch.object(MeilisearchFFBBClient, "recursive_smart_multi_search_async")
+    async def test_search_organismes_async_with_limit_and_filter(
+        self, mock_rms_async: MagicMock
+    ) -> None:
+        mock_result = MagicMock(spec=OrganismesMultiSearchResult)
+        mock_rms_async.return_value = self._make_mock_results(mock_result)
+
+        result = await self.client.search_organismes_async(
+            "Clermont",
+            filter=['codePostal = "63000"'],
+            sort=["nom:asc"],
+            limit=5,
+        )
+        self.assertIsNotNone(result)
+        mock_rms_async.assert_called_once()
+        queries = mock_rms_async.call_args[0][0]
+        self.assertEqual(queries[0].limit, 5)
+        self.assertEqual(queries[0].filter, ['codePostal = "63000"'])
+        self.assertEqual(queries[0].sort, ["nom:asc"])
+
+    @patch.object(MeilisearchFFBBClient, "recursive_smart_multi_search_async")
+    async def test_search_competitions_async_with_limit(
+        self, mock_rms_async: MagicMock
+    ) -> None:
+        mock_result = MagicMock(spec=CompetitionsMultiSearchResult)
+        mock_rms_async.return_value = self._make_mock_results(mock_result)
+
+        result = await self.client.search_competitions_async("U13", limit=7)
+        self.assertIsNotNone(result)
+        mock_rms_async.assert_called_once()
+        queries = mock_rms_async.call_args[0][0]
+        self.assertEqual(queries[0].limit, 7)
