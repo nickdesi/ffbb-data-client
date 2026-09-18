@@ -5,7 +5,7 @@ on:
     # Safety net: GitHub may silently stop firing the main schedule.
     # Check every 6h that the discovery workflow ran in the last 22h and
     # trigger it manually if not, guaranteeing at least one run per day.
-    - cron: '0 */6 * * *'
+    - cron: '19 */6 * * *'
   workflow_dispatch:
 
 permissions:

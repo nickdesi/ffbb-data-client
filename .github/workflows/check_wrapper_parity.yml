@@ -9,7 +9,7 @@ on:
     paths:
       - 'src/ffbb_data_client/clients/**'
   schedule:
-    - cron: '0 6 * * 1'  # Every Monday at 06:00 UTC
+    - cron: '43 6 * * 1'  # Every Monday at 06:00 UTC
   workflow_dispatch:
 
 concurrency:
