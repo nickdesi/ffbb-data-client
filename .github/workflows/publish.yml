@@ -36,7 +36,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         id: setup-python
         with:
           python-version: ${{ matrix.python }}
@@ -65,7 +65,7 @@ jobs:
           fetch-depth: 0  # Required for setuptools_scm to resolve version from tags
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
           cache: 'pip'
