@@ -32,7 +32,7 @@ jobs:
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
           REPOSITORY: ${{ github.repository }}
         run: |
-          pr_json="$(gh api "repos/$REPOSITORY/commits/$HEAD_SHA/pulls" -H "Accept: application/vnd.github+json")"
+          pr_json="$(gh api --retry 3 "repos/$REPOSITORY/commits/$HEAD_SHA/pulls" -H "Accept: application/vnd.github+json" || echo "[]")"
           pr_count="$(jq 'length' <<< "$pr_json")"
           if [[ "$pr_count" == "0" ]]; then
             echo "release=false" >> "$GITHUB_OUTPUT"

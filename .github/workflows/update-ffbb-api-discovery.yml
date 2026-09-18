@@ -35,6 +35,9 @@ jobs:
         run: python -m pip install -e .
 
       - name: Refresh FFBB API discovery artefacts
+        env:
+          API_FFBB_APP_BEARER_TOKEN: ${{ secrets.API_FFBB_APP_BEARER_TOKEN }}
+          MEILISEARCH_BEARER_TOKEN: ${{ secrets.MEILISEARCH_BEARER_TOKEN }}
         run: python scripts/discover_endpoints.py
 
       - name: Detect structural discovery changes
