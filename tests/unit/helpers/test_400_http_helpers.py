@@ -9,6 +9,7 @@ from unittest.mock import MagicMock, Mock, patch
 from httpx import ReadTimeout, Request, Response
 
 from ffbb_data_client import (
+    FFBBAuthenticationError,
     FFBBNotFoundError,
     FFBBRateLimitError,
     FFBBResponseValidationError,
@@ -16,6 +17,7 @@ from ffbb_data_client import (
 )
 from ffbb_data_client.helpers.http_requests_helper import catch_result
 from ffbb_data_client.helpers.http_requests_utils import (
+    _raise_for_status,
     encode_params,
     http_get,
     http_get_json,
@@ -295,6 +297,30 @@ class Test045HttpHelpers(unittest.TestCase):
         self.assertEqual(headers["Authorization"], "Bearer new_api_token")
         mock_get_tokens.assert_called_once_with(use_cache=False)
         self.assertEqual(mock_post.call_count, 2)
+
+    def test_023_raise_for_status_bunnycdn_html_403(self) -> None:
+        request = Request("GET", "https://api.ffbb.app/items/ffbbserver_competitions/1")
+        response = Response(
+            403,
+            request=request,
+            headers={"content-type": "text/html"},
+            content=b"<html><body>Request blocked by BunnyCDN-FR1</body></html>",
+        )
+        with self.assertRaises(FFBBAuthenticationError) as ctx:
+            _raise_for_status(response)
+        self.assertIn("BunnyCDN", str(ctx.exception))
+
+    def test_024_raise_for_status_directus_json_403(self) -> None:
+        request = Request("GET", "https://api.ffbb.app/items/ffbbserver_competitions/1")
+        response = Response(
+            403,
+            request=request,
+            headers={"content-type": "application/json"},
+            content=b'{"errors":[{"message":"You don\'t have permission to access this."}]}',
+        )
+        with self.assertRaises(FFBBAuthenticationError) as ctx:
+            _raise_for_status(response)
+        self.assertIn("Directus", str(ctx.exception))
 
 
 if __name__ == "__main__":

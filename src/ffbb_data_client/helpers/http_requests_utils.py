@@ -45,24 +45,64 @@ from ..utils.secure_logging import get_secure_logger
 logger = get_secure_logger(__name__)
 
 
+def _is_bunnycdn_block(response: Response) -> bool:
+    """Distingue un 403 BunnyCDN (WAF/HTML) d'un 403 Directus (JSON).
+
+    BunnyCDN renvoie une page HTML (content-type text/html, marqueur
+    "bunnycdn" ou document "<html") quand le User-Agent n'est pas whitelisté.
+    Directus renvoie du JSON avec le code FORBIDDEN.
+    Défensif : retourne False si la réponse est un Mock incomplet (tests).
+    """
+    try:
+        content_type = response.headers.get("content-type", "")
+    except Exception:
+        content_type = ""
+    if "text/html" in str(content_type).lower():
+        return True
+    try:
+        body = response.text or ""
+    except Exception:
+        return False
+    lowered = str(body).lower()
+    if "bunnycdn" in lowered:
+        return True
+    stripped = str(body).strip().lower()
+    return stripped.startswith("<!doctype") or stripped.startswith("<html")
+
+
 def _raise_for_status(response: Response) -> None:
     """Translate HTTPX status failures into stable public SDK exceptions."""
     try:
         response.raise_for_status()
     except httpx.HTTPStatusError as exc:
         status_code = response.status_code
-        message = f"FFBB service returned HTTP {status_code}"
         exception_type: type[FFBBHTTPError]
         if status_code == 404:
             exception_type = FFBBNotFoundError
+            message = f"FFBB service returned HTTP {status_code}"
         elif status_code in (401, 403):
             exception_type = FFBBAuthenticationError
+            if status_code == 403 and _is_bunnycdn_block(response):
+                message = (
+                    "FFBB access blocked by CDN (403 BunnyCDN). "
+                    "User-Agent not whitelisted or IP temporarily blocked. "
+                    "Ensure DEFAULT_USER_AGENT matches the official mobile client."
+                )
+            else:
+                message = (
+                    f"FFBB access denied by Directus (HTTP {status_code}). "
+                    "Probable cause: archived-season item or restricted field. "
+                    "Use filter listing or a current-season id."
+                )
         elif status_code == 429:
             exception_type = FFBBRateLimitError
+            message = f"FFBB service returned HTTP {status_code}"
         elif status_code >= 500:
             exception_type = FFBBServerError
+            message = f"FFBB service returned HTTP {status_code}"
         else:
             exception_type = FFBBHTTPError
+            message = f"FFBB service returned HTTP {status_code}"
         raise exception_type(message, status_code) from exc
 
 

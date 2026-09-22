@@ -10,7 +10,7 @@ from ...config import (
     ENDPOINT_POULES,
     ENDPOINT_SAISONS,
 )
-from ...exceptions import FFBBNotFoundError
+from ...exceptions import FFBBAuthenticationError, FFBBNotFoundError
 from ...helpers.http_requests_utils import http_get_json_async, url_with_params
 from ...models.field_set import FieldSet
 from ...models.get_competition_response import GetCompetitionResponse
@@ -18,6 +18,9 @@ from ...models.get_poule_response import GetPouleResponse
 from ...models.get_saisons_response import GetSaisonsResponse
 from ...models.query_fields_manager import QueryFieldsManager
 from ...models.team_ranking import TeamRanking
+from ...utils.secure_logging import get_secure_logger
+
+_logger = get_secure_logger(__name__)
 
 
 class CompetitionMixin:
@@ -82,9 +85,79 @@ class CompetitionMixin:
             if actual_data:
                 return GetCompetitionResponse.from_dict(actual_data)
             return None
+        except FFBBAuthenticationError as exc:
+            # BunnyCDN (WAF/HTML) : ne pas masquer par un fallback filter
+            # (lui aussi bloqué) — remonter pour diagnostic CDN explicite.
+            if "bunnycdn" in str(exc).lower():
+                raise
+            # Directus 403: direct /{id} access denied (e.g. archived season).
+            # Fallback to listing with filter to distinguish "permission denied"
+            # from "item purged from current dataset".
+            return await self._get_competition_via_filter(
+                competition_id, params, cached_session
+            )
         except FFBBNotFoundError as e:
             if self.debug:
                 self.logger.error(f"Error in get_competition_async: {e}")
+            return None
+
+    async def _get_competition_via_filter(
+        self,
+        competition_id: int,
+        original_params: dict[str, Any],
+        cached_session: httpx.AsyncClient | None = None,
+    ) -> GetCompetitionResponse | None:
+        """Fallback: fetch a competition via listing + filter[id][_eq].
+
+        Directus may restrict direct ``GET /items/ffbbserver_competitions/{id}``
+        for items belonging to archived seasons while still exposing them through
+        the collection listing endpoint.  This method transparently retries with
+        ``?filter[id][_eq]=<id>&limit=1``.
+        """
+        _logger.info(
+            "Competition %s: accès direct refusé (403), tentative via filter listing",
+            competition_id,
+        )
+        fallback_params: dict[str, Any] = {
+            k: v for k, v in original_params.items() if not k.startswith("deep[")
+        }
+        fallback_params["filter[id][_eq]"] = str(competition_id)
+        fallback_params["limit"] = "1"
+
+        listing_url = url_with_params(
+            f"{self.url}{ENDPOINT_COMPETITIONS}", fallback_params
+        )
+        try:
+            data = await http_get_json_async(
+                listing_url,
+                self.headers,
+                debug=self.debug,
+                cached_session=cached_session or self.async_cached_session,
+            )
+            items = data.get("data", []) if data and isinstance(data, dict) else []
+            if items:
+                return GetCompetitionResponse.from_dict(items[0])
+            _logger.warning(
+                "Competition %s inaccessible : saison archivée ou purgée par la FFBB.",
+                competition_id,
+            )
+            return None
+        except FFBBAuthenticationError as exc:
+            # Blocage CDN sur le listing : remonter, ne pas masquer en "archivée".
+            if "bunnycdn" in str(exc).lower():
+                raise
+            _logger.warning(
+                "Fallback filter pour competition %s échoué : %s",
+                competition_id,
+                exc,
+            )
+            return None
+        except Exception as exc:
+            _logger.warning(
+                "Fallback filter pour competition %s échoué : %s",
+                competition_id,
+                exc,
+            )
             return None
 
     def get_poule(
