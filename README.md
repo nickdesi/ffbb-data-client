@@ -38,7 +38,7 @@
 </div>
 
 <!-- DISCOVERY_METRICS:START -->
-> 🔄 **Cartographie API FFBB Synchronisée en Direct** : `162` collections Directus OpenAPI cartographiées, `13` index Meilisearch surveillés quotidiennement.
+> 🔄 **Cartographie API synchronisée** : `162` collections Directus OpenAPI cartographiées, `13` index Meilisearch surveillés.
 <!-- DISCOVERY_METRICS:END -->
 
 ---

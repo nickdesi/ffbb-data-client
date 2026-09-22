@@ -40,7 +40,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 429,
+      "estimatedTotalHits": 515,
       "indexUid": "ffbbnational_pratiques",
       "sampleKeys": [
         "_geo",
@@ -97,7 +97,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 4228,
+      "estimatedTotalHits": 4296,
       "indexUid": "ffbbnational_rss",
       "sampleKeys": [
         "categories",
@@ -127,7 +127,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 1680,
+      "estimatedTotalHits": 2442,
       "indexUid": "ffbbserver_competitions",
       "sampleKeys": [
         "age",
@@ -207,7 +207,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 146,
+      "estimatedTotalHits": 144,
       "indexUid": "ffbbserver_formations",
       "sampleKeys": [
         "certification",
@@ -242,7 +242,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 4714,
+      "estimatedTotalHits": 5000,
       "indexUid": "ffbbserver_organismes",
       "sampleKeys": [
         "_geo",
@@ -370,7 +370,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 7,
+      "estimatedTotalHits": 3,
       "indexUid": "ffbbserver_tournois",
       "sampleKeys": [
         "_geo",
@@ -409,7 +409,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 6229,
+      "estimatedTotalHits": 6301,
       "indexUid": "ffbbsite_news",
       "sampleKeys": [
         "author",
@@ -438,7 +438,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 1858,
+      "estimatedTotalHits": 1863,
       "indexUid": "youtube_videos",
       "sampleKeys": [
         "channelId",
@@ -471,7 +471,7 @@
   ],
   "metadata": {
     "source": "https://meilisearch-prod.ffbb.app/multi-search",
-    "timestamp": "2026-09-11T09:44:26.132076+00:00"
+    "timestamp": "2026-09-22T17:00:08.433649+00:00"
   },
   "unavailable_indexes": [
     {

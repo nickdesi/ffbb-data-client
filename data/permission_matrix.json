@@ -1,0 +1,107 @@
+{
+  "drift": {
+    "added": [
+      "competition_archived_direct",
+      "competition_archived_filter",
+      "competition_current_direct",
+      "competition_current_filter",
+      "competitions_listing",
+      "config_noauth",
+      "engagements_listing",
+      "organismes_listing",
+      "rencontres_listing",
+      "saisons_id_field",
+      "saisons_nom_field"
+    ],
+    "flips": [],
+    "removed": []
+  },
+  "metadata": {
+    "api_base_url": "https://api.ffbb.app/",
+    "archived_competition_id": "200000002872733",
+    "canary_season": "2026-2027",
+    "current_competition_id": "200000002900744",
+    "timestamp": "2026-09-22T17:00:16.721946+00:00",
+    "token_source": "public-fallback"
+  },
+  "probes": [
+    {
+      "name": "config_noauth",
+      "notes": "Public endpoint sans auth : contrôle BunnyCDN et joignabilité.",
+      "outcome": "ok",
+      "status": 200,
+      "url": "https://api.ffbb.app/items/configuration"
+    },
+    {
+      "name": "saisons_id_field",
+      "notes": "Champ contrôle, attendu ok.",
+      "outcome": "ok",
+      "status": 200,
+      "url": "https://api.ffbb.app/items/ffbbserver_saisons?fields%5B%5D=id&limit=1"
+    },
+    {
+      "name": "saisons_nom_field",
+      "notes": "Champ restreint depuis sept 2026 : 403 Directus attendu.",
+      "outcome": "forbidden_directus",
+      "status": 403,
+      "url": "https://api.ffbb.app/items/ffbbserver_saisons?fields%5B%5D=nom&limit=1"
+    },
+    {
+      "name": "competitions_listing",
+      "notes": "Listing contrôle, attendu ok.",
+      "outcome": "ok",
+      "status": 200,
+      "url": "https://api.ffbb.app/items/ffbbserver_competitions?limit=1"
+    },
+    {
+      "name": "organismes_listing",
+      "notes": "Listing contrôle, attendu ok.",
+      "outcome": "ok",
+      "status": 200,
+      "url": "https://api.ffbb.app/items/ffbbserver_organismes?limit=1"
+    },
+    {
+      "name": "rencontres_listing",
+      "notes": "Listing contrôle, attendu ok.",
+      "outcome": "ok",
+      "status": 200,
+      "url": "https://api.ffbb.app/items/ffbbserver_rencontres?limit=1"
+    },
+    {
+      "name": "engagements_listing",
+      "notes": "Listing contrôle, attendu ok.",
+      "outcome": "ok",
+      "status": 200,
+      "url": "https://api.ffbb.app/items/ffbbserver_engagements?limit=1"
+    },
+    {
+      "name": "competition_current_direct",
+      "notes": "Canari saison 2026-2027 : à rafraîchir à chaque rollover. Un flip ici signale un canari périmé, pas forcément un changement de politique.",
+      "outcome": "ok",
+      "status": 200,
+      "url": "https://api.ffbb.app/items/ffbbserver_competitions/200000002900744"
+    },
+    {
+      "name": "competition_current_filter",
+      "notes": "Filtre sur saison courante, attendu ok non vide.",
+      "outcome": "ok",
+      "status": 200,
+      "url": "https://api.ffbb.app/items/ffbbserver_competitions?filter%5Bid%5D%5B_eq%5D=200000002900744&limit=1"
+    },
+    {
+      "name": "competition_archived_direct",
+      "notes": "Saison archivée : 403 Directus attendu sur accès direct.",
+      "outcome": "forbidden_directus",
+      "status": 403,
+      "url": "https://api.ffbb.app/items/ffbbserver_competitions/200000002872733"
+    },
+    {
+      "content_type": "application/json; charset=utf-8",
+      "name": "competition_archived_filter",
+      "notes": "Filtre sur archivé : 200 vide attendu (pas une erreur HTTP).",
+      "outcome": "empty",
+      "status": 200,
+      "url": "https://api.ffbb.app/items/ffbbserver_competitions?filter%5Bid%5D%5B_eq%5D=200000002872733&limit=1"
+    }
+  ]
+}
