@@ -35,9 +35,26 @@ jobs:
           pr_json="$(gh api --retry 3 "repos/$REPOSITORY/commits/$HEAD_SHA/pulls" -H "Accept: application/vnd.github+json" || echo "[]")"
           pr_count="$(jq 'length' <<< "$pr_json")"
           if [[ "$pr_count" == "0" ]]; then
-            echo "release=false" >> "$GITHUB_OUTPUT"
-            echo "No PR associated with $HEAD_SHA."
-            exit 0
+            # Fallback : HEAD_SHA peut être un commit de merge (push sur master
+            # après merge), que l'API commits->pulls n'associe à aucune PR.
+            # On matche alors le merge-commit des PRs mergées récentes.
+            pr_number="$(gh pr list --state merged --base master --limit 20 \
+              --json number,mergeCommit \
+              --jq ".[] | select(.mergeCommit.oid == \"$HEAD_SHA\") | .number" \
+              | head -n 1)"
+            if [[ -z "$pr_number" ]]; then
+              echo "release=false" >> "$GITHUB_OUTPUT"
+              echo "No PR associated with $HEAD_SHA."
+              exit 0
+            fi
+            echo "Resolved PR #$pr_number via merge-commit fallback."
+            fetched="$(gh api --retry 3 "repos/$REPOSITORY/pulls/$pr_number" -H "Accept: application/vnd.github+json" || echo "")"
+            if [[ -z "$fetched" ]]; then
+              echo "release=false" >> "$GITHUB_OUTPUT"
+              echo "Could not fetch PR #$pr_number."
+              exit 0
+            fi
+            pr_json="[$fetched]"
           fi
 
           pr_number="$(jq -r '.[0].number' <<< "$pr_json")"
