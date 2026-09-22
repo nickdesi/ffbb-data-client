@@ -29,9 +29,10 @@ from __future__ import annotations
 import json
 import os
 import sys
+from collections.abc import Callable
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
@@ -42,6 +43,7 @@ from discover_endpoints import (  # noqa: E402
     _sync_packaged_artefacts,
     _write_json_if_changed,
 )
+
 from ffbb_data_client.config import (  # noqa: E402
     API_FFBB_BASE_URL,
     DEFAULT_USER_AGENT,
