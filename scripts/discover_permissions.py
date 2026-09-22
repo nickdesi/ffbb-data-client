@@ -335,6 +335,8 @@ def main() -> None:
         "user-agent": DEFAULT_USER_AGENT,
     }
     headers_noauth = {"user-agent": DEFAULT_USER_AGENT}
+    # "public-fallback" = chemin nominal (aucun secret requis), pas un mode dégradé :
+    # TokenManager récupère les tokens sur /items/configuration sans auth.
     token_source = "env" if os.environ.get(ENV_API_TOKEN) else "public-fallback"
 
     matrix = build_matrix(

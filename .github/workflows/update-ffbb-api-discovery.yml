@@ -36,6 +36,9 @@ jobs:
 
       - name: Refresh FFBB API discovery artefacts
         env:
+          # Secrets optionnels : en leur absence, TokenManager bascule sur
+          # l'endpoint public /items/configuration (chemin nominal, aucun
+          # ticket requis). Ne pas les rendre obligatoires.
           API_FFBB_APP_BEARER_TOKEN: ${{ secrets.API_FFBB_APP_BEARER_TOKEN }}
           MEILISEARCH_BEARER_TOKEN: ${{ secrets.MEILISEARCH_BEARER_TOKEN }}
         run: python scripts/discover_endpoints.py
@@ -43,6 +46,7 @@ jobs:
       - name: Probe FFBB permission matrix
         continue-on-error: true
         env:
+          # Idem : optionnel, le endpoint public est le chemin nominal.
           API_FFBB_APP_BEARER_TOKEN: ${{ secrets.API_FFBB_APP_BEARER_TOKEN }}
         run: python scripts/discover_permissions.py
 
