@@ -40,6 +40,22 @@ jobs:
           MEILISEARCH_BEARER_TOKEN: ${{ secrets.MEILISEARCH_BEARER_TOKEN }}
         run: python scripts/discover_endpoints.py
 
+      - name: Probe FFBB permission matrix
+        continue-on-error: true
+        env:
+          API_FFBB_APP_BEARER_TOKEN: ${{ secrets.API_FFBB_APP_BEARER_TOKEN }}
+        run: python scripts/discover_permissions.py
+
+      - name: Detect permission drift
+        id: permission
+        run: |
+          if [ -f data/permission_drift_summary.md ] && grep -q '^- FLIP' data/permission_drift_summary.md; then
+            echo "pchanged=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "pchanged=false" >> "$GITHUB_OUTPUT"
+            echo "No permission drift detected; skipping permission PR."
+          fi
+
       - name: Detect structural discovery changes
         id: changes
         run: |
@@ -60,7 +76,7 @@ jobs:
           retention-days: 14
 
       - name: Create pull request
-        if: steps.changes.outputs.changed == 'true'
+        if: steps.changes.outputs.changed == 'true' || steps.permission.outputs.pchanged == 'true'
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1  # v8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -80,12 +96,15 @@ jobs:
             data/openapi_full.json
             data/api_update_summary.md
             data/field_dictionary.json
+            data/permission_matrix.json
+            data/permission_drift_summary.md
             src/ffbb_data_client/data/__init__.py
             src/ffbb_data_client/data/collections.json
             src/ffbb_data_client/data/endpoint_discovery.json
             src/ffbb_data_client/data/indexes.json
             src/ffbb_data_client/data/openapi.json
             src/ffbb_data_client/data/field_dictionary.json
+            src/ffbb_data_client/data/permission_matrix.json
             docs/data_dictionary.rst
             docs/index.rst
             README.md
