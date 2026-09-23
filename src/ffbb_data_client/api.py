@@ -22,9 +22,10 @@ from typing import Any
 from fastapi import FastAPI, HTTPException
 from fastapi import Path as PathParam
 from fastapi import Query, Request, Response
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from .clients.ffbb_data_client import FFBBDataClient
@@ -97,7 +98,7 @@ l'ensemble des données publiques de la **Fédération Française de BasketBall*
 - ⭐ **Code Source GitHub** : [`https://github.com/nickdesi/ffbb-data-client`](https://github.com/nickdesi/ffbb-data-client)
 - 📖 **Documentation Sphinx complète** : [`https://nickdesi.github.io/ffbb-data-client/`](https://nickdesi.github.io/ffbb-data-client/)
 """,
-    version="2.4.30",
+    version="2.4.31",
     openapi_tags=TAGS_METADATA,
     docs_url=None,
     redoc_url=None,
@@ -114,6 +115,66 @@ l'ensemble des données publiques de la **Fédération Française de BasketBall*
     ],
     lifespan=lifespan,
 )
+
+
+# ---------------------------------------------------------------------------
+# Standard Error Formatting Handlers (REST Best Practices RFC 7807)
+# ---------------------------------------------------------------------------
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    code_map = {
+        400: "BAD_REQUEST",
+        401: "UNAUTHORIZED",
+        403: "FORBIDDEN",
+        404: "NOT_FOUND",
+        409: "CONFLICT",
+        422: "UNPROCESSABLE_ENTITY",
+        429: "RATE_LIMIT_EXCEEDED",
+        500: "INTERNAL_SERVER_ERROR",
+        502: "BAD_GATEWAY",
+        503: "SERVICE_UNAVAILABLE",
+    }
+    error_code = code_map.get(exc.status_code, f"HTTP_{exc.status_code}")
+    message = str(exc.detail)
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "detail": exc.detail,
+            "error": {
+                "code": error_code,
+                "message": message,
+                "status": exc.status_code,
+            },
+        },
+        headers=getattr(exc, "headers", None),
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    errors = []
+    for err in exc.errors():
+        field = ".".join(str(loc) for loc in err.get("loc", []))
+        errors.append(
+            {
+                "field": field,
+                "message": err.get("msg", ""),
+                "type": err.get("type", ""),
+            }
+        )
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": exc.errors(),
+            "error": {
+                "code": "VALIDATION_ERROR",
+                "message": "Erreur de validation des paramètres de la requête.",
+                "status": 422,
+                "errors": errors,
+            },
+        },
+    )
+
 
 _cors_env = os.getenv("FFBB_CORS_ORIGINS", "*")
 _cors_origins = [origin.strip() for origin in _cors_env.split(",") if origin.strip()]
@@ -589,6 +650,42 @@ async def health():
     }
 
 
+@app.get(
+    "/health/ready",
+    tags=["Monitoring & Diagnostic"],
+    summary="Readiness probe avec dépendances (/health/ready)",
+)
+async def health_ready(response: Response):
+    """Vérifie la disponibilité réelle du serveur et de ses dépendances amont (Directus & Meilisearch)."""
+    client = get_client()
+    checks: dict[str, str] = {}
+    is_ready = True
+
+    try:
+        saisons = await client.get_saisons_async()
+        checks["directus"] = "ok" if saisons else "empty"
+    except Exception as e:
+        checks["directus"] = f"error: {e}"
+        is_ready = False
+
+    try:
+        res = client.multi_search(name="Clermont")
+        checks["meilisearch"] = "ok" if res else "empty"
+    except Exception as e:
+        checks["meilisearch"] = f"error: {e}"
+        is_ready = False
+
+    if not is_ready:
+        response.status_code = 503
+
+    return {
+        "status": "ready" if is_ready else "not_ready",
+        "service": "ffbb-data-client-api",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "checks": checks,
+    }
+
+
 @app.head("/health", include_in_schema=False)
 async def health_head():
     return Response(status_code=200)
@@ -722,6 +819,7 @@ async def search_ffbb(
     response_description="Liste ordonnée des rencontres avec adresses et logos",
 )
 async def get_club_matches(
+    response: Response,
     organisme_id: int = PathParam(
         ...,
         ge=1,
@@ -732,6 +830,19 @@ async def get_club_matches(
         None,
         description="Filtrer par équipe (ex: 'SENIOR M1', 'U18 M1', 'ALL')",
         examples=["SENIOR M1"],
+    ),
+    limit: int | None = Query(
+        None,
+        ge=1,
+        le=500,
+        description="Nombre maximal de rencontres à renvoyer (pagination)",
+        examples=[50],
+    ),
+    offset: int = Query(
+        0,
+        ge=0,
+        description="Décalage de pagination",
+        examples=[0],
     ),
 ):
     """
@@ -1033,12 +1144,27 @@ async def get_club_matches(
     matches_list = [m for m in built_matches if m is not None]
 
     matches_list.sort(key=lambda x: (x.get("dateISO", ""), x.get("time", "")))
+    response.headers["Cache-Control"] = "public, max-age=180, stale-while-revalidate=60"
+
+    total_count = len(matches_list)
+    paged_matches = (
+        matches_list[offset : offset + limit]
+        if limit is not None
+        else matches_list[offset:]
+    )
 
     return {
         "organisme_id": organisme_id,
         "club": club_name,
-        "matches": matches_list,
-        "count": len(matches_list),
+        "matches": paged_matches,
+        "count": len(paged_matches),
+        "total": total_count,
+        "pagination": {
+            "total": total_count,
+            "limit": limit if limit is not None else total_count,
+            "offset": offset,
+            "has_more": (offset + len(paged_matches)) < total_count,
+        },
     }
 
 
@@ -1149,6 +1275,7 @@ async def get_poule(
     response_description="Classement détaillé avec points, victoires et goal-average",
 )
 async def get_poule_classement(
+    response: Response,
     poule_id: int = PathParam(
         ..., ge=1, description="ID de la poule FFBB", examples=[129759]
     ),
@@ -1166,6 +1293,9 @@ async def get_poule_classement(
             getattr(poule, "classement", None)
             or getattr(poule, "classements", [])
             or []
+        )
+        response.headers["Cache-Control"] = (
+            "public, max-age=300, stale-while-revalidate=60"
         )
         return {
             "poule_id": poule_id,
@@ -1235,6 +1365,7 @@ async def get_rencontre_detail(
     response_description="Fiche gymnase avec adresse complète et géolocalisation",
 )
 async def get_salle_detail(
+    response: Response,
     salle_id: str = PathParam(
         ...,
         description="ID FFBB de la salle (ex: '6543')",
@@ -1249,6 +1380,9 @@ async def get_salle_detail(
             raise HTTPException(
                 status_code=404, detail=f"Salle {salle_id} introuvable."
             )
+        response.headers["Cache-Control"] = (
+            "public, max-age=86400, stale-while-revalidate=3600"
+        )
         return salle
     except HTTPException:
         raise
@@ -1292,10 +1426,13 @@ async def get_competition_detail(
     summary="Liste des saisons officielles FFBB",
     response_description="Historique et saison active",
 )
-async def get_saisons():
+async def get_saisons(response: Response):
     """Retourne la liste des saisons officielles FFBB avec indication de la saison en cours."""
     client = get_client()
     try:
+        response.headers["Cache-Control"] = (
+            "public, max-age=86400, stale-while-revalidate=3600"
+        )
         return await client.get_saisons_async()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
