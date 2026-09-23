@@ -73,6 +73,7 @@ def test_recursive_smart_multi_search_subset_pagination():
 
     assert client.call_count == 2
 
+
 def test_merge_page_with_empty_or_missing_results():
     from ffbb_data_client.helpers.meilisearch_client_extension import _merge_page
 
