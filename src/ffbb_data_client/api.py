@@ -115,7 +115,7 @@ class ReadinessResponse(BaseModel):
     )
 
 
-COMMON_RESPONSES = {
+COMMON_RESPONSES: dict[int | str, dict[str, Any]] = {
     400: {
         "model": ErrorResponse,
         "description": "Requête invalide ou paramètre manquant",
@@ -157,7 +157,7 @@ l'ensemble des données publiques de la **Fédération Française de BasketBall*
 - ⭐ **Code Source GitHub** : [`https://github.com/nickdesi/ffbb-data-client`](https://github.com/nickdesi/ffbb-data-client)
 - 📖 **Documentation Sphinx complète** : [`https://nickdesi.github.io/ffbb-data-client/`](https://nickdesi.github.io/ffbb-data-client/)
 """,
-    version="2.4.32",
+    version="2.4.33",
     contact={
         "name": "FFBB Data Client — Support & Open Data",
         "url": "https://github.com/nickdesi/ffbb-data-client/issues",
@@ -212,7 +212,7 @@ def custom_openapi():
     return app.openapi_schema
 
 
-app.openapi = custom_openapi
+app.openapi = custom_openapi  # type: ignore[method-assign]
 
 
 # ---------------------------------------------------------------------------
