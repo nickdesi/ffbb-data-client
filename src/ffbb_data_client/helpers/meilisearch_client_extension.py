@@ -79,10 +79,11 @@ def _build_pagination_jobs(
     return jobs
 
 
-def _single_result(multi: MultiSearchResults, index: int) -> MultiSearchResults:
+def _single_result(multi: MultiSearchResults, index: int) -> MultiSearchResults | None:
     """Isole le i-ème sous-résultat d'un multi_search dans un MultiSearchResults
     à un élément, pour une fusion cohérente avec ``_merge_page``."""
-    assert multi.results is not None
+    if not multi.results or index >= len(multi.results):
+        return None
     return MultiSearchResults(results=[multi.results[index]])
 
 
@@ -148,7 +149,10 @@ class MeilisearchClientExtension(MeilisearchClient):
         out: list[tuple[int, int, MultiSearchResults | None]] = []
         if new_result and new_result.results:
             for k, (orig_idx, offset, _q) in enumerate(batch):
-                out.append((orig_idx, offset, _single_result(new_result, k)))
+                if k < len(new_result.results):
+                    res = _single_result(new_result, k)
+                    if res is not None:
+                        out.append((orig_idx, offset, res))
         return out
 
     async def _fetch_batch_async(
@@ -162,7 +166,10 @@ class MeilisearchClientExtension(MeilisearchClient):
         out: list[tuple[int, int, MultiSearchResults | None]] = []
         if new_result and new_result.results:
             for k, (orig_idx, offset, _q) in enumerate(batch):
-                out.append((orig_idx, offset, _single_result(new_result, k)))
+                if k < len(new_result.results):
+                    res = _single_result(new_result, k)
+                    if res is not None:
+                        out.append((orig_idx, offset, res))
         return out
 
     def recursive_smart_multi_search(

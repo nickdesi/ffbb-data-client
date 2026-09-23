@@ -97,7 +97,7 @@ l'ensemble des données publiques de la **Fédération Française de BasketBall*
 - ⭐ **Code Source GitHub** : [`https://github.com/nickdesi/ffbb-data-client`](https://github.com/nickdesi/ffbb-data-client)
 - 📖 **Documentation Sphinx complète** : [`https://nickdesi.github.io/ffbb-data-client/`](https://nickdesi.github.io/ffbb-data-client/)
 """,
-    version="2.4.25",
+    version="2.4.30",
     openapi_tags=TAGS_METADATA,
     docs_url=None,
     redoc_url=None,
@@ -693,9 +693,23 @@ async def search_ffbb(
             status_code=400,
             detail="Le terme de recherche doit comporter au moins 2 caractères.",
         )
+    # Résolution des acronymes fréquents (ex: SCBA -> Stade Clermontois Basket Auvergne)
+    _SEARCH_ACRONYMS = {
+        "SCBA": "Stade Clermontois Basket Auvergne",
+        "SCBF": "Stade Clermontois Basket Féminin",
+        "ASVEL": "LDLC ASVEL",
+        "SIG": "Strasbourg IG",
+        "JDA": "JDA Dijon",
+        "MSB": "Le Mans Sarthe Basket",
+        "EBPLO": "Elan Béarnais",
+        "CSP": "Limoges CSP",
+        "BCM": "Gravelines Dunkerque",
+        "ESSM": "Le Portel",
+    }
+    effective_query = _SEARCH_ACRONYMS.get(search_term.upper(), search_term)
     client = get_client()
     try:
-        results = client.multi_search(name=search_term)
+        results = client.multi_search(name=effective_query)
         return results
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur de recherche: {e}")
@@ -975,6 +989,14 @@ async def get_club_matches(
             else (parsed_cat.numero_equipe if parsed_cat.numero_equipe else 1)
         )
 
+        res1 = getattr(m, "resultatEquipe1", None)
+        res2 = getattr(m, "resultatEquipe2", None)
+        is_played = bool(
+            getattr(m, "joue", False) or res1 is not None or res2 is not None
+        )
+        score_local = res1 if is_home else res2
+        score_opp = res2 if is_home else res1
+
         match_data: dict[str, Any] = {
             "ffbbMatchId": m_id,
             "team": scba_team,
@@ -990,6 +1012,14 @@ async def get_club_matches(
             "competition": comp_nom,
             "poule": poule_nom,
             "pouleId": poule_id,
+            "round": getattr(m, "numeroJournee", None)
+            or getattr(m, "numero_journee", None),
+            "isPlayed": is_played,
+            "scoreLocal": score_local,
+            "scoreOpponent": score_opp,
+            "scoreEquipe1": res1,
+            "scoreEquipe2": res2,
+            "competitionUrl": getattr(m, "url_competition", "") or "",
             "teamLogo": club_logo_url,
         }
         if opponent_logo:
@@ -1160,6 +1190,113 @@ async def get_lives():
     client = get_client()
     try:
         return await client.get_lives_async()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get(
+    "/api/v1/rencontre/{rencontre_id}",
+    tags=["Matchs & Calendriers"],
+    summary="Détails complets d'une rencontre FFBB",
+    response_description="Fiche officielle détaillée de la rencontre, scores, salle et officiels",
+)
+@app.get(
+    "/api/v1/match/{rencontre_id}",
+    tags=["Matchs & Calendriers"],
+    summary="Détails complets d'une rencontre FFBB (alias /match)",
+    include_in_schema=False,
+)
+async def get_rencontre_detail(
+    rencontre_id: str = PathParam(
+        ...,
+        description="ID FFBB de la rencontre (ex: '200000014753740')",
+        examples=["200000014753740"],
+    ),
+):
+    """Retourne la fiche détaillée d'un match officiel FFBB avec scores, salle résolue et détails des équipes."""
+    client = get_client()
+    try:
+        match_data = await client.get_rencontre_async(rencontre_id)
+        if not match_data:
+            raise HTTPException(
+                status_code=404, detail=f"Rencontre {rencontre_id} introuvable."
+            )
+        return match_data
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get(
+    "/api/v1/salle/{salle_id}",
+    tags=["Clubs"],
+    summary="Détails d'une salle / gymnase",
+    response_description="Fiche gymnase avec adresse complète et géolocalisation",
+)
+async def get_salle_detail(
+    salle_id: str = PathParam(
+        ...,
+        description="ID FFBB de la salle (ex: '6543')",
+        examples=["6543"],
+    ),
+):
+    """Retourne les informations complètes d'un gymnase (nom, rue, code postal, ville, cartographie)."""
+    client = get_client()
+    try:
+        salle = await client.get_salle_async(salle_id)
+        if not salle:
+            raise HTTPException(
+                status_code=404, detail=f"Salle {salle_id} introuvable."
+            )
+        return salle
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get(
+    "/api/v1/competition/{competition_id}",
+    tags=["Compétitions & Poules"],
+    summary="Détails d'une compétition",
+    response_description="Informations sur la compétition et composition des poules",
+)
+async def get_competition_detail(
+    competition_id: int = PathParam(
+        ...,
+        ge=1,
+        description="ID FFBB de la compétition (ex: 200000002898785)",
+        examples=[200000002898785],
+    ),
+):
+    """Retourne les métadonnées et la liste des poules associées à une compétition officielle FFBB."""
+    client = get_client()
+    try:
+        comp = await client.get_competition_async(competition_id)
+        if not comp:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Compétition {competition_id} introuvable.",
+            )
+        return comp
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get(
+    "/api/v1/saisons",
+    tags=["Compétitions & Poules"],
+    summary="Liste des saisons officielles FFBB",
+    response_description="Historique et saison active",
+)
+async def get_saisons():
+    """Retourne la liste des saisons officielles FFBB avec indication de la saison en cours."""
+    client = get_client()
+    try:
+        return await client.get_saisons_async()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

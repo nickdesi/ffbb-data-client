@@ -91,3 +91,12 @@ def test_merge_page_with_empty_or_missing_results():
 
     # 3. orig_idx out of bounds
     _merge_page(res, 999, empty_page)
+
+
+def test_single_result_out_of_bounds_safety():
+    from ffbb_data_client.helpers.meilisearch_client_extension import _single_result
+
+    res = MultiSearchResults(results=[CompetitionsMultiSearchResult()])
+    assert _single_result(res, 0) is not None
+    assert _single_result(res, 1) is None
+    assert _single_result(MultiSearchResults(results=[]), 0) is None
