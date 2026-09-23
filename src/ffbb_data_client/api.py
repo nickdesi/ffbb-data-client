@@ -25,8 +25,10 @@ from fastapi import Query, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
+from fastapi.openapi.utils import get_openapi
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, Field
 
 from .clients.ffbb_data_client import FFBBDataClient
 from .helpers.normalization import parse_categorie
@@ -76,14 +78,71 @@ TAGS_METADATA = [
     },
 ]
 
+
+# ---------------------------------------------------------------------------
+# OpenAPI 3.1 Components & Models (https://www.openapis.org/)
+# ---------------------------------------------------------------------------
+class ErrorDetail(BaseModel):
+    code: str = Field(
+        description="Code d'erreur machine RFC 7807 (ex: NOT_FOUND, BAD_REQUEST)"
+    )
+    message: str = Field(
+        description="Message d'erreur descriptif lisible pour l'humain"
+    )
+    status: int = Field(description="Code statut HTTP (ex: 404, 400, 500)")
+    errors: list[dict[str, Any]] | None = Field(
+        default=None, description="Détails complémentaires de validation si applicable"
+    )
+
+
+class ErrorResponse(BaseModel):
+    detail: Any = Field(description="Détail brut rétro-compatible FastAPI")
+    error: ErrorDetail = Field(description="Enveloppe d'erreur standardisée")
+
+
+class HealthResponse(BaseModel):
+    status: str = Field(description="Statut du service ('healthy')")
+    service: str = Field(description="Nom du service")
+    timestamp: str = Field(description="Horodatage ISO-8601 UTC")
+
+
+class ReadinessResponse(BaseModel):
+    status: str = Field(description="Statut de préparation ('ready' ou 'not_ready')")
+    service: str = Field(description="Nom du service")
+    timestamp: str = Field(description="Horodatage ISO-8601 UTC")
+    checks: dict[str, str] = Field(
+        description="État individuel des dépendances amont (Directus, Meilisearch)"
+    )
+
+
+COMMON_RESPONSES = {
+    400: {
+        "model": ErrorResponse,
+        "description": "Requête invalide ou paramètre manquant",
+    },
+    404: {"model": ErrorResponse, "description": "Ressource demandée introuvable"},
+    422: {
+        "model": ErrorResponse,
+        "description": "Erreur de validation sémantique des paramètres",
+    },
+    500: {
+        "model": ErrorResponse,
+        "description": "Erreur interne du serveur ou indisponibilité amont FFBB",
+    },
+    503: {
+        "model": ErrorResponse,
+        "description": "Dépendance amont FFBB temporairement indisponible",
+    },
+}
 app = FastAPI(
     title="FFBB REST API — Données Officielles du Basket Français",
+    summary="API REST officielle & Open Data Basketball pour la Fédération Française de BasketBall",
     description="""
 # 🏀 API REST FFBB & Open Data Basketball
 
 Bienvenue sur la documentation interactive officielle de l'API **FFBB Data Client**.
 
-Cette API REST moderne et asynchrone (FastAPI + Pydantic v2) permet d'interroger directement
+Cette API REST moderne et asynchrone (FastAPI + Pydantic v2, spécification OpenAPI 3.1) permet d'interroger directement
 l'ensemble des données publiques de la **Fédération Française de BasketBall** :
 - **Clubs & Équipes** : fiches, contacts, adresses et engagements (du niveau départemental à la Betclic Élite).
 - **Compétitions & Poules** : calendriers, résultats, feuilles de match et classements officiels.
@@ -98,7 +157,18 @@ l'ensemble des données publiques de la **Fédération Française de BasketBall*
 - ⭐ **Code Source GitHub** : [`https://github.com/nickdesi/ffbb-data-client`](https://github.com/nickdesi/ffbb-data-client)
 - 📖 **Documentation Sphinx complète** : [`https://nickdesi.github.io/ffbb-data-client/`](https://nickdesi.github.io/ffbb-data-client/)
 """,
-    version="2.4.31",
+    version="2.4.32",
+    contact={
+        "name": "FFBB Data Client — Support & Open Data",
+        "url": "https://github.com/nickdesi/ffbb-data-client/issues",
+        "email": "nicolas.desimone@gmail.com",
+    },
+    license_info={
+        "name": "Apache-2.0",
+        "identifier": "Apache-2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.html",
+    },
+    terms_of_service="https://github.com/nickdesi/ffbb-data-client/blob/master/LICENSE.txt",
     openapi_tags=TAGS_METADATA,
     docs_url=None,
     redoc_url=None,
@@ -113,8 +183,36 @@ l'ensemble des données publiques de la **Fédération Française de BasketBall*
             "description": "Serveur Local de Développement",
         },
     ],
+    responses=COMMON_RESPONSES,
     lifespan=lifespan,
 )
+
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title=app.title,
+        version=app.version,
+        openapi_version=app.openapi_version,
+        summary=app.summary,
+        description=app.description,
+        routes=app.routes,
+        tags=app.openapi_tags,
+        servers=app.servers,
+        terms_of_service=app.terms_of_service,
+        contact=app.contact,
+        license_info=app.license_info,
+    )
+    openapi_schema["externalDocs"] = {
+        "description": "Documentation Sphinx & Spécifications Officielles",
+        "url": "https://nickdesi.github.io/ffbb-data-client/",
+    }
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+
+app.openapi = custom_openapi
 
 
 # ---------------------------------------------------------------------------
@@ -639,7 +737,11 @@ async def resolve_exact_salle_address_async(
 
 
 @app.get(
-    "/health", tags=["Monitoring & Diagnostic"], summary="Diagnostic de l'API (/health)"
+    "/health",
+    tags=["Monitoring & Diagnostic"],
+    summary="Diagnostic de l'API (/health)",
+    operation_id="getHealth",
+    response_model=HealthResponse,
 )
 async def health():
     """Vérifie l'état de fonctionnement et la disponibilité de l'API REST."""
@@ -654,6 +756,8 @@ async def health():
     "/health/ready",
     tags=["Monitoring & Diagnostic"],
     summary="Readiness probe avec dépendances (/health/ready)",
+    operation_id="getReadiness",
+    response_model=ReadinessResponse,
 )
 async def health_ready(response: Response):
     """Vérifie la disponibilité réelle du serveur et de ses dépendances amont (Directus & Meilisearch)."""
@@ -695,6 +799,7 @@ async def health_head():
     "/metrics",
     tags=["Monitoring & Diagnostic"],
     summary="Métriques Prometheus de l'API (/metrics)",
+    operation_id="getPrometheusMetrics",
     response_class=Response,
 )
 async def metrics():
@@ -757,6 +862,7 @@ async def metrics():
 
 @app.get(
     "/api/v1/search",
+    operation_id="searchFFBB",
     tags=["Recherche & Meilisearch"],
     summary="Recherche universelle (Clubs, Compétitions, Salles)",
     response_description="Résultats multi-index Meilisearch groupés par typologie",
@@ -814,6 +920,7 @@ async def search_ffbb(
 
 @app.get(
     "/api/v1/club/{organisme_id}/matches",
+    operation_id="getClubMatches",
     tags=["Matchs & Calendriers"],
     summary="Calendrier & Matchs d'un club",
     response_description="Liste ordonnée des rencontres avec adresses et logos",
@@ -1170,6 +1277,7 @@ async def get_club_matches(
 
 @app.get(
     "/api/v1/club/{organisme_id}/teams",
+    operation_id="getClubTeams",
     tags=["Clubs"],
     summary="Équipes engagées d'un club",
     response_description="Liste des équipes engagées par championnat",
@@ -1219,6 +1327,7 @@ async def get_club_teams(
 
 @app.get(
     "/api/v1/club/{organisme_id}",
+    operation_id="getClubDetails",
     tags=["Clubs"],
     summary="Fiche détaillée d'un club",
     response_description="Informations administratives, contacts et salle",
@@ -1246,6 +1355,7 @@ async def get_club_details(
 
 @app.get(
     "/api/v1/poule/{poule_id}",
+    operation_id="getPoule",
     tags=["Compétitions & Poules"],
     summary="Détails complets d'une poule",
     response_description="Composition, classements et rencontres",
@@ -1270,6 +1380,7 @@ async def get_poule(
 
 @app.get(
     "/api/v1/poule/{poule_id}/classement",
+    operation_id="getPouleClassement",
     tags=["Compétitions & Poules"],
     summary="Classement officiel d'une poule",
     response_description="Classement détaillé avec points, victoires et goal-average",
@@ -1311,6 +1422,7 @@ async def get_poule_classement(
 
 @app.get(
     "/api/v1/lives",
+    operation_id="getLives",
     tags=["Scores en Direct"],
     summary="Scores en direct du week-end (Lives)",
     response_description="Matchs en direct avec scores temps réel",
@@ -1326,6 +1438,7 @@ async def get_lives():
 
 @app.get(
     "/api/v1/rencontre/{rencontre_id}",
+    operation_id="getRencontreDetail",
     tags=["Matchs & Calendriers"],
     summary="Détails complets d'une rencontre FFBB",
     response_description="Fiche officielle détaillée de la rencontre, scores, salle et officiels",
@@ -1360,6 +1473,7 @@ async def get_rencontre_detail(
 
 @app.get(
     "/api/v1/salle/{salle_id}",
+    operation_id="getSalleDetail",
     tags=["Clubs"],
     summary="Détails d'une salle / gymnase",
     response_description="Fiche gymnase avec adresse complète et géolocalisation",
@@ -1392,6 +1506,7 @@ async def get_salle_detail(
 
 @app.get(
     "/api/v1/competition/{competition_id}",
+    operation_id="getCompetitionDetail",
     tags=["Compétitions & Poules"],
     summary="Détails d'une compétition",
     response_description="Informations sur la compétition et composition des poules",
@@ -1422,6 +1537,7 @@ async def get_competition_detail(
 
 @app.get(
     "/api/v1/saisons",
+    operation_id="getSaisons",
     tags=["Compétitions & Poules"],
     summary="Liste des saisons officielles FFBB",
     response_description="Historique et saison active",
