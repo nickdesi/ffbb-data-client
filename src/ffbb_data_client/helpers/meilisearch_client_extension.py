@@ -92,7 +92,9 @@ def _merge_page(
     page_result: MultiSearchResults | None,
 ) -> None:
     """Fusionne les hits d'une page dans le résultat original (par index)."""
-    if result.results is None or page_result is None or page_result.results is None:
+    if not result.results or not page_result or not page_result.results:
+        return
+    if orig_idx >= len(result.results):
         return
     target = result.results[orig_idx]
     src = page_result.results[0]

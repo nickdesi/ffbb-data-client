@@ -72,3 +72,21 @@ def test_recursive_smart_multi_search_subset_pagination():
     assert result.results[2].hits[0]["id"] == "hit_3_1"
 
     assert client.call_count == 2
+
+def test_merge_page_with_empty_or_missing_results():
+    from ffbb_data_client.helpers.meilisearch_client_extension import _merge_page
+
+    res = MultiSearchResults(results=[CompetitionsMultiSearchResult()])
+    res.results[0].hits = [{"id": "hit1"}]
+
+    # 1. page_result with empty results list (was crashing with IndexError: list index out of range)
+    empty_page = MultiSearchResults(results=[])
+    _merge_page(res, 0, empty_page)
+    assert len(res.results[0].hits) == 1
+
+    # 2. page_result is None
+    _merge_page(res, 0, None)
+    assert len(res.results[0].hits) == 1
+
+    # 3. orig_idx out of bounds
+    _merge_page(res, 999, empty_page)
