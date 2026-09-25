@@ -769,14 +769,16 @@ async def health_ready(response: Response):
         saisons = await client.get_saisons_async()
         checks["directus"] = "ok" if saisons else "empty"
     except Exception as e:
-        checks["directus"] = f"error: {e}"
+        logger.warning("Erreur check readiness directus: %s", e)
+        checks["directus"] = "error"
         is_ready = False
 
     try:
         res = client.multi_search(name="Clermont")
         checks["meilisearch"] = "ok" if res else "empty"
     except Exception as e:
-        checks["meilisearch"] = f"error: {e}"
+        logger.warning("Erreur check readiness meilisearch: %s", e)
+        checks["meilisearch"] = "error"
         is_ready = False
 
     if not is_ready:

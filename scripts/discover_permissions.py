@@ -260,7 +260,7 @@ def render_drift_summary(
     lines += [
         "",
         "Vérifier la politique de rôles Directus (filtres de saison, champs "
-        "restreints) ou rafraîchir les canaris après un rollover de saison.",
+        + "restreints) ou rafraîchir les canaris après un rollover de saison.",
         "",
     ]
     return "\n".join(lines)
