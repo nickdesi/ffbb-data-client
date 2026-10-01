@@ -111,9 +111,45 @@ def classify_outcome(response: Any) -> dict[str, Any]:
     return {"outcome": OUTCOME_OK, "status": status}
 
 
-def build_probes() -> list[dict[str, Any]]:
+def resolve_current_canary_competition(
+    fetch: Callable[..., Any] | None,
+    headers: dict[str, str],
+    base: str = API_FFBB_BASE_URL,
+) -> tuple[str, str]:
+    """Dynamically resolve the latest active competition ID and season if available."""
+    try:
+        url = url_with_params(
+            f"{base}{ENDPOINT_COMPETITIONS}",
+            {"limit": "1", "sort": "-id", "fields[]": ["id", "saison"]},
+        )
+        resp = (
+            fetch(url, headers, timeout=15)
+            if fetch
+            else http_get(url, headers, timeout=15)
+        )
+        if getattr(resp, "status_code", 0) == 200:
+            payload = (
+                resp.json()
+                if hasattr(resp, "json")
+                else json.loads(getattr(resp, "content", b"{}"))
+            )
+            data = payload.get("data", [])
+            if data and isinstance(data, list) and "id" in data[0]:
+                season = str(data[0].get("saison") or CANARY_SEASON)
+                return str(data[0]["id"]), season
+    except Exception:
+        pass
+    return CANARY_CURRENT_COMPETITION_ID, CANARY_SEASON
+
+
+def build_probes(
+    current_competition_id: str | None = None,
+    current_season: str | None = None,
+) -> list[dict[str, Any]]:
     """Fixed canary matrix: controls, archived vs current, both access paths."""
     base = API_FFBB_BASE_URL
+    curr_id = current_competition_id or CANARY_CURRENT_COMPETITION_ID
+    curr_season = current_season or CANARY_SEASON
     listing = lambda collection: url_with_params(  # noqa: E731
         f"{base}{collection}", {"limit": "1"}
     )
@@ -123,7 +159,22 @@ def build_probes() -> list[dict[str, Any]]:
     )
     current_filter = url_with_params(
         f"{base}{ENDPOINT_COMPETITIONS}",
-        {"filter[id][_eq]": CANARY_CURRENT_COMPETITION_ID, "limit": "1"},
+        {"filter[id][_eq]": curr_id, "limit": "1"},
+    )
+    nested_relation_url = url_with_params(
+        f"{base}{ENDPOINT_RENCONTRES}",
+        {
+            "fields[]": [
+                "id",
+                "numero",
+                "idPoule.id",
+                "idPoule.nom",
+                "idPoule.id_competition.id",
+                "idPoule.id_competition.organisateur.code",
+            ],
+            "limit": "1",
+            "sort": "-id",
+        },
     )
     return [
         {
@@ -174,12 +225,18 @@ def build_probes() -> list[dict[str, Any]]:
         },
         {
             "name": "competition_current_direct",
-            "url": f"{base}{ENDPOINT_COMPETITIONS}/{CANARY_CURRENT_COMPETITION_ID}",
+            "url": f"{base}{ENDPOINT_COMPETITIONS}/{curr_id}",
             "auth": True,
             "notes": (
-                f"Canari saison {CANARY_SEASON} : à rafraîchir à chaque rollover. "
+                f"Canari saison {curr_season} : auto-rafraîchissable sur rollover. "
                 "Un flip ici signale un canari périmé, pas forcément un changement de politique."
             ),
+        },
+        {
+            "name": "relational_nested_expand",
+            "url": nested_relation_url,
+            "auth": True,
+            "notes": "Jointure relationnelle multi-niveaux Directus (rencontre->poule->competition->organisateur).",
         },
         {
             "name": "competition_current_filter",
@@ -301,10 +358,27 @@ def build_matrix(
     token_source: str,
 ) -> dict[str, Any]:
     """Run every probe and diff outcomes against the previous matrix."""
+    resolved_id, resolved_season = CANARY_CURRENT_COMPETITION_ID, CANARY_SEASON
     probes = [
         run_probe(fetch, probe, headers_auth if probe["auth"] else headers_noauth)
-        for probe in build_probes()
+        for probe in build_probes(resolved_id, resolved_season)
     ]
+
+    # Rollover auto-healing: if the current competition direct probe is not ok, attempt resolution
+    curr_direct = next(
+        (p for p in probes if p["name"] == "competition_current_direct"), None
+    )
+    if curr_direct and curr_direct["outcome"] != OUTCOME_OK:
+        dyn_id, dyn_season = resolve_current_canary_competition(fetch, headers_auth)
+        if dyn_id != CANARY_CURRENT_COMPETITION_ID:
+            resolved_id, resolved_season = dyn_id, dyn_season
+            probes = [
+                run_probe(
+                    fetch, probe, headers_auth if probe["auth"] else headers_noauth
+                )
+                for probe in build_probes(resolved_id, resolved_season)
+            ]
+
     previous_outcomes = (
         {item["name"]: item["outcome"] for item in previous.get("probes", [])}
         if isinstance(previous, dict)
@@ -316,9 +390,9 @@ def build_matrix(
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "api_base_url": API_FFBB_BASE_URL,
             "token_source": token_source,
-            "canary_season": CANARY_SEASON,
+            "canary_season": resolved_season,
             "archived_competition_id": CANARY_ARCHIVED_COMPETITION_ID,
-            "current_competition_id": CANARY_CURRENT_COMPETITION_ID,
+            "current_competition_id": resolved_id,
         },
         "probes": probes,
         "drift": drift,

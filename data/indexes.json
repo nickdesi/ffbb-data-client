@@ -11,7 +11,11 @@
     "ffbbserver_salles",
     "ffbbserver_terrains",
     "ffbbserver_tournois",
+    "ffbbsite_faq",
+    "ffbbsite_jobs",
     "ffbbsite_news",
+    "ffbbsite_pages",
+    "youtube_playlists",
     "youtube_videos"
   ],
   "indexes": [
@@ -40,7 +44,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 515,
+      "estimatedTotalHits": 549,
       "indexUid": "ffbbnational_pratiques",
       "sampleKeys": [
         "_geo",
@@ -97,7 +101,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 4296,
+      "estimatedTotalHits": 4329,
       "indexUid": "ffbbnational_rss",
       "sampleKeys": [
         "categories",
@@ -127,7 +131,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 2442,
+      "estimatedTotalHits": 2994,
       "indexUid": "ffbbserver_competitions",
       "sampleKeys": [
         "age",
@@ -207,7 +211,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 144,
+      "estimatedTotalHits": 150,
       "indexUid": "ffbbserver_formations",
       "sampleKeys": [
         "certification",
@@ -370,7 +374,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 3,
+      "estimatedTotalHits": 16,
       "indexUid": "ffbbserver_tournois",
       "sampleKeys": [
         "_geo",
@@ -409,7 +413,68 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 6301,
+      "estimatedTotalHits": 187,
+      "indexUid": "ffbbsite_faq",
+      "sampleKeys": [
+        "answer",
+        "category",
+        "date_published",
+        "id",
+        "question",
+        "subcategories",
+        "thumbnail",
+        "type"
+      ],
+      "status": "available"
+    },
+    {
+      "available": true,
+      "estimatedTotalHits": 4,
+      "indexUid": "ffbbsite_jobs",
+      "sampleKeys": [
+        "asset",
+        "author",
+        "category",
+        "city",
+        "contract_duration",
+        "contract_specificities",
+        "contract_type",
+        "date_published",
+        "date_published_timestamp",
+        "degree",
+        "departement",
+        "domain",
+        "experience",
+        "id",
+        "job_description",
+        "job_start",
+        "job_start_filter",
+        "job_start_timestamp",
+        "lieu",
+        "mail",
+        "openings",
+        "phone",
+        "postal_code",
+        "profil",
+        "reference",
+        "region",
+        "salary",
+        "service",
+        "structure",
+        "structure_linked",
+        "studies",
+        "terms_contact",
+        "thumbnail",
+        "title",
+        "type",
+        "type_filter",
+        "unit"
+      ],
+      "status": "available"
+    },
+    {
+      "available": true,
+      "estimatedTotalHits": 6332,
       "indexUid": "ffbbsite_news",
       "sampleKeys": [
         "author",
@@ -434,6 +499,36 @@
         "title",
         "type"
       ],
+      "status": "available"
+    },
+    {
+      "available": true,
+      "estimatedTotalHits": 351,
+      "indexUid": "ffbbsite_pages",
+      "sampleKeys": [
+        "categories",
+        "category",
+        "codes",
+        "content",
+        "date_published",
+        "id",
+        "image",
+        "link",
+        "navigation_type",
+        "permalink",
+        "private",
+        "private_type",
+        "thumbnail",
+        "title",
+        "type"
+      ],
+      "status": "available"
+    },
+    {
+      "available": true,
+      "estimatedTotalHits": 0,
+      "indexUid": "youtube_playlists",
+      "sampleKeys": [],
       "status": "available"
     },
     {
@@ -471,11 +566,71 @@
   ],
   "metadata": {
     "source": "https://meilisearch-prod.ffbb.app/multi-search",
-    "timestamp": "2026-09-22T17:00:08.433649+00:00"
+    "timestamp": "2026-10-01T07:34:29.224713+00:00"
   },
   "unavailable_indexes": [
     {
+      "indexUid": "cartographies",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "categories_age",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "categories_championnats",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "communes",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "competitions",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "configuration",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "edf_arenas",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "edf_campaigns",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "edf_campaigns_edf_cities",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "edf_campaigns_edf_countries",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "edf_cities",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "edf_coaches",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "edf_competition_types",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "edf_countries",
+      "status": "not_available"
+    },
+    {
       "indexUid": "edf_matches",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "edf_opponents",
       "status": "not_available"
     },
     {
@@ -483,11 +638,495 @@
       "status": "not_available"
     },
     {
+      "indexUid": "edf_players_edf_positions",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "edf_positions",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "edf_rosters",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "edf_selection",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "edf_staffs",
+      "status": "not_available"
+    },
+    {
       "indexUid": "edf_teams",
       "status": "not_available"
     },
     {
+      "indexUid": "engagements",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "entraineurs",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbb_app_images",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbcompetitions_globals",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbcompetitions_navigation",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbcompetitions_navigations_items",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbcompetitions_pages",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbcompetitions_pages_blocks",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbcompetitions_seo",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbnational_categories",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbnational_galeries_ffbbnational_tags",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbnational_galeries_files",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbnational_rss_ffbbnational_categories",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbnational_rss_ffbbnational_tags",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbnational_tags",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_cartographies",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_categories_age",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_categories_championnats",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_communes",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_entraineurs",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_fonctions_officiels",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_formations_domain",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_formations_files",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_formations_theme",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_labellisation_label",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_labellisation_programme",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_labellisations_organismes",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_membres",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_officiels",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_officiels_rencontres",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_offres_pratiques",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_organismes_ffbbserver_offres_pratiques",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_organismes_ffbbserver_organismes",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_poules",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_poules_classements",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_revetements",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_saisons",
+      "status": "not_available"
+    },
+    {
       "indexUid": "ffbbserver_sessions",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_tournois_ffbbserver_types_tournois_3x3",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_types_associations",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_types_competitions",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_types_divisions",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_types_pratiques_sportives",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_types_tournois",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbserver_types_tournois_3x3",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_assets_tags",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_assets_types",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_authors",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_assets",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_assets_directus_files",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_assets_ffbbsite_assets_tags",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_assets_ffbbsite_assets_types",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_assets_files",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_assets_list",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_become_actor",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_button",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_button_group",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_columns",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_columns_rows",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_cta",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_faq",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_faq_ffbbsite_faq",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_faq_list",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_form_picker",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_formations",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_hero",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_hero_items",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_history",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_iframe",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_jobs",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_last_news",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_last_news_ffbbsite_categories",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_matches",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_matches_edf_teams",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_news",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_palmares",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_palmares_edf_teams",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_richtext",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_slider_news",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_slider_news_ffbbsite_news",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_spacer",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_teams",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_teams_edf_teams",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_title",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_videos",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_videos_items_youtube_videos",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_videos_youtube_videos",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_block_wysiwyg",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_categories",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_codes",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_faq_categories",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_faq_ffbbsite_faq_categories",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_faq_ffbbsite_faq_categories_1",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_forms",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_forms_fields",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_globals",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_jobs_contracts",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_jobs_domains",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_jobs_experience",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_jobs_services",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_jobs_studies",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_jobs_units",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_navigation",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_navigations_items",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_news_ffbbsite_categories",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_news_ffbbsite_tags",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_pages_blocks_1",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_pages_ffbbsite_codes",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_partners",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_self_promotion",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_seo",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "ffbbsite_tags",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "fonctions_officiels",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "formations",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "formations_domain",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "formations_files",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "formations_theme",
       "status": "not_available"
     },
     {
@@ -499,7 +1138,167 @@
       "status": "not_available"
     },
     {
+      "indexUid": "junction_directus_files_ffbbsite_assets_tags",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "junction_directus_files_ffbbsite_assets_types",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "junction_directus_files_ffbbsite_categories",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "labellisation_label",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "labellisation_programme",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "labellisations_organismes",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "membres",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "officiels",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "officiels_rencontres",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "offres_pratiques",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "organismes",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "organismes_ffbbserver_offres_pratiques",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "organismes_ffbbserver_organismes",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "poules",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "poules_classements",
+      "status": "not_available"
+    },
+    {
       "indexUid": "rematch_videos",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "rencontres",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "revetements",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "saisons",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "salles",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "sessions",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "terrains",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "tournois",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "tournois_ffbbserver_types_tournois_3x3",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "types_associations",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "types_competitions",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "types_divisions",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "types_pratiques_sportives",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "types_tournois",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "types_tournois_3x3",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "users",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "users_favoris",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "users_ffbbserver_competitions",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "users_ffbbserver_organismes",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "users_notifications",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "users_notifications_types",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "users_tokens",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "youtube_playlists_youtube_videos",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "youtube_tags",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "youtube_videos_tags",
+      "status": "not_available"
+    },
+    {
+      "indexUid": "youtube_videos_youtube_tags",
       "status": "not_available"
     }
   ]

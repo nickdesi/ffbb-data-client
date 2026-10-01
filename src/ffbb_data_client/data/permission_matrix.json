@@ -1,18 +1,6 @@
 {
   "drift": {
-    "added": [
-      "competition_archived_direct",
-      "competition_archived_filter",
-      "competition_current_direct",
-      "competition_current_filter",
-      "competitions_listing",
-      "config_noauth",
-      "engagements_listing",
-      "organismes_listing",
-      "rencontres_listing",
-      "saisons_id_field",
-      "saisons_nom_field"
-    ],
+    "added": [],
     "flips": [],
     "removed": []
   },
@@ -21,7 +9,7 @@
     "archived_competition_id": "200000002872733",
     "canary_season": "2026-2027",
     "current_competition_id": "200000002900744",
-    "timestamp": "2026-09-22T17:00:16.721946+00:00",
+    "timestamp": "2026-10-01T07:35:55.830008+00:00",
     "token_source": "public-fallback"
   },
   "probes": [
@@ -76,10 +64,17 @@
     },
     {
       "name": "competition_current_direct",
-      "notes": "Canari saison 2026-2027 : à rafraîchir à chaque rollover. Un flip ici signale un canari périmé, pas forcément un changement de politique.",
+      "notes": "Canari saison 2026-2027 : auto-rafraîchissable sur rollover. Un flip ici signale un canari périmé, pas forcément un changement de politique.",
       "outcome": "ok",
       "status": 200,
       "url": "https://api.ffbb.app/items/ffbbserver_competitions/200000002900744"
+    },
+    {
+      "name": "relational_nested_expand",
+      "notes": "Jointure relationnelle multi-niveaux Directus (rencontre->poule->competition->organisateur).",
+      "outcome": "ok",
+      "status": 200,
+      "url": "https://api.ffbb.app/items/ffbbserver_rencontres?fields%5B%5D=id&fields%5B%5D=numero&fields%5B%5D=idPoule.id&fields%5B%5D=idPoule.nom&fields%5B%5D=idPoule.id_competition.id&fields%5B%5D=idPoule.id_competition.organisateur.code&limit=1&sort=-id"
     },
     {
       "name": "competition_current_filter",

@@ -75,7 +75,7 @@ Index ``ffbbnational_galeries``
 Index ``ffbbnational_pratiques``
 --------------------------------
 
-- **Nombre d'enregistrements estimés** : ``515``
+- **Nombre d'enregistrements estimés** : ``549``
 
 .. list-table::
    :header-rows: 1
@@ -235,7 +235,7 @@ Index ``ffbbnational_pratiques``
 Index ``ffbbnational_rss``
 --------------------------
 
-- **Nombre d'enregistrements estimés** : ``4296``
+- **Nombre d'enregistrements estimés** : ``4329``
 
 .. list-table::
    :header-rows: 1
@@ -314,7 +314,7 @@ Index ``ffbbnational_rss``
 Index ``ffbbserver_competitions``
 ---------------------------------
 
-- **Nombre d'enregistrements estimés** : ``2442``
+- **Nombre d'enregistrements estimés** : ``2994``
 
 .. list-table::
    :header-rows: 1
@@ -532,7 +532,7 @@ Index ``ffbbserver_engagements``
 Index ``ffbbserver_formations``
 -------------------------------
 
-- **Nombre d'enregistrements estimés** : ``144``
+- **Nombre d'enregistrements estimés** : ``150``
 
 .. list-table::
    :header-rows: 1
@@ -966,7 +966,7 @@ Index ``ffbbserver_terrains``
 Index ``ffbbserver_tournois``
 -----------------------------
 
-- **Nombre d'enregistrements estimés** : ``3``
+- **Nombre d'enregistrements estimés** : ``16``
 
 .. list-table::
    :header-rows: 1
@@ -1069,10 +1069,171 @@ Index ``ffbbserver_tournois``
      - ``général``
      - Attribut exposé dans l'index.
 
+Index ``ffbbsite_faq``
+----------------------
+
+- **Nombre d'enregistrements estimés** : ``187``
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 20 55
+
+   * - Attribut
+     - Catégorie
+     - Description & Usage
+   * - ``answer``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``category``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``date_published``
+     - ``temporel``
+     - Date de mise en ligne ou publication publique de l'article/contenu.
+   * - ``id``
+     - ``identification``
+     - Identifiant numérique unique de la ressource dans le système Directus FFBB.
+   * - ``question``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``subcategories``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``thumbnail``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``type``
+     - ``statut``
+     - Typologie administrative de l'organisme (Club, Comité départemental, Ligue régionale, Groupement, etc.).
+
+Index ``ffbbsite_jobs``
+-----------------------
+
+- **Nombre d'enregistrements estimés** : ``4``
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 20 55
+
+   * - Attribut
+     - Catégorie
+     - Description & Usage
+   * - ``asset``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``author``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``category``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``city``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``contract_duration``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``contract_specificities``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``contract_type``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``date_published``
+     - ``temporel``
+     - Date de mise en ligne ou publication publique de l'article/contenu.
+   * - ``date_published_timestamp``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``degree``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``departement``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``domain``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``experience``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``id``
+     - ``identification``
+     - Identifiant numérique unique de la ressource dans le système Directus FFBB.
+   * - ``job_description``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``job_start``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``job_start_filter``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``job_start_timestamp``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``lieu``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``mail``
+     - ``contact``
+     - Adresse email de contact officiel de l'organisme ou du correspondant.
+   * - ``openings``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``phone``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``postal_code``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``profil``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``reference``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``region``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``salary``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``service``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``structure``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``structure_linked``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``studies``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``terms_contact``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``thumbnail``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``title``
+     - ``contenu``
+     - Titre officiel du contenu, événement ou entité.
+   * - ``type``
+     - ``statut``
+     - Typologie administrative de l'organisme (Club, Comité départemental, Ligue régionale, Groupement, etc.).
+   * - ``type_filter``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``unit``
+     - ``général``
+     - Attribut exposé dans l'index.
+
 Index ``ffbbsite_news``
 -----------------------
 
-- **Nombre d'enregistrements estimés** : ``6301``
+- **Nombre d'enregistrements estimés** : ``6332``
 
 .. list-table::
    :header-rows: 1
@@ -1144,6 +1305,77 @@ Index ``ffbbsite_news``
    * - ``type``
      - ``statut``
      - Typologie administrative de l'organisme (Club, Comité départemental, Ligue régionale, Groupement, etc.).
+
+Index ``ffbbsite_pages``
+------------------------
+
+- **Nombre d'enregistrements estimés** : ``351``
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 20 55
+
+   * - Attribut
+     - Catégorie
+     - Description & Usage
+   * - ``categories``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``category``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``codes``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``content``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``date_published``
+     - ``temporel``
+     - Date de mise en ligne ou publication publique de l'article/contenu.
+   * - ``id``
+     - ``identification``
+     - Identifiant numérique unique de la ressource dans le système Directus FFBB.
+   * - ``image``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``link``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``navigation_type``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``permalink``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``private``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``private_type``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``thumbnail``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``title``
+     - ``contenu``
+     - Titre officiel du contenu, événement ou entité.
+   * - ``type``
+     - ``statut``
+     - Typologie administrative de l'organisme (Club, Comité départemental, Ligue régionale, Groupement, etc.).
+
+Index ``youtube_playlists``
+---------------------------
+
+- **Nombre d'enregistrements estimés** : ``0``
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 20 55
+
+   * - Attribut
+     - Catégorie
+     - Description & Usage
 
 Index ``youtube_videos``
 ------------------------

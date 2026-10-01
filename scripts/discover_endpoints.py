@@ -15,6 +15,7 @@ Usage:
 
 from __future__ import annotations
 
+import concurrent.futures
 import hashlib
 import json
 import re
@@ -206,29 +207,33 @@ def _build_openapi_snapshot(openapi: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _probe_meili_indexes(token: str) -> list[dict[str, Any]]:
+def _probe_meili_indexes(
+    token: str, candidate_indexes: list[str] | None = None
+) -> list[dict[str, Any]]:
     url = f"{MEILISEARCH_BASE_URL}{MEILISEARCH_ENDPOINT_MULTI_SEARCH}"
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",
         "user-agent": DEFAULT_USER_AGENT,
     }
-    discovered: list[dict[str, Any]] = []
+    candidates = sorted(
+        set(
+            candidate_indexes
+            if candidate_indexes is not None
+            else MEILI_CANDIDATE_INDEXES
+        )
+    )
 
-    for index_uid in sorted(set(MEILI_CANDIDATE_INDEXES)):
-        # Use limit 20 to aggregate observed keys across multiple records
+    def _probe_one(index_uid: str) -> dict[str, Any]:
         payload = {"queries": [{"indexUid": index_uid, "q": "", "limit": 20}]}
         try:
             response = http_post_json(url, headers, data=payload, timeout=30)
         except Exception:
-            discovered.append(
-                {
-                    "indexUid": index_uid,
-                    "available": False,
-                    "status": "not_available",
-                }
-            )
-            continue
+            return {
+                "indexUid": index_uid,
+                "available": False,
+                "status": "not_available",
+            }
 
         results = response.get("results", []) if isinstance(response, dict) else []
         result = results[0] if results else {}
@@ -238,17 +243,16 @@ def _probe_meili_indexes(token: str) -> list[dict[str, Any]]:
             for hit in hits:
                 if isinstance(hit, dict):
                     observed_keys.update(hit.keys())
-        discovered.append(
-            {
-                "indexUid": index_uid,
-                "available": bool(results),
-                "status": "available" if results else "empty_or_not_available",
-                "estimatedTotalHits": result.get("estimatedTotalHits"),
-                "sampleKeys": sorted(observed_keys),
-            }
-        )
+        return {
+            "indexUid": index_uid,
+            "available": bool(results),
+            "status": "available" if results else "empty_or_not_available",
+            "estimatedTotalHits": result.get("estimatedTotalHits"),
+            "sampleKeys": sorted(observed_keys),
+        }
 
-    return discovered
+    with concurrent.futures.ThreadPoolExecutor(max_workers=15) as executor:
+        return list(executor.map(_probe_one, candidates))
 
 
 def _diff_lists(before: list[str], after: list[str]) -> dict[str, list[str]]:
@@ -746,7 +750,16 @@ def main() -> None:
     timestamp = datetime.now(timezone.utc).isoformat()
     collections = _extract_item_collections(openapi)
     item_paths = _extract_item_paths(openapi)
-    meili_indexes = _probe_meili_indexes(tokens.meilisearch_token)
+
+    # Heuristic discovery: combine fixed candidates with live Directus collections
+    all_candidates = set(MEILI_CANDIDATE_INDEXES)
+    for col in collections:
+        all_candidates.add(col)
+        short_col = col.removeprefix("ffbbserver_")
+        if short_col != col:
+            all_candidates.add(short_col)
+
+    meili_indexes = _probe_meili_indexes(tokens.meilisearch_token, list(all_candidates))
     available_indexes = [
         item["indexUid"] for item in meili_indexes if item["available"]
     ]
