@@ -138,6 +138,7 @@ def resolve_current_canary_competition(
                 season = str(data[0].get("saison") or CANARY_SEASON)
                 return str(data[0]["id"]), season
     except Exception:
+        # Fallback to canary constants if live query fails
         pass
     return CANARY_CURRENT_COMPETITION_ID, CANARY_SEASON
 
