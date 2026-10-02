@@ -27,6 +27,7 @@ env:
 jobs:
   review:
     runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]' && !contains(github.actor, '[bot]')
 
     env:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
