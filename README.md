@@ -2,8 +2,8 @@
 
 <img src="https://raw.githubusercontent.com/nickdesi/ffbb-data-client/master/website/assets/logo.webp" alt="FFBB Data Client Logo" width="160" style="margin-bottom: 12px; border-radius: 20px; box-shadow: 0 8px 24px rgba(255, 107, 0, 0.25);" />
 
-# 🏀 FFBB Data Client
-### L'API Officielle du Basket Français en Python & Recherche Meilisearch
+# 🏀 API FFBB (Python SDK) — ffbb-data-client
+### Client Officiel & Asynchrone pour l'API de la Fédération Française de BasketBall (2026)
 
 **Le SDK Python moderne, ultra-rapide, asynchrone et typé pour exploiter l'API de la Fédération Française de BasketBall (FFBB) : clubs, compétitions nationales & régionales, scores en direct (lives), classements, calendriers, gymnases/salles et détection de niveau.**
 
@@ -33,7 +33,7 @@
 [🧵 Streaming Async](#-haute-performance--streaming-asynchrone) •
 [🤖 Intégration IA / MCP](#-ia-agents--mcp-server) •
 [🌐 API REST](#-serveur-rest-fastapi-embarqué) •
-[📖 Documentation](https://nickdesi.github.io/ffbb-data-client/)
+[📖 Documentation](https://ffbb-api.desimone.fr/docs)
 
 </div>
 
