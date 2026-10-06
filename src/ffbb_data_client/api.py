@@ -457,9 +457,9 @@ class LRUCache:
 
 
 # Cache dictionaries with bounded capacity
-_org_cache = LRUCache(maxsize=1024)
-_logo_cache = LRUCache(maxsize=2048)
-_salle_cache = LRUCache(maxsize=2048)
+_org_cache = LRUCache(maxsize=256, default_ttl=1800.0)
+_logo_cache = LRUCache(maxsize=512, default_ttl=3600.0)
+_salle_cache = LRUCache(maxsize=512, default_ttl=3600.0)
 
 
 def get_cached_organisme(client, org_id: Any):

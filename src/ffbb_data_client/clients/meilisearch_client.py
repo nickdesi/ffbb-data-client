@@ -5,6 +5,7 @@ import hashlib
 import json
 import threading
 import time
+from collections import OrderedDict
 from collections.abc import Sequence
 from typing import Any
 
@@ -32,9 +33,10 @@ from ..utils.retry_utils import (
 )
 from ..utils.secure_logging import get_secure_logger
 
-_APP_CACHE: dict[str, tuple[float, Any]] = {}
+_APP_CACHE: OrderedDict[str, tuple[float, Any]] = OrderedDict()
 _APP_CACHE_LOCK = threading.Lock()
 _APP_CACHE_TTL: int = 300  # secondes, modifiable
+_APP_CACHE_MAXSIZE: int = 500  # Capacité maximale bornée (prévention fuite mémoire)
 
 
 def _make_cache_key(queries: Sequence[MultiSearchQuery] | None) -> str:
@@ -46,19 +48,23 @@ def _make_cache_key(queries: Sequence[MultiSearchQuery] | None) -> str:
 def _cache_get(key: str) -> Any | None:
     with _APP_CACHE_LOCK:
         entry = _APP_CACHE.get(key)
-    if entry is None:
-        return None
-    ts, value = entry
-    if time.monotonic() - ts > _APP_CACHE_TTL:
-        with _APP_CACHE_LOCK:
+        if entry is None:
+            return None
+        ts, value = entry
+        if time.monotonic() - ts > _APP_CACHE_TTL:
             _APP_CACHE.pop(key, None)
-        return None
-    return value
+            return None
+        _APP_CACHE.move_to_end(key)
+        return value
 
 
 def _cache_set(key: str, value: Any) -> None:
     with _APP_CACHE_LOCK:
+        if key in _APP_CACHE:
+            _APP_CACHE.move_to_end(key)
         _APP_CACHE[key] = (time.monotonic(), value)
+        if len(_APP_CACHE) > _APP_CACHE_MAXSIZE:
+            _APP_CACHE.popitem(last=False)
 
 
 def _clone_multi_search_results(
