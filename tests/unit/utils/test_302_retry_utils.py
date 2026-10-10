@@ -205,7 +205,7 @@ class Test016RetryTimeout(unittest.TestCase):
         self.assertEqual(config.max_delay, 60.0)
         self.assertEqual(config.backoff_factor, 2.0)
         self.assertTrue(config.jitter)
-        self.assertEqual(config.retry_on_status_codes, [429, 500, 502, 503, 504])
+        self.assertEqual(config.retry_on_status_codes, [403, 429, 500, 502, 503, 504])
         import httpx
 
         self.assertEqual(
@@ -215,6 +215,39 @@ class Test016RetryTimeout(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, "at least 1"):
             RetryConfig(max_attempts=0)
+
+    def test_should_retry_403_bunnycdn_html(self):
+        """Test should_retry returns True for BunnyCDN 403 HTML responses."""
+        from unittest.mock import MagicMock
+
+        response = MagicMock()
+        response.status_code = 403
+        response.headers = {"content-type": "text/html; charset=UTF-8"}
+        response.text = "<html><body>Request blocked by BunnyCDN</body></html>"
+
+        self.assertTrue(should_retry(0, response, None, self.retry_config))
+
+    def test_should_retry_403_directus_json(self):
+        """Test should_retry returns False for Directus 403 JSON responses."""
+        from unittest.mock import MagicMock
+
+        response = MagicMock()
+        response.status_code = 403
+        response.headers = {"content-type": "application/json"}
+        response.text = '{"errors": [{"message": "You do not have permission"}]}'
+
+        self.assertFalse(should_retry(0, response, None, self.retry_config))
+
+    def test_should_retry_403_non_bunnycdn_mock(self):
+        """Test should_retry returns False for generic 403 responses without HTML/Bunny markers."""
+        from unittest.mock import MagicMock
+
+        response = MagicMock()
+        response.status_code = 403
+        response.headers = {}
+        response.text = "Forbidden"
+
+        self.assertFalse(should_retry(0, response, None, self.retry_config))
 
 
 if __name__ == "__main__":

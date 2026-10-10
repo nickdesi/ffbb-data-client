@@ -498,6 +498,28 @@ async def http_get_async(
         debug=debug,
     )
 
+    # BunnyCDN WAF fallback: cycle through alternative User-Agents (mirrors sync path)
+    if response.status_code == 403 and _is_bunnycdn_block(response):
+        current_ua = headers.get("user-agent", "")
+        for fallback_ua in FALLBACK_USER_AGENTS:
+            if fallback_ua == current_ua:
+                continue
+            headers["user-agent"] = fallback_ua
+            logger.warning(
+                "BunnyCDN WAF 403 on %s. Retrying async GET with fallback UA.", url
+            )
+            response = await make_http_request_with_retry_async(
+                "GET",
+                url,
+                headers,
+                cached_session=cached_session,
+                retry_config=r_config,
+                timeout_config=t_config,
+                debug=debug,
+            )
+            if response.status_code == 200 or not _is_bunnycdn_block(response):
+                break
+
     if response.status_code in (401, 403) and "Authorization" in headers:
         if _handle_token_refresh(url, headers, debug):
             response = await make_http_request_with_retry_async(
@@ -571,63 +593,55 @@ async def http_post_async(
 
     filtered_data = {k: v for k, v in data.items() if v is not None} if data else None
 
-    # Use retry logic if configured
-    if retry_config and timeout_config:
-        response = await make_http_request_with_retry_async(
-            "POST",
-            url,
-            headers,
-            data=filtered_data,
-            cached_session=cached_session,
-            retry_config=retry_config,
-            timeout_config=timeout_config,
-            debug=debug,
-        )
-    else:
-        # Fallback to reusable async client to keep connections warm across calls.
-        if cached_session:
-            response = await cached_session.post(
-                url,
-                headers=headers,
-                json=filtered_data,
-                timeout=_build_timeout(timeout_config or timeout),
+    t_config = timeout_config or TimeoutConfig(total_timeout=timeout)
+    r_config = retry_config or RetryConfig(max_attempts=1)
+
+    response = await make_http_request_with_retry_async(
+        "POST",
+        url,
+        headers,
+        data=filtered_data,
+        cached_session=cached_session,
+        retry_config=r_config,
+        timeout_config=t_config,
+        debug=debug,
+    )
+
+    # BunnyCDN WAF fallback: cycle through alternative User-Agents (mirrors sync path)
+    if response.status_code == 403 and _is_bunnycdn_block(response):
+        current_ua = headers.get("user-agent", "")
+        for fallback_ua in FALLBACK_USER_AGENTS:
+            if fallback_ua == current_ua:
+                continue
+            headers["user-agent"] = fallback_ua
+            logger.warning(
+                "BunnyCDN WAF 403 on %s. Retrying async POST with fallback UA.", url
             )
-        else:
-            response = await (await _get_default_async_client(timeout)).post(
+            response = await make_http_request_with_retry_async(
+                "POST",
                 url,
-                headers=headers,
-                json=filtered_data,
-                timeout=_build_timeout(timeout_config or timeout),
+                headers,
+                data=filtered_data,
+                cached_session=cached_session,
+                retry_config=r_config,
+                timeout_config=t_config,
+                debug=debug,
             )
+            if response.status_code == 200 or not _is_bunnycdn_block(response):
+                break
 
     if response.status_code in (401, 403) and "Authorization" in headers:
         if _handle_token_refresh(url, headers, debug):
-            if retry_config and timeout_config:
-                response = await make_http_request_with_retry_async(
-                    "POST",
-                    url,
-                    headers,
-                    data=filtered_data,
-                    cached_session=cached_session,
-                    retry_config=retry_config,
-                    timeout_config=timeout_config,
-                    debug=debug,
-                )
-            else:
-                if cached_session:
-                    response = await cached_session.post(
-                        url,
-                        headers=headers,
-                        json=filtered_data,
-                        timeout=_build_timeout(timeout_config or timeout),
-                    )
-                else:
-                    response = await (await _get_default_async_client(timeout)).post(
-                        url,
-                        headers=headers,
-                        json=filtered_data,
-                        timeout=_build_timeout(timeout_config or timeout),
-                    )
+            response = await make_http_request_with_retry_async(
+                "POST",
+                url,
+                headers,
+                data=filtered_data,
+                cached_session=cached_session,
+                retry_config=r_config,
+                timeout_config=t_config,
+                debug=debug,
+            )
 
     if debug:
         end_time = time.time()

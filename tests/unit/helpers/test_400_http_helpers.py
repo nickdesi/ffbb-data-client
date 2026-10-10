@@ -20,8 +20,10 @@ from ffbb_data_client.helpers.http_requests_utils import (
     _raise_for_status,
     encode_params,
     http_get,
+    http_get_async,
     http_get_json,
     http_post,
+    http_post_async,
     http_post_json,
     to_json_from_response,
     url_with_params,
@@ -321,6 +323,89 @@ class Test045HttpHelpers(unittest.TestCase):
         with self.assertRaises(FFBBAuthenticationError) as ctx:
             _raise_for_status(response)
         self.assertIn("Directus", str(ctx.exception))
+
+    @patch(
+        "ffbb_data_client.helpers.http_requests_utils.make_http_request_with_retry_async"
+    )
+    def test_025_http_get_async_bunnycdn_fallback(
+        self, mock_async_http: MagicMock
+    ) -> None:
+        import asyncio
+
+        from httpx import Request, Response
+
+        req = Request("GET", "https://api.ffbb.app/items/competitions")
+        blocked_resp = Response(
+            403,
+            request=req,
+            headers={"content-type": "text/html"},
+            content=b"<html><body>BunnyCDN blocked</body></html>",
+        )
+        ok_resp = Response(
+            200,
+            request=req,
+            headers={"content-type": "application/json"},
+            content=b'{"data": [{"id": 1}]}',
+        )
+
+        mock_async_http.side_effect = [blocked_resp, ok_resp]
+
+        headers = {"user-agent": "okhttp/4.9.2"}
+        loop = asyncio.new_event_loop()
+        try:
+            resp = loop.run_until_complete(
+                http_get_async("https://api.ffbb.app/items/competitions", headers)
+            )
+        finally:
+            loop.close()
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(mock_async_http.call_count, 2)
+        # Verify the user-agent header was changed on fallback
+        second_call_headers = mock_async_http.call_args_list[1][0][2]
+        self.assertNotEqual(second_call_headers.get("user-agent"), "okhttp/4.9.2")
+
+    @patch(
+        "ffbb_data_client.helpers.http_requests_utils.make_http_request_with_retry_async"
+    )
+    def test_026_http_post_async_bunnycdn_fallback(
+        self, mock_async_http: MagicMock
+    ) -> None:
+        import asyncio
+
+        from httpx import Request, Response
+
+        req = Request("POST", "https://api.ffbb.app/items/search")
+        blocked_resp = Response(
+            403,
+            request=req,
+            headers={"content-type": "text/html"},
+            content=b"<html><body>BunnyCDN blocked</body></html>",
+        )
+        ok_resp = Response(
+            200,
+            request=req,
+            headers={"content-type": "application/json"},
+            content=b'{"data": []}',
+        )
+
+        mock_async_http.side_effect = [blocked_resp, ok_resp]
+
+        headers = {"user-agent": "okhttp/4.9.2"}
+        loop = asyncio.new_event_loop()
+        try:
+            resp = loop.run_until_complete(
+                http_post_async(
+                    "https://api.ffbb.app/items/search", headers, data={"query": "test"}
+                )
+            )
+        finally:
+            loop.close()
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(mock_async_http.call_count, 2)
+        second_call_headers = mock_async_http.call_args_list[1][0][2]
+        self.assertNotEqual(second_call_headers.get("user-agent"), "okhttp/4.9.2")
 
 
 if __name__ == "__main__":

@@ -120,7 +120,14 @@ class RetryConfig:
         self.max_delay = max_delay
         self.backoff_factor = backoff_factor
         self.jitter = jitter
-        self.retry_on_status_codes = retry_on_status_codes or [429, 500, 502, 503, 504]
+        self.retry_on_status_codes = retry_on_status_codes or [
+            403,
+            429,
+            500,
+            502,
+            503,
+            504,
+        ]
         self.retry_on_exceptions = retry_on_exceptions or (
             httpx.RequestError,
             ConnectionError,
@@ -195,6 +202,37 @@ def calculate_delay(attempt: int, config: RetryConfig) -> float:
     return delay
 
 
+def _is_bunnycdn_block(response: Any) -> bool:
+    """Distingue un 403 BunnyCDN (WAF/HTML) d'un 403 Directus (JSON).
+
+    BunnyCDN renvoie une page HTML (content-type text/html, marqueur
+    "bunnycdn" ou document "<html") quand le User-Agent n'est pas whitelisté.
+    Directus renvoie du JSON avec le code FORBIDDEN.
+    Défensif : retourne False si la réponse est un Mock incomplet (tests).
+    """
+    if response is None:
+        return False
+    try:
+        headers = getattr(response, "headers", None)
+        if headers is not None and hasattr(headers, "get"):
+            content_type = headers.get("content-type", "")
+            if isinstance(content_type, str) and "text/html" in content_type.lower():
+                return True
+    except Exception:
+        pass
+    try:
+        body = getattr(response, "text", "")
+        if isinstance(body, str):
+            lowered = body.lower()
+            if "bunnycdn" in lowered:
+                return True
+            stripped = body.strip().lower()
+            return stripped.startswith("<!doctype") or stripped.startswith("<html")
+    except Exception:
+        pass
+    return False
+
+
 def should_retry(
     attempt: int,
     response: Response | None,
@@ -223,6 +261,9 @@ def should_retry(
         and hasattr(response, "status_code")
         and response.status_code in config.retry_on_status_codes
     ):
+        # 403: only retry BunnyCDN WAF blocks (HTML), not Directus permission errors (JSON)
+        if response.status_code == 403 and not _is_bunnycdn_block(response):
+            return False
         return True
 
     return False
