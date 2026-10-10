@@ -14,6 +14,13 @@ DEFAULT_USER_AGENT = os.getenv(
     "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
 )
 
+# User-Agents de secours pour contournement transparent et auto-healing en cas de durcissement WAF BunnyCDN
+FALLBACK_USER_AGENTS: list[str] = [
+    "Mozilla/5.0 (Linux; Android 14; SM-S928B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+]
+
 # Environment variable names for tokens
 ENV_API_TOKEN = "API_FFBB_APP_BEARER_TOKEN"  # noqa: S105
 ENV_MEILISEARCH_TOKEN = "MEILISEARCH_BEARER_TOKEN"  # noqa: S105

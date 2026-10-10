@@ -1,6 +1,10 @@
 {
   "drift": {
-    "added": [],
+    "added": [
+      "config_noauth_ipv4",
+      "config_noauth_ipv6",
+      "config_tripwire_okhttp_ipv4"
+    ],
     "flips": [],
     "removed": []
   },
@@ -9,15 +13,36 @@
     "archived_competition_id": "200000002872733",
     "canary_season": "2026-2027",
     "current_competition_id": "200000002900744",
-    "timestamp": "2026-10-01T07:35:55.830008+00:00",
+    "timestamp": "2026-10-10T14:44:42.901605+00:00",
     "token_source": "public-fallback"
   },
   "probes": [
     {
       "name": "config_noauth",
-      "notes": "Public endpoint sans auth : contrôle BunnyCDN et joignabilité.",
+      "notes": "Public endpoint sans auth : contrôle BunnyCDN et joignabilité par défaut.",
       "outcome": "ok",
       "status": 200,
+      "url": "https://api.ffbb.app/items/configuration"
+    },
+    {
+      "name": "config_noauth_ipv4",
+      "notes": "Public endpoint sans auth en IPv4 strict : détection précoce du blocage WAF BunnyCDN IPv4.",
+      "outcome": "ok",
+      "status": 200,
+      "url": "https://api.ffbb.app/items/configuration"
+    },
+    {
+      "name": "config_noauth_ipv6",
+      "notes": "Public endpoint sans auth en IPv6 strict.",
+      "outcome": "ok",
+      "status": 200,
+      "url": "https://api.ffbb.app/items/configuration"
+    },
+    {
+      "name": "config_tripwire_okhttp_ipv4",
+      "notes": "Canari sentinelle okhttp sur IPv4 : attendu blocked_cdn (alerte si débloqué ou si la règle change).",
+      "outcome": "blocked_cdn",
+      "status": 403,
       "url": "https://api.ffbb.app/items/configuration"
     },
     {

@@ -20,6 +20,7 @@ except ImportError:
 import httpx
 from httpx import Client, Response
 
+from ..config import FALLBACK_USER_AGENTS
 from ..exceptions import (
     FFBBAuthenticationError,
     FFBBHTTPError,
@@ -268,17 +269,39 @@ def http_get(
         debug=debug,
     )
 
-    if response.status_code in (401, 403) and "Authorization" in headers:
-        if _handle_token_refresh(url, headers, debug):
-            response = make_http_request_with_retry(
-                "GET",
-                url,
-                headers,
-                cached_session=cached_session,
-                retry_config=r_config,
-                timeout_config=t_config,
-                debug=debug,
-            )
+    if response.status_code in (401, 403):
+        if response.status_code == 403 and _is_bunnycdn_block(response):
+            current_ua = headers.get("user-agent", "")
+            for fallback_ua in FALLBACK_USER_AGENTS:
+                if fallback_ua == current_ua:
+                    continue
+                headers["user-agent"] = fallback_ua
+                if debug:
+                    logger.warning(
+                        f"BunnyCDN WAF 403 on {url}. Retrying with fallback UA: {fallback_ua}"
+                    )
+                response = make_http_request_with_retry(
+                    "GET",
+                    url,
+                    headers,
+                    cached_session=cached_session,
+                    retry_config=r_config,
+                    timeout_config=t_config,
+                    debug=debug,
+                )
+                if response.status_code == 200 or not _is_bunnycdn_block(response):
+                    break
+        elif "Authorization" in headers:
+            if _handle_token_refresh(url, headers, debug):
+                response = make_http_request_with_retry(
+                    "GET",
+                    url,
+                    headers,
+                    cached_session=cached_session,
+                    retry_config=r_config,
+                    timeout_config=t_config,
+                    debug=debug,
+                )
 
     if debug:
         end_time = time.time()

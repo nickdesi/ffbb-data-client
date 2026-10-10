@@ -171,6 +171,27 @@ class TestBuildMatrix:
         )
         assert all(p["outcome"] == "error:RuntimeError" for p in matrix["probes"])
 
+    def test_dual_stack_and_tripwire_probes_present(self, perm: ModuleType) -> None:
+        def fake_fetch(
+            url: str, headers: dict[str, str], timeout: int = 30
+        ) -> Response:
+            if "configuration" in url:
+                return _resp(200, "application/json", b'{"data": {"k": 1}}')
+            return _resp(200, "application/json", b'{"data": []}')
+
+        matrix = perm.build_matrix(
+            fake_fetch,
+            {"Authorization": "Bearer t", "user-agent": "test"},
+            {"user-agent": "test"},
+            previous=None,
+            token_source="env",
+        )
+        by_name = {p["name"]: p for p in matrix["probes"]}
+        assert "config_noauth_ipv4" in by_name
+        assert "config_noauth_ipv6" in by_name
+        assert "config_tripwire_okhttp_ipv4" in by_name
+        assert by_name["config_noauth_ipv4"]["outcome"] == "ok"
+
 
 class TestRenderDriftSummary:
     def test_clean_summary_is_static(self, perm: ModuleType) -> None:

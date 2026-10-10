@@ -182,7 +182,29 @@ def build_probes(
             "name": "config_noauth",
             "url": f"{base}{ENDPOINT_CONFIGURATION}",
             "auth": False,
-            "notes": "Public endpoint sans auth : contrôle BunnyCDN et joignabilité.",
+            "notes": "Public endpoint sans auth : contrôle BunnyCDN et joignabilité par défaut.",
+        },
+        {
+            "name": "config_noauth_ipv4",
+            "url": f"{base}{ENDPOINT_CONFIGURATION}",
+            "auth": False,
+            "force_ipv4": True,
+            "notes": "Public endpoint sans auth en IPv4 strict : détection précoce du blocage WAF BunnyCDN IPv4.",
+        },
+        {
+            "name": "config_noauth_ipv6",
+            "url": f"{base}{ENDPOINT_CONFIGURATION}",
+            "auth": False,
+            "force_ipv6": True,
+            "notes": "Public endpoint sans auth en IPv6 strict.",
+        },
+        {
+            "name": "config_tripwire_okhttp_ipv4",
+            "url": f"{base}{ENDPOINT_CONFIGURATION}",
+            "auth": False,
+            "force_ipv4": True,
+            "user_agent": "okhttp/4.12.0",
+            "notes": "Canari sentinelle okhttp sur IPv4 : attendu blocked_cdn (alerte si débloqué ou si la règle change).",
         },
         {
             "name": "saisons_id_field",
@@ -269,8 +291,45 @@ def run_probe(
         "url": probe["url"],
         "notes": probe.get("notes", ""),
     }
+    probe_headers = dict(headers)
+    if "user_agent" in probe:
+        probe_headers["user-agent"] = probe["user_agent"]
     try:
-        result.update(classify_outcome(fetch(probe["url"], headers, timeout=30)))
+        force_ipv4 = probe.get("force_ipv4", False)
+        force_ipv6 = probe.get("force_ipv6", False)
+        if (force_ipv4 or force_ipv6) and fetch is http_get:
+            import httpx
+
+            local_addr = "0.0.0.0" if force_ipv4 else "::"
+            transport = httpx.HTTPTransport(local_address=local_addr)
+            with httpx.Client(transport=transport) as custom_client:
+                resp = custom_client.get(
+                    probe["url"], headers=probe_headers, timeout=30
+                )
+                result.update(classify_outcome(resp))
+        else:
+            result.update(
+                classify_outcome(fetch(probe["url"], probe_headers, timeout=30))
+            )
+    except OSError as exc:
+        if probe.get("force_ipv6") and (
+            "address" in str(exc).lower() or "unreach" in str(exc).lower()
+        ):
+            result.update(
+                {
+                    "outcome": "skipped:no_ipv6",
+                    "status": None,
+                    "note": "IPv6 unavailable",
+                }
+            )
+        else:
+            result.update(
+                {
+                    "outcome": f"error:{type(exc).__name__}",
+                    "status": None,
+                    "detail": str(exc)[:200],
+                }
+            )
     except Exception as exc:
         result.update(
             {

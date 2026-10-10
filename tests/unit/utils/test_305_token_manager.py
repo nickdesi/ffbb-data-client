@@ -133,6 +133,38 @@ class Test020TokenManager(unittest.TestCase):
         self.assertEqual(tokens.api_token, "api_from_fetch")
         self.assertEqual(tokens.meilisearch_token, "ms_from_fetch")
 
+    @patch("ffbb_data_client.utils.token_manager.make_http_request_with_retry")
+    def test_get_tokens_fallback_user_agent_on_bunnycdn_403(self, mock_http):
+        """Test fallback to alternative User-Agent when BunnyCDN blocks primary UA."""
+        os.environ.pop(ENV_API_TOKEN, None)
+        os.environ.pop(ENV_MEILISEARCH_TOKEN, None)
+
+        from unittest.mock import MagicMock
+
+        from httpx import Request, Response
+
+        # First call (primary UA): 403 BunnyCDN HTML block
+        req = Request("GET", "https://api.ffbb.app/items/configuration")
+        blocked_resp = Response(
+            403,
+            request=req,
+            headers={"content-type": "text/html"},
+            content=b"<html><body>BunnyCDN blocked okhttp</body></html>",
+        )
+        # Second call (fallback UA): 200 OK
+        ok_resp = MagicMock()
+        ok_resp.status_code = 200
+        ok_resp.text = (
+            '{"data": {"id": 1, "key_dh": "fallback_token", "key_ms": "fallback_ms"}}'
+        )
+
+        mock_http.side_effect = [blocked_resp, ok_resp]
+
+        tokens = TokenManager.get_tokens()
+        self.assertEqual(tokens.api_token, "fallback_token")
+        self.assertEqual(tokens.meilisearch_token, "fallback_ms")
+        self.assertEqual(mock_http.call_count, 2)
+
 
 @unittest.skipUnless(
     os.getenv("RUN_FFBB_INTEGRATION") == "1",
