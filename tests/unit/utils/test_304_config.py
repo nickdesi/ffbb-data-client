@@ -23,7 +23,10 @@ class Test019Config(unittest.TestCase):
     def test_user_agent_not_empty(self):
         """Test user agent is defined."""
         self.assertIsNotNone(config.DEFAULT_USER_AGENT)
-        self.assertEqual(config.DEFAULT_USER_AGENT, "okhttp/4.12.0")
+        self.assertTrue(
+            config.DEFAULT_USER_AGENT.startswith("Mozilla/")
+            or "okhttp" in config.DEFAULT_USER_AGENT
+        )
 
     def test_env_token_names_defined(self):
         """Test environment variable names are defined."""

@@ -1,12 +1,18 @@
 """Centralized configuration for FFBB API client."""
 
+import os
+
 # API URLs
 API_FFBB_BASE_URL = "https://api.ffbb.app/"
 MEILISEARCH_BASE_URL = "https://meilisearch-prod.ffbb.app/"
 
 # HTTP Headers
-# Must impersonate the official mobile client (okhttp) to avoid BunnyCDN / WAF 403 Forbidden
-DEFAULT_USER_AGENT = "okhttp/4.12.0"
+# BunnyCDN WAF on Directus (api.ffbb.app) blocks "okhttp/*" over IPv4 with HTTP 403 Forbidden.
+# Use an authentic iOS Safari User-Agent by default, overridable via FFBB_USER_AGENT.
+DEFAULT_USER_AGENT = os.getenv(
+    "FFBB_USER_AGENT",
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
+)
 
 # Environment variable names for tokens
 ENV_API_TOKEN = "API_FFBB_APP_BEARER_TOKEN"  # noqa: S105
