@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.35] - 2026-10-10
+
+### Fixes & Resilience (BunnyCDN WAF Fallback & Async Retries)
+- **Async BunnyCDN UA Fallback**: Alignement de `http_get_async` et `http_post_async` sur le parcours synchrone avec bascule automatique sur `FALLBACK_USER_AGENTS` lors de blocages HTTP 403 HTML BunnyCDN.
+- **Selective 403 Retries**: Ajout du statut 403 a `retry_on_status_codes` avec distinction stricte entre blocages WAF CDN (HTML) et erreurs applicatives Directus (JSON).
+
 ## [2.4.25] - 2026-09-17
 
 ### Features & Parity
