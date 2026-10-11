@@ -329,9 +329,9 @@
       "items/youtube_videos_youtube_tags"
     ],
     "metadata": {
-      "openapi_version": "dcd2ad0fff6086cb91ea14bdd4782bc9ba343b5f",
+      "openapi_version": "9744f09b111bf3033192cbf60e4f2dafbd1a2d5a",
       "source": "https://api.ffbb.app/server/specs/oas",
-      "timestamp": "2026-10-01T07:34:29.224713+00:00"
+      "timestamp": "2026-10-11T11:25:31.496841+00:00"
     },
     "paths": {
       "items/configuration": [
@@ -1404,7 +1404,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 549,
+        "estimatedTotalHits": 598,
         "indexUid": "ffbbnational_pratiques",
         "sampleKeys": [
           "_geo",
@@ -1461,7 +1461,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 4329,
+        "estimatedTotalHits": 4379,
         "indexUid": "ffbbnational_rss",
         "sampleKeys": [
           "categories",
@@ -1491,7 +1491,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 2994,
+        "estimatedTotalHits": 3166,
         "indexUid": "ffbbserver_competitions",
         "sampleKeys": [
           "age",
@@ -1571,7 +1571,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 150,
+        "estimatedTotalHits": 145,
         "indexUid": "ffbbserver_formations",
         "sampleKeys": [
           "certification",
@@ -1734,7 +1734,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 16,
+        "estimatedTotalHits": 32,
         "indexUid": "ffbbserver_tournois",
         "sampleKeys": [
           "_geo",
@@ -1789,7 +1789,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 4,
+        "estimatedTotalHits": 5,
         "indexUid": "ffbbsite_jobs",
         "sampleKeys": [
           "asset",
@@ -1834,7 +1834,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 6332,
+        "estimatedTotalHits": 6382,
         "indexUid": "ffbbsite_news",
         "sampleKeys": [
           "author",
@@ -1893,7 +1893,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 1863,
+        "estimatedTotalHits": 1868,
         "indexUid": "youtube_videos",
         "sampleKeys": [
           "channelId",
@@ -1926,7 +1926,7 @@
     ],
     "metadata": {
       "source": "https://meilisearch-prod.ffbb.app/multi-search",
-      "timestamp": "2026-10-01T07:34:29.224713+00:00"
+      "timestamp": "2026-10-11T11:25:31.496841+00:00"
     },
     "unavailable_indexes": [
       {
@@ -2666,9 +2666,9 @@
   "metadata": {
     "api_base_url": "https://api.ffbb.app/",
     "meilisearch_base_url": "https://meilisearch-prod.ffbb.app/",
-    "openapi_sha256": "3658bee13f442b72d7e5b71c04d995f4f65bdb88b50b89a45f32b1426b1a2c5e",
-    "openapi_snapshot_sha256": "65ecec181d406f60f8c51a1a218c587b554c9dbcaed93d4c12a53ca4a6242cbc",
-    "openapi_version": "dcd2ad0fff6086cb91ea14bdd4782bc9ba343b5f",
-    "timestamp": "2026-10-01T07:34:29.224713+00:00"
+    "openapi_sha256": "27d821d8baa21f33d0607457ce20eaf458cd9ae21184d72624dfd44e396b0c8e",
+    "openapi_snapshot_sha256": "4098254f14104ef897f1a4d47f6e7903186a3cce2b24c3d607d3ba6c5e96762c",
+    "openapi_version": "9744f09b111bf3033192cbf60e4f2dafbd1a2d5a",
+    "timestamp": "2026-10-11T11:25:31.496841+00:00"
   }
 }
