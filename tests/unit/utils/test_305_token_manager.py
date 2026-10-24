@@ -165,6 +165,34 @@ class Test020TokenManager(unittest.TestCase):
         self.assertEqual(tokens.meilisearch_token, "fallback_ms")
         self.assertEqual(mock_http.call_count, 2)
 
+    @patch("ffbb_data_client.utils.token_manager.make_http_request_with_retry")
+    def test_get_tokens_fallback_to_default_tokens_when_all_uas_blocked_by_bunnycdn(
+        self, mock_http
+    ):
+        """Test engaging resilient fallback tokens when all endpoints and UAs are blocked by BunnyCDN WAF."""
+        os.environ.pop(ENV_API_TOKEN, None)
+        os.environ.pop(ENV_MEILISEARCH_TOKEN, None)
+
+        from httpx import Request, Response
+
+        from ffbb_data_client.config import (
+            DEFAULT_FALLBACK_API_TOKEN,
+            DEFAULT_FALLBACK_MEILISEARCH_TOKEN,
+        )
+
+        req = Request("GET", "https://bo.ffbb.com/items/configuration")
+        blocked_resp = Response(
+            403,
+            request=req,
+            headers={"content-type": "text/html"},
+            content=b"<html><body>403 Forbidden BunnyCDN WAF</body></html>",
+        )
+        mock_http.return_value = blocked_resp
+
+        tokens = TokenManager.get_tokens()
+        self.assertEqual(tokens.api_token, DEFAULT_FALLBACK_API_TOKEN)
+        self.assertEqual(tokens.meilisearch_token, DEFAULT_FALLBACK_MEILISEARCH_TOKEN)
+
     def test_discovered_healthy_origin_lifecycle(self):
         """Test that TokenManager can store, use, and clear a discovered healthy origin."""
         TokenManager.clear_discovered_origin()

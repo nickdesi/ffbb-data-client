@@ -33,6 +33,13 @@ class Test019Config(unittest.TestCase):
         self.assertEqual(config.ENV_API_TOKEN, "API_FFBB_APP_BEARER_TOKEN")
         self.assertEqual(config.ENV_MEILISEARCH_TOKEN, "MEILISEARCH_BEARER_TOKEN")
 
+    def test_fallback_tokens_defined(self):
+        """Test default fallback tokens are defined and non-empty."""
+        self.assertIsNotNone(config.DEFAULT_FALLBACK_API_TOKEN)
+        self.assertIsNotNone(config.DEFAULT_FALLBACK_MEILISEARCH_TOKEN)
+        self.assertGreater(len(config.DEFAULT_FALLBACK_API_TOKEN), 10)
+        self.assertGreater(len(config.DEFAULT_FALLBACK_MEILISEARCH_TOKEN), 10)
+
     def test_api_endpoint_constants_defined(self):
         """Test API endpoint constants are defined."""
         self.assertEqual(config.ENDPOINT_CONFIGURATION, "items/configuration")

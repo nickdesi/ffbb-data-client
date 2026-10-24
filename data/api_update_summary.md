@@ -1,10 +1,10 @@
 # FFBB API update summary
 
-- Timestamp: `2026-10-13T12:17:56.973628+00:00`
+- Timestamp: `2026-10-24T11:44:11.951983+00:00`
 - API base URL: `https://bo.ffbb.com/`
 - Meilisearch base URL: `https://meilisearch-prod.ffbb.app/`
-- OpenAPI version: `d7c8f0b3195fb0535eabd9d05c510a002d838c9a`
-- OpenAPI SHA256: `845c3e397ddc6d238069f38b23b08438893470c106a22c3292508fd7eb8c8188`
+- OpenAPI version: `4aa55950ce1db53a17db2c04c935dc112989a92c`
+- OpenAPI SHA256: `023cee7b018aed058369ca6757cfa08c823328ebe64f1e055dca22387b862bce`
 
 ## Directus collections
 - Total: `162`
@@ -22,7 +22,6 @@
 - Removed: None
 
 ## 🌐 Next.js Web Origin Probe
-- Healthy Directus origins: `https://bo.ffbb.com/`, `https://bo.ffbb.app/`
 - Meilisearch public URL: `https://meilisearch-prod.ffbb.app`
 - Scanned Next.js chunks: 17
 

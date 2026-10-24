@@ -1,8 +1,8 @@
 # FFBB Data Client SDK
 
 > ⚠️ **Fichier auto-généré** par `tools/update_agents_md.py` — ne pas modifier manuellement.
-> Dernière mise à jour : ffbb-data-client | SDK total : ~19037 lignes de code
-> (clients: 6014, models: 9806, utils: 2061, helpers: 1156)
+> Dernière mise à jour : ffbb-data-client | SDK total : ~19897 lignes de code
+> (clients: 6425, models: 9811, utils: 2432, helpers: 1229)
 
 ## Langue
 Tous les documents de travail (walkthrough.md, implementation_plan.md) DOIVENT être en français.
@@ -69,13 +69,13 @@ Ces directives inspirées d'Andrej Karpathy visent à éliminer les erreurs de c
 ```
 src/ffbb_data_client/
 ├── __init__.py            # Point d'entrée du SDK, expose FFBBDataClient et FFBBTokens
-├── clients/               # Clients d'API (REST et Meilisearch) et façades (≈6014 lignes)
+├── clients/               # Clients d'API (REST et Meilisearch) et façades (≈6425 lignes)
 ├── config.py              # Configuration centralisée (URLs, Headers, Endpoints, Facettes)
 ├── data/                  # Ressources et données statiques
-├── helpers/               # Méthodes utilitaires pour requêtes HTTP et mapping (≈1156 lignes)
-├── models/                # Modèles de données Pydantic type-safe (≈9806 lignes)
+├── helpers/               # Méthodes utilitaires pour requêtes HTTP et mapping (≈1229 lignes)
+├── models/                # Modèles de données Pydantic type-safe (≈9811 lignes)
 ├── py.typed               # Marqueur pour la compatibilité avec mypy
-└── utils/                 # Gestionnaires transversaux (cache, jetons de sécurité, validation) (≈2061 lignes)
+└── utils/                 # Gestionnaires transversaux (cache, jetons de sécurité, validation) (≈2432 lignes)
 ```
 
 ## Conventions de code

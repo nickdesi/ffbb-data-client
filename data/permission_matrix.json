@@ -1,7 +1,83 @@
 {
   "drift": {
     "added": [],
-    "flips": [],
+    "flips": [
+      {
+        "after": "blocked_cdn",
+        "before": "forbidden_directus",
+        "probe": "competition_archived_direct"
+      },
+      {
+        "after": "blocked_cdn",
+        "before": "empty",
+        "probe": "competition_archived_filter"
+      },
+      {
+        "after": "blocked_cdn",
+        "before": "ok",
+        "probe": "competition_current_direct"
+      },
+      {
+        "after": "blocked_cdn",
+        "before": "ok",
+        "probe": "competition_current_filter"
+      },
+      {
+        "after": "blocked_cdn",
+        "before": "ok",
+        "probe": "competitions_listing"
+      },
+      {
+        "after": "blocked_cdn",
+        "before": "ok",
+        "probe": "config_noauth"
+      },
+      {
+        "after": "blocked_cdn",
+        "before": "ok",
+        "probe": "config_noauth_ipv4"
+      },
+      {
+        "after": "blocked_cdn",
+        "before": "error:ConnectError",
+        "probe": "config_noauth_ipv6"
+      },
+      {
+        "after": "blocked_cdn",
+        "before": "ok",
+        "probe": "config_tripwire_okhttp_ipv4"
+      },
+      {
+        "after": "blocked_cdn",
+        "before": "ok",
+        "probe": "engagements_listing"
+      },
+      {
+        "after": "blocked_cdn",
+        "before": "ok",
+        "probe": "organismes_listing"
+      },
+      {
+        "after": "blocked_cdn",
+        "before": "ok",
+        "probe": "relational_nested_expand"
+      },
+      {
+        "after": "blocked_cdn",
+        "before": "ok",
+        "probe": "rencontres_listing"
+      },
+      {
+        "after": "blocked_cdn",
+        "before": "ok",
+        "probe": "saisons_id_field"
+      },
+      {
+        "after": "blocked_cdn",
+        "before": "forbidden_directus",
+        "probe": "saisons_nom_field"
+      }
+    ],
     "removed": []
   },
   "metadata": {
@@ -9,115 +85,113 @@
     "archived_competition_id": "200000002872733",
     "canary_season": "2026-2027",
     "current_competition_id": "200000002900744",
-    "timestamp": "2026-10-13T12:09:20.089035+00:00",
+    "timestamp": "2026-10-24T11:43:45.501709+00:00",
     "token_source": "public-fallback"
   },
   "probes": [
     {
       "name": "config_noauth",
       "notes": "Public endpoint sans auth : contrôle BunnyCDN et joignabilité par défaut.",
-      "outcome": "ok",
-      "status": 200,
+      "outcome": "blocked_cdn",
+      "status": 403,
       "url": "https://bo.ffbb.com/items/configuration"
     },
     {
       "name": "config_noauth_ipv4",
       "notes": "Public endpoint sans auth en IPv4 strict : détection précoce du blocage WAF BunnyCDN IPv4.",
-      "outcome": "ok",
-      "status": 200,
+      "outcome": "blocked_cdn",
+      "status": 403,
       "url": "https://bo.ffbb.com/items/configuration"
     },
     {
-      "detail": "[Errno 8] nodename nor servname provided, or not known",
       "name": "config_noauth_ipv6",
       "notes": "Public endpoint sans auth en IPv6 strict.",
-      "outcome": "error:ConnectError",
-      "status": null,
+      "outcome": "blocked_cdn",
+      "status": 403,
       "url": "https://bo.ffbb.com/items/configuration"
     },
     {
       "name": "config_tripwire_okhttp_ipv4",
       "notes": "Canari sentinelle okhttp sur IPv4 : attendu blocked_cdn (alerte si débloqué ou si la règle change).",
-      "outcome": "ok",
-      "status": 200,
+      "outcome": "blocked_cdn",
+      "status": 403,
       "url": "https://bo.ffbb.com/items/configuration"
     },
     {
       "name": "saisons_id_field",
       "notes": "Champ contrôle, attendu ok.",
-      "outcome": "ok",
-      "status": 200,
+      "outcome": "blocked_cdn",
+      "status": 403,
       "url": "https://bo.ffbb.com/items/ffbbserver_saisons?fields%5B%5D=id&limit=1"
     },
     {
       "name": "saisons_nom_field",
       "notes": "Champ restreint depuis sept 2026 : 403 Directus attendu.",
-      "outcome": "forbidden_directus",
+      "outcome": "blocked_cdn",
       "status": 403,
       "url": "https://bo.ffbb.com/items/ffbbserver_saisons?fields%5B%5D=nom&limit=1"
     },
     {
       "name": "competitions_listing",
       "notes": "Listing contrôle, attendu ok.",
-      "outcome": "ok",
-      "status": 200,
+      "outcome": "blocked_cdn",
+      "status": 403,
       "url": "https://bo.ffbb.com/items/ffbbserver_competitions?limit=1"
     },
     {
       "name": "organismes_listing",
       "notes": "Listing contrôle, attendu ok.",
-      "outcome": "ok",
-      "status": 200,
+      "outcome": "blocked_cdn",
+      "status": 403,
       "url": "https://bo.ffbb.com/items/ffbbserver_organismes?limit=1"
     },
     {
       "name": "rencontres_listing",
       "notes": "Listing contrôle, attendu ok.",
-      "outcome": "ok",
-      "status": 200,
+      "outcome": "blocked_cdn",
+      "status": 403,
       "url": "https://bo.ffbb.com/items/ffbbserver_rencontres?limit=1"
     },
     {
       "name": "engagements_listing",
       "notes": "Listing contrôle, attendu ok.",
-      "outcome": "ok",
-      "status": 200,
+      "outcome": "blocked_cdn",
+      "status": 403,
       "url": "https://bo.ffbb.com/items/ffbbserver_engagements?limit=1"
     },
     {
       "name": "competition_current_direct",
       "notes": "Canari saison 2026-2027 : auto-rafraîchissable sur rollover. Un flip ici signale un canari périmé, pas forcément un changement de politique.",
-      "outcome": "ok",
-      "status": 200,
+      "outcome": "blocked_cdn",
+      "status": 403,
       "url": "https://bo.ffbb.com/items/ffbbserver_competitions/200000002900744"
     },
     {
       "name": "relational_nested_expand",
       "notes": "Jointure relationnelle multi-niveaux Directus (rencontre->poule->competition->organisateur).",
-      "outcome": "ok",
-      "status": 200,
+      "outcome": "blocked_cdn",
+      "status": 403,
       "url": "https://bo.ffbb.com/items/ffbbserver_rencontres?fields%5B%5D=id&fields%5B%5D=numero&fields%5B%5D=idPoule.id&fields%5B%5D=idPoule.nom&fields%5B%5D=idPoule.id_competition.id&fields%5B%5D=idPoule.id_competition.organisateur.code&limit=1&sort=-id"
     },
     {
       "name": "competition_current_filter",
       "notes": "Filtre sur saison courante, attendu ok non vide.",
-      "outcome": "ok",
-      "status": 200,
+      "outcome": "blocked_cdn",
+      "status": 403,
       "url": "https://bo.ffbb.com/items/ffbbserver_competitions?filter%5Bid%5D%5B_eq%5D=200000002900744&limit=1"
     },
     {
       "name": "competition_archived_direct",
       "notes": "Saison archivée : 403 Directus attendu sur accès direct.",
-      "outcome": "forbidden_directus",
+      "outcome": "blocked_cdn",
       "status": 403,
       "url": "https://bo.ffbb.com/items/ffbbserver_competitions/200000002872733"
     },
     {
-      "content_type": "application/json; charset=utf-8",
       "name": "competition_archived_filter",
       "notes": "Filtre sur archivé : 200 vide attendu (pas une erreur HTTP).",
-      "outcome": "empty",
-      "status": 200,
+      "outcome": "blocked_cdn",
+      "status": 403,
       "url": "https://bo.ffbb.com/items/ffbbserver_competitions?filter%5Bid%5D%5B_eq%5D=200000002872733&limit=1"
     }
   ]

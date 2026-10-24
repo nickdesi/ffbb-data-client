@@ -13,6 +13,8 @@ from pydantic import ValidationError as PydanticValidationError
 
 from ..config import (
     API_FFBB_BASE_URL,
+    DEFAULT_FALLBACK_API_TOKEN,
+    DEFAULT_FALLBACK_MEILISEARCH_TOKEN,
     DEFAULT_USER_AGENT,
     ENDPOINT_CONFIGURATION,
     ENV_API_TOKEN,
@@ -268,6 +270,20 @@ class TokenManager:
             logger.debug("Next.js web bundle fallback probe failed: %s", probe_err)
 
         if last_error:
+            # Si tous les endpoints / User-Agents ont été bloqués par le WAF BunnyCDN
+            if isinstance(last_error, FFBBAuthenticationError) and "BunnyCDN" in str(
+                last_error
+            ):
+                logger.warning(
+                    "All FFBB configuration endpoints are blocked by BunnyCDN WAF (%s). "
+                    "Engaging resilient fallback bearer tokens.",
+                    last_error,
+                )
+                return GetConfigurationResponse(
+                    id=1,
+                    key_dh=DEFAULT_FALLBACK_API_TOKEN,
+                    key_ms=DEFAULT_FALLBACK_MEILISEARCH_TOKEN,
+                )
             raise RuntimeError(
                 f"Failed to fetch configuration from FFBB API (all endpoints/User-Agents blocked): {last_error}"
             ) from last_error

@@ -75,7 +75,7 @@ Index ``ffbbnational_galeries``
 Index ``ffbbnational_pratiques``
 --------------------------------
 
-- **Nombre d'enregistrements estimés** : ``604``
+- **Nombre d'enregistrements estimés** : ``634``
 
 .. list-table::
    :header-rows: 1
@@ -235,7 +235,7 @@ Index ``ffbbnational_pratiques``
 Index ``ffbbnational_rss``
 --------------------------
 
-- **Nombre d'enregistrements estimés** : ``4390``
+- **Nombre d'enregistrements estimés** : ``4432``
 
 .. list-table::
    :header-rows: 1
@@ -314,7 +314,7 @@ Index ``ffbbnational_rss``
 Index ``ffbbserver_competitions``
 ---------------------------------
 
-- **Nombre d'enregistrements estimés** : ``3185``
+- **Nombre d'enregistrements estimés** : ``3552``
 
 .. list-table::
    :header-rows: 1
@@ -532,7 +532,7 @@ Index ``ffbbserver_engagements``
 Index ``ffbbserver_formations``
 -------------------------------
 
-- **Nombre d'enregistrements estimés** : ``145``
+- **Nombre d'enregistrements estimés** : ``122``
 
 .. list-table::
    :header-rows: 1
@@ -966,7 +966,7 @@ Index ``ffbbserver_terrains``
 Index ``ffbbserver_tournois``
 -----------------------------
 
-- **Nombre d'enregistrements estimés** : ``31``
+- **Nombre d'enregistrements estimés** : ``28``
 
 .. list-table::
    :header-rows: 1
@@ -1109,7 +1109,7 @@ Index ``ffbbsite_faq``
 Index ``ffbbsite_jobs``
 -----------------------
 
-- **Nombre d'enregistrements estimés** : ``5``
+- **Nombre d'enregistrements estimés** : ``6``
 
 .. list-table::
    :header-rows: 1
@@ -1233,7 +1233,7 @@ Index ``ffbbsite_jobs``
 Index ``ffbbsite_news``
 -----------------------
 
-- **Nombre d'enregistrements estimés** : ``6393``
+- **Nombre d'enregistrements estimés** : ``6433``
 
 .. list-table::
    :header-rows: 1
@@ -1380,7 +1380,7 @@ Index ``youtube_playlists``
 Index ``youtube_videos``
 ------------------------
 
-- **Nombre d'enregistrements estimés** : ``1870``
+- **Nombre d'enregistrements estimés** : ``1871``
 
 .. list-table::
    :header-rows: 1

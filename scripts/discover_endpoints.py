@@ -808,7 +808,14 @@ def main() -> None:
             except Exception:
                 continue
         else:
-            raise
+            if previous_openapi_snapshot:
+                print(
+                    f"⚠️ All Directus OpenAPI endpoints are blocked by BunnyCDN WAF ({fetch_exc}). "
+                    f"Falling back to packaged OpenAPI schema ({OPENAPI_PATH}) while probing live Meilisearch indexes."
+                )
+                openapi = previous_openapi_snapshot
+            else:
+                raise
 
     timestamp = datetime.now(timezone.utc).isoformat()
     collections = _extract_item_collections(openapi)

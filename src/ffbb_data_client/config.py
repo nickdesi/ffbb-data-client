@@ -27,6 +27,12 @@ FALLBACK_USER_AGENTS: list[str] = [
 ENV_API_TOKEN = "API_FFBB_APP_BEARER_TOKEN"  # noqa: S105
 ENV_MEILISEARCH_TOKEN = "MEILISEARCH_BEARER_TOKEN"  # noqa: S105
 
+# Jetons par défaut résilients en cas de verrouillage BunnyCDN WAF sur /items/configuration
+DEFAULT_FALLBACK_API_TOKEN = "bvBdsqADOnQmvFNzDRQnzYYw2g2J1ad6"  # noqa: S105
+DEFAULT_FALLBACK_MEILISEARCH_TOKEN = (  # noqa: S105
+    "98f07e4d3869853c218a0f65edce2ae56cc670728d9bcb8b035a5107ce1b55dc"
+)
+
 # API Endpoint Paths (relative to base URL)
 ENDPOINT_CONFIGURATION = "items/configuration"
 ENDPOINT_LIVES = "json/lives.json"
