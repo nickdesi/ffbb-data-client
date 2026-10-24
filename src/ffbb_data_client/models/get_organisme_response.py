@@ -355,7 +355,7 @@ class GetOrganismeResponse:
         # Extract offres pratiques
         offres_pratiques = []
         for offre_data in data.get("offresPratiques", []):
-            if offre_data:
+            if isinstance(offre_data, dict):
                 ffbb_pratique_data = offre_data.get(
                     "ffbbserver_offres_pratiques_id", {}
                 )
@@ -368,7 +368,7 @@ class GetOrganismeResponse:
                         ),
                         typePratique=str(ffbb_pratique_data.get("typePratique", "")),
                     )
-                    if ffbb_pratique_data
+                    if isinstance(ffbb_pratique_data, dict)
                     else None
                 )
 
@@ -376,11 +376,25 @@ class GetOrganismeResponse:
                     ffbbserver_offres_pratiques_id=ffbb_pratique
                 )
                 offres_pratiques.append(offre)
+            elif isinstance(offre_data, str) and offre_data:
+                ffbb_pratique = (
+                    cls.OffrespratiquesitemModel.Ffbbserver_Offres_Pratiques_IdModel(
+                        id="",
+                        title=offre_data,
+                        categoriePratique="",
+                        typePratique="",
+                    )
+                )
+                offres_pratiques.append(
+                    cls.OffrespratiquesitemModel(
+                        ffbbserver_offres_pratiques_id=ffbb_pratique
+                    )
+                )
 
         # Extract labellisation
         labellisations = []
         for label_data in data.get("labellisation", []):
-            if label_data:
+            if isinstance(label_data, dict):
                 programme_data = label_data.get("idLabellisationProgramme", {})
                 programme = (
                     cls.LabellisationitemModel.IdlabellisationprogrammeModel(
@@ -391,7 +405,7 @@ class GetOrganismeResponse:
                         ),
                         logo_vertical=programme_data.get("logo_vertical"),
                     )
-                    if programme_data
+                    if isinstance(programme_data, dict)
                     else None
                 )
 
@@ -406,14 +420,14 @@ class GetOrganismeResponse:
         # Extract salle
         salle_data = data.get("salle", {})
         salle = None
-        if salle_data:
+        if isinstance(salle_data, dict) and salle_data:
             salle_commune_data = salle_data.get("commune", {})
             salle_commune = (
                 cls.SalleModel.CommuneModel(
                     codePostal=str(salle_commune_data.get("codePostal", "")),
                     libelle=str(salle_commune_data.get("libelle", "")),
                 )
-                if salle_commune_data
+                if isinstance(salle_commune_data, dict) and salle_commune_data
                 else None
             )
 
@@ -423,7 +437,7 @@ class GetOrganismeResponse:
                     latitude=float(salle_cartographie_data.get("latitude", 0.0)),
                     longitude=float(salle_cartographie_data.get("longitude", 0.0)),
                 )
-                if salle_cartographie_data
+                if isinstance(salle_cartographie_data, dict) and salle_cartographie_data
                 else None
             )
 

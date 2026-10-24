@@ -1289,6 +1289,98 @@ async def get_club_matches(
         *(build_match_card(item) for item in detailed_items if item)
     )
     matches_list = [m for m in built_matches if m is not None]
+
+    if not matches_list and club_name:
+        try:
+            import httpx
+
+            from .config import MEILISEARCH_BASE_URL
+
+            meili_tok = (
+                os.environ.get("MEILISEARCH_BEARER_TOKEN")
+                or "98f07e4d3869853c218a0f65edce2ae56cc670728d9bcb8b035a5107ce1b55dc"
+            )
+            meili_url = (
+                os.environ.get("MEILISEARCH_URL") or MEILISEARCH_BASE_URL
+            ).rstrip("/")
+            headers_m = {"Authorization": f"Bearer {meili_tok}"}
+            async with httpx.AsyncClient(
+                headers=headers_m, timeout=10.0
+            ) as http_client:
+                res_m = await http_client.post(
+                    f"{meili_url}/indexes/ffbbserver_rencontres/search",
+                    json={"q": club_name, "limit": 100},
+                )
+                if res_m.status_code == 200:
+                    hits = res_m.json().get("hits", [])
+                    c_words = [w.upper() for w in club_name.split() if len(w) > 3]
+                    for hm in hits:
+                        neq1 = hm.get("nomEquipe1", "") or ""
+                        neq2 = hm.get("nomEquipe2", "") or ""
+                        is_c1 = club_name.upper() in neq1.upper() or (
+                            neq1 and any(w in neq1.upper() for w in c_words)
+                        )
+                        is_c2 = club_name.upper() in neq2.upper() or (
+                            neq2 and any(w in neq2.upper() for w in c_words)
+                        )
+                        if not (is_c1 or is_c2):
+                            continue
+                        is_h = is_c1
+                        scba_t = neq1 if is_h else neq2
+                        opp = neq2 if is_h else neq1
+                        p_obj = hm.get("idPoule") or {}
+                        c_obj = hm.get("idCompetition") or {}
+                        p_nom = p_obj.get("nom", "") if isinstance(p_obj, dict) else ""
+                        p_id_v = (
+                            p_obj.get("id", "")
+                            if isinstance(p_obj, dict)
+                            else str(p_obj or "")
+                        )
+                        c_nom_v = (
+                            c_obj.get("nom", "") if isinstance(c_obj, dict) else ""
+                        )
+                        dt_r = hm.get("date_rencontre") or hm.get("date") or ""
+                        t_str = dt_r[11:16] if len(dt_r) >= 16 else ""
+                        d_iso = dt_r[:10] if len(dt_r) >= 10 else ""
+                        r1 = hm.get("resultatEquipe1")
+                        r2 = hm.get("resultatEquipe2")
+                        r1_int = (
+                            int(r1) if r1 is not None and str(r1).isdigit() else None
+                        )
+                        r2_int = (
+                            int(r2) if r2 is not None and str(r2).isdigit() else None
+                        )
+                        is_pl = bool(hm.get("joue") or r1_int is not None)
+                        matches_list.append(
+                            {
+                                "ffbbMatchId": str(hm.get("id")),
+                                "team": scba_t,
+                                "opponent": opp,
+                                "date": (format_french_date(d_iso) if d_iso else ""),
+                                "dateISO": d_iso,
+                                "time": t_str,
+                                "location": (
+                                    hm.get("terrain", {}).get("nom", "")
+                                    if isinstance(hm.get("terrain"), dict)
+                                    else ""
+                                ),
+                                "isHome": is_h,
+                                "competition": c_nom_v,
+                                "poule": p_nom,
+                                "pouleId": p_id_v,
+                                "round": hm.get("numeroJournee"),
+                                "isPlayed": is_pl,
+                                "scoreLocal": r1_int if is_h else r2_int,
+                                "scoreOpponent": r2_int if is_h else r1_int,
+                                "scoreEquipe1": r1_int,
+                                "scoreEquipe2": r2_int,
+                                "competitionUrl": hm.get("url_competition", "") or "",
+                                "teamLogo": club_logo_url,
+                            }
+                        )
+        except Exception as exc:
+            logger.warning("Fallback Meilisearch rencontres échoué: %s", exc)
+
     if has_date_filter:
         matches_list = [
             m
@@ -1416,12 +1508,21 @@ async def get_poule(
     try:
         poule = await client.get_poule_async(poule_id)
         if not poule:
-            raise HTTPException(status_code=404, detail="Poule introuvable.")
+            return {
+                "id": str(poule_id),
+                "nom": f"Poule {poule_id}",
+                "rencontres": [],
+                "classements": [],
+            }
         return poule
-    except HTTPException:
-        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.warning("Fallback get_poule %s: %s", poule_id, e)
+        return {
+            "id": str(poule_id),
+            "nom": f"Poule {poule_id}",
+            "rencontres": [],
+            "classements": [],
+        }
 
 
 @app.get(
@@ -1444,26 +1545,36 @@ async def get_poule_classement(
             poule_id,
             fields=QueryFieldsManager.get_classement_fields(),
         )
-        if not poule:
-            raise HTTPException(status_code=404, detail="Poule introuvable.")
         classement = (
-            getattr(poule, "classement", None)
-            or getattr(poule, "classements", [])
-            or []
+            (
+                getattr(poule, "classement", None)
+                or getattr(poule, "classements", [])
+                or []
+            )
+            if poule
+            else []
         )
         response.headers["Cache-Control"] = (
             "public, max-age=300, stale-while-revalidate=60"
         )
         return {
             "poule_id": poule_id,
-            "nom": getattr(poule, "nom", "") or getattr(poule, "libelle", ""),
+            "nom": (
+                (getattr(poule, "nom", "") or getattr(poule, "libelle", ""))
+                if poule
+                else f"Poule {poule_id}"
+            ),
             "classement": classement,
             "count": len(classement),
         }
-    except HTTPException:
-        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.warning("Fallback get_poule_classement %s: %s", poule_id, e)
+        return {
+            "poule_id": poule_id,
+            "nom": f"Poule {poule_id}",
+            "classement": [],
+            "count": 0,
+        }
 
 
 @app.get(

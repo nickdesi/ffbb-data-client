@@ -10,7 +10,11 @@ from ...config import (
     ENDPOINT_POULES,
     ENDPOINT_SAISONS,
 )
-from ...exceptions import FFBBAuthenticationError, FFBBNotFoundError
+from ...exceptions import (
+    FFBBAuthenticationError,
+    FFBBHTTPError,
+    FFBBNotFoundError,
+)
 from ...helpers.http_requests_utils import http_get_json_async, url_with_params
 from ...models.field_set import FieldSet
 from ...models.get_competition_response import GetCompetitionResponse
@@ -212,6 +216,10 @@ class CompetitionMixin:
         except FFBBNotFoundError as e:
             if self.debug:
                 self.logger.error(f"Error in get_poule_async: {e}")
+            return None
+        except (FFBBAuthenticationError, FFBBHTTPError) as e:
+            if self.debug:
+                self.logger.warning(f"Error in get_poule_async: {e}")
             return None
 
     def get_classement(
