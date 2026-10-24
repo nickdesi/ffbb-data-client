@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Features
+- **Filtre par période du calendrier club** : `GET /api/v1/club/{organisme_id}/matches` accepte `date_from` et `date_to` (AAAA-MM-JJ, bornes incluses). Les rencontres hors période sont écartées avant le chargement de leurs fiches détaillées, ce qui accélère fortement les requêtes sur une semaine.
+
 ## [2.4.39] - 2026-10-14
 
 ### Features & Discovery

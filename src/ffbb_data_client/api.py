@@ -15,7 +15,7 @@ import threading
 import time
 from collections import OrderedDict
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -954,11 +954,36 @@ async def get_club_matches(
         description="Décalage de pagination",
         examples=[0],
     ),
+    date_from: date | None = Query(
+        None,
+        description="Ne garder que les rencontres à partir de cette date incluse (AAAA-MM-JJ)",
+        examples=["2026-10-12"],
+    ),
+    date_to: date | None = Query(
+        None,
+        description="Ne garder que les rencontres jusqu'à cette date incluse (AAAA-MM-JJ)",
+        examples=["2026-10-18"],
+    ),
 ):
     """
     Récupère l'ensemble des rencontres officielles FFBB d'un club,
     avec détection domicile/extérieur, calcul des équipes, salles résolues avec adresse exacte et logos officiels.
+
+    `date_from` / `date_to` restreignent la période (bornes incluses) avant la pagination.
     """
+    if date_from and date_to and date_from > date_to:
+        raise HTTPException(
+            status_code=400,
+            detail="date_from doit être antérieure ou égale à date_to.",
+        )
+
+    def in_date_range(d: date) -> bool:
+        return (date_from is None or d >= date_from) and (
+            date_to is None or d <= date_to
+        )
+
+    has_date_filter = date_from is not None or date_to is not None
+
     client = get_client()
 
     try:
@@ -1081,6 +1106,18 @@ async def get_club_matches(
             )
 
             if not is_club1 and not is_club2:
+                continue
+
+            # Pré-filtre sur la date connue de la poule pour éviter de charger le
+            # détail des rencontres hors période (1970 = date absente, revérifiée
+            # sur la fiche détaillée en fin de traitement).
+            poule_date = getattr(m, "date_rencontre", None)
+            if (
+                has_date_filter
+                and isinstance(poule_date, datetime)
+                and poule_date.year > 1970
+                and not in_date_range(poule_date.date())
+            ):
                 continue
 
             seen_match_ids.add(m_id)
@@ -1252,6 +1289,12 @@ async def get_club_matches(
         *(build_match_card(item) for item in detailed_items if item)
     )
     matches_list = [m for m in built_matches if m is not None]
+    if has_date_filter:
+        matches_list = [
+            m
+            for m in matches_list
+            if m["dateISO"] and in_date_range(date.fromisoformat(m["dateISO"]))
+        ]
 
     matches_list.sort(key=lambda x: (x.get("dateISO", ""), x.get("time", "")))
     response.headers["Cache-Control"] = "public, max-age=180, stale-while-revalidate=60"

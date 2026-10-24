@@ -1,5 +1,7 @@
 """Tests for the REST endpoints, Best Practices, error envelopes, and caching in api.py."""
 
+from datetime import datetime
+from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -142,3 +144,90 @@ async def test_salle_and_competition_endpoints_caching():
             assert r_saisons.status_code == 200
             assert "Cache-Control" in r_saisons.headers
             assert len(r_saisons.json()) == 1
+
+
+@pytest.mark.asyncio
+async def test_club_matches_date_range_filter():
+    transport = ASGITransport(app=app)
+    mock_client = MagicMock()
+    mock_client.get_organisme_async = AsyncMock(
+        return_value=SimpleNamespace(
+            nom="CLUB TEST",
+            logo=None,
+            engagements=[
+                SimpleNamespace(
+                    idPoule=SimpleNamespace(id="111"),
+                    idCompetition=SimpleNamespace(nom="DM2", id="5"),
+                )
+            ],
+        )
+    )
+    # Dates connues par la poule ; 1970 = date absente côté poule
+    poule_dates = {
+        "1": datetime(2026, 10, 10, 18, 0),
+        "2": datetime(2026, 10, 17, 18, 0),
+        "3": datetime(2026, 10, 25, 18, 0),
+        "4": datetime(1970, 1, 1),
+    }
+    mock_client.get_poule_async = AsyncMock(
+        return_value=SimpleNamespace(
+            nom="Poule A",
+            rencontres=[
+                SimpleNamespace(
+                    id=m_id,
+                    nomEquipe1="CLUB TEST",
+                    nomEquipe2="ADVERSAIRE",
+                    idOrganismeEquipe1="42",
+                    idOrganismeEquipe2="99",
+                    date_rencontre=d,
+                )
+                for m_id, d in poule_dates.items()
+            ],
+        )
+    )
+    detail_dates = {"2": "2026-10-17T18:00:00", "4": "2026-10-14T20:30:00"}
+    mock_client.get_rencontre_async = AsyncMock(
+        side_effect=lambda m_id: SimpleNamespace(
+            id=m_id,
+            nomEquipe1="CLUB TEST",
+            nomEquipe2="ADVERSAIRE",
+            idOrganismeEquipe1=None,
+            idOrganismeEquipe2=None,
+            date_rencontre=detail_dates.get(m_id, "2026-11-30T18:00:00"),
+            salle=None,
+        )
+    )
+
+    with (
+        patch("ffbb_data_client.api.get_client", return_value=mock_client),
+        patch(
+            "ffbb_data_client.api.resolve_exact_salle_address_async",
+            AsyncMock(return_value="Gymnase Test"),
+        ),
+    ):
+        async with AsyncClient(transport=transport, base_url="http://test") as ac:
+            r = await ac.get(
+                "/api/v1/club/42/matches?date_from=2026-10-12&date_to=2026-10-18"
+            )
+            assert r.status_code == 200
+            data = r.json()
+            assert [m["ffbbMatchId"] for m in data["matches"]] == ["4", "2"]
+            assert data["total"] == 2
+
+    # Les rencontres hors période selon la poule ne sont pas chargées en détail
+    fetched = {c.args[0] for c in mock_client.get_rencontre_async.await_args_list}
+    assert fetched == {"2", "4"}
+
+
+@pytest.mark.asyncio
+async def test_club_matches_date_range_validation():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        r = await ac.get(
+            "/api/v1/club/42/matches?date_from=2026-10-18&date_to=2026-10-12"
+        )
+        assert r.status_code == 400
+        assert r.json()["error"]["code"] == "BAD_REQUEST"
+
+        r = await ac.get("/api/v1/club/42/matches?date_from=2026-13-01")
+        assert r.status_code == 422
