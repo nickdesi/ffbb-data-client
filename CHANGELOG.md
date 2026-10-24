@@ -7,8 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Features
-- **Filtre par période du calendrier club** : `GET /api/v1/club/{organisme_id}/matches` accepte `date_from` et `date_to` (AAAA-MM-JJ, bornes incluses). Les rencontres hors période sont écartées avant le chargement de leurs fiches détaillées, ce qui accélère fortement les requêtes sur une semaine.
+## [2.4.40] - 2026-10-24
+
+### Resilience (BunnyCDN WAF)
+- **Disjoncteur WAF par hôte** : un 403 BunnyCDN coupe l'hôte pendant `FFBB_WAF_COOLDOWN_SECONDS` (600 s par défaut). Les appels suivants échouent instantanément sans requête réseau, puis l'hôte est sondé à nouveau après le délai.
+- **Suppression de la rotation de User-Agent et du retry sur 403** : mesuré sans effet (5 User-Agents bloqués, même authentifiés), ils multipliaient les requêtes. `FALLBACK_USER_AGENTS` est retiré de `config`.
+- **Pas de rafraîchissement de token sur un 403 WAF** (le token n'est pas en cause).
+- **Fallback Meilisearch exact** (`helpers/meilisearch_fallback.py`) : organisme par `id`, engagements par `codeClub`, rencontres filtrées par code club. Corrige l'ancien fallback qui renvoyait des matchs d'autres clubs (recherche floue) avec compétition et salle vides.
+- **Fallback organisme/engagements et saison active** lorsque Directus est bloqué ; jetons de secours quand `/items/configuration` est inaccessible.
+
+### API REST
+- `GET /api/v1/club/{id}/matches` : filtre `date_from`/`date_to` ; en mode dégradé, en-tête `X-FFBB-Data-Source: meilisearch-window` (l'index ne couvre qu'une fenêtre glissante).
+- `GET /api/v1/poule/{id}` et `/classement` : `degraded: true` et `Cache-Control: no-store` quand la donnée est indisponible, au lieu d'un vide présenté comme réel.
+- `/health/ready` : `directus: waf_blocked` ; `/metrics` : `ffbb_upstream_waf_blocked_seconds{host=...}`.
 
 ## [2.4.39] - 2026-10-14
 

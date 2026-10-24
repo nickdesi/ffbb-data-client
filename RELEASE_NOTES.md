@@ -1,6 +1,17 @@
 # Release Notes - FFBB Data Client
 
-## Version 2.4.39 (Latest Release)
+## Version 2.4.40 (Latest Release)
+
+### 🛡️ BunnyCDN WAF: circuit breaker instead of evasion
+- **Per-host WAF circuit breaker**: a BunnyCDN 403 opens the circuit for `FFBB_WAF_COOLDOWN_SECONDS` (default 600 s). Subsequent calls fail instantly with no network traffic, then the host is probed again.
+- **User-Agent rotation and 403 retries removed**: measured ineffective (all User-Agents blocked, even with a valid bearer); they only multiplied outbound requests.
+- **Exact Meilisearch fallback**: organisme by `id`, engagements by `codeClub`, club matches filtered by club code. Fixes the previous fuzzy fallback that returned other clubs' matches.
+- **Honest degraded mode**: `degraded: true` + `Cache-Control: no-store` on poule endpoints, `X-FFBB-Data-Source: meilisearch-window` on club matches, `directus: waf_blocked` readiness and `ffbb_upstream_waf_blocked_seconds` metric.
+- **Club matches date filter**: `date_from` / `date_to` on `GET /api/v1/club/{id}/matches`.
+
+---
+
+## Version 2.4.39
 
 ### 🚀 Live Next.js Bundle Probing & Automatic Origin Discovery
 - **Autonomous Origin Extraction**: Introduced `probe_ffbb_web_origins` in `ffbb_data_client.utils.web_probe` to dynamically parse Next.js chunks from `www.ffbb.com` and identify operational Directus (`bo.ffbb.com`, `bo.ffbb.app`) and Meilisearch endpoints.
