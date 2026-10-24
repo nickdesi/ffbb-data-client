@@ -124,7 +124,6 @@ class RetryConfig:
         self.backoff_factor = backoff_factor
         self.jitter = jitter
         self.retry_on_status_codes = retry_on_status_codes or [
-            403,
             429,
             500,
             502,
@@ -236,6 +235,49 @@ def _is_bunnycdn_block(response: Any) -> bool:
         # Ignore les erreurs d'extraction de corps de réponse (ex: mocks partiels ou payloads binaires)
         pass
     return False
+
+
+# Disjoncteur WAF : un 403 BunnyCDN coupe l'hôte pendant le cooldown (zéro requête sortante).
+_WAF_COOLDOWN_SECONDS = float(os.getenv("FFBB_WAF_COOLDOWN_SECONDS", "600"))
+_waf_blocked_until: dict[str, float] = {}
+
+
+def waf_blocked_hosts() -> dict[str, int]:
+    """Hôtes actuellement coupés par le disjoncteur WAF → secondes restantes."""
+    now = time.monotonic()
+    return {h: int(t - now) for h, t in _waf_blocked_until.items() if t > now}
+
+
+def reset_waf_circuit() -> None:
+    _waf_blocked_until.clear()
+
+
+def _waf_short_circuit(method: str, url: str) -> Response | None:
+    host = urlparse(url).netloc
+    until = _waf_blocked_until.get(host)
+    if until is None:
+        return None
+    if time.monotonic() >= until:
+        # Demi-ouvert : la prochaine requête sonde à nouveau l'hôte.
+        _waf_blocked_until.pop(host, None)
+        return None
+    return Response(
+        403,
+        headers={"content-type": "text/html"},
+        text="<html><body>BunnyCDN WAF circuit open</body></html>",
+        request=httpx.Request(method, url),
+    )
+
+
+def _waf_record(response: Response, url: str) -> None:
+    if response.status_code != 403 or not _is_bunnycdn_block(response):
+        return
+    host = urlparse(url).netloc
+    if host not in _waf_blocked_until:
+        logger.warning(
+            "BunnyCDN WAF 403 sur %s : hôte coupé %ss", host, int(_WAF_COOLDOWN_SECONDS)
+        )
+    _waf_blocked_until[host] = time.monotonic() + _WAF_COOLDOWN_SECONDS
 
 
 def should_retry(
@@ -369,6 +411,8 @@ def make_http_request_with_retry(
     """
 
     url = _validate_url(url)
+    if (blocked := _waf_short_circuit(method, url)) is not None:
+        return blocked
 
     def _make_request(**_kwargs: Any) -> Response:
         if debug:
@@ -404,9 +448,11 @@ def make_http_request_with_retry(
             else:
                 raise ValueError(f"Unsupported HTTP method: {method}")
 
-    return execute_with_retry(
+    response = execute_with_retry(
         _make_request, config=retry_config, timeout_config=timeout_config
     )
+    _waf_record(response, url)
+    return response
 
 
 async def execute_with_retry_async(
@@ -509,6 +555,8 @@ async def make_http_request_with_retry_async(
     """
 
     url = _validate_url(url)
+    if (blocked := _waf_short_circuit(method, url)) is not None:
+        return blocked
 
     async def _make_request(**_kwargs: Any) -> Response:
         if debug:
@@ -534,12 +582,14 @@ async def make_http_request_with_retry_async(
         else:
             raise ValueError(f"Unsupported HTTP method: {method}")
 
-    return cast(
+    response = cast(
         Response,
         await execute_with_retry_async(
             _make_request, config=retry_config, timeout_config=timeout_config
         ),
     )
+    _waf_record(response, url)
+    return response
 
 
 # Convenience functions for backward compatibility

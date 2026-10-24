@@ -20,7 +20,6 @@ except ImportError:
 import httpx
 from httpx import Client, Response
 
-from ..config import FALLBACK_USER_AGENTS
 from ..exceptions import (
     FFBBAuthenticationError,
     FFBBHTTPError,
@@ -66,9 +65,8 @@ def _raise_for_status(response: Response) -> None:
             exception_type = FFBBAuthenticationError
             if status_code == 403 and _is_bunnycdn_block(response):
                 message = (
-                    "FFBB access blocked by CDN (403 BunnyCDN). "
-                    "User-Agent not whitelisted or IP temporarily blocked. "
-                    "Ensure DEFAULT_USER_AGENT matches the official mobile client."
+                    "FFBB access blocked by CDN (403 BunnyCDN WAF). "
+                    "Directus unreachable from this IP; use Meilisearch-backed data."
                 )
             else:
                 message = (
@@ -256,39 +254,21 @@ def http_get(
         debug=debug,
     )
 
-    if response.status_code in (401, 403):
-        if response.status_code == 403 and _is_bunnycdn_block(response):
-            current_ua = headers.get("user-agent", "")
-            for fallback_ua in FALLBACK_USER_AGENTS:
-                if fallback_ua == current_ua:
-                    continue
-                headers["user-agent"] = fallback_ua
-                if debug:
-                    logger.warning(
-                        f"BunnyCDN WAF 403 on {url}. Retrying with fallback UA: {fallback_ua}"
-                    )
-                response = make_http_request_with_retry(
-                    "GET",
-                    url,
-                    headers,
-                    cached_session=cached_session,
-                    retry_config=r_config,
-                    timeout_config=t_config,
-                    debug=debug,
-                )
-                if response.status_code == 200 or not _is_bunnycdn_block(response):
-                    break
-        elif "Authorization" in headers:
-            if _handle_token_refresh(url, headers, debug):
-                response = make_http_request_with_retry(
-                    "GET",
-                    url,
-                    headers,
-                    cached_session=cached_session,
-                    retry_config=r_config,
-                    timeout_config=t_config,
-                    debug=debug,
-                )
+    if (
+        response.status_code in (401, 403)
+        and "Authorization" in headers
+        and not _is_bunnycdn_block(response)
+    ):
+        if _handle_token_refresh(url, headers, debug):
+            response = make_http_request_with_retry(
+                "GET",
+                url,
+                headers,
+                cached_session=cached_session,
+                retry_config=r_config,
+                timeout_config=t_config,
+                debug=debug,
+            )
 
     if debug:
         end_time = time.time()
@@ -346,7 +326,11 @@ def http_post(
         debug=debug,
     )
 
-    if response.status_code in (401, 403) and "Authorization" in headers:
+    if (
+        response.status_code in (401, 403)
+        and "Authorization" in headers
+        and not _is_bunnycdn_block(response)
+    ):
         if _handle_token_refresh(url, headers, debug):
             response = make_http_request_with_retry(
                 "POST",
@@ -485,29 +469,11 @@ async def http_get_async(
         debug=debug,
     )
 
-    # BunnyCDN WAF fallback: cycle through alternative User-Agents (mirrors sync path)
-    if response.status_code == 403 and _is_bunnycdn_block(response):
-        current_ua = headers.get("user-agent", "")
-        for fallback_ua in FALLBACK_USER_AGENTS:
-            if fallback_ua == current_ua:
-                continue
-            headers["user-agent"] = fallback_ua
-            logger.warning(
-                "BunnyCDN WAF 403 on %s. Retrying async GET with fallback UA.", url
-            )
-            response = await make_http_request_with_retry_async(
-                "GET",
-                url,
-                headers,
-                cached_session=cached_session,
-                retry_config=r_config,
-                timeout_config=t_config,
-                debug=debug,
-            )
-            if response.status_code == 200 or not _is_bunnycdn_block(response):
-                break
-
-    if response.status_code in (401, 403) and "Authorization" in headers:
+    if (
+        response.status_code in (401, 403)
+        and "Authorization" in headers
+        and not _is_bunnycdn_block(response)
+    ):
         if _handle_token_refresh(url, headers, debug):
             response = await make_http_request_with_retry_async(
                 "GET",
@@ -594,30 +560,11 @@ async def http_post_async(
         debug=debug,
     )
 
-    # BunnyCDN WAF fallback: cycle through alternative User-Agents (mirrors sync path)
-    if response.status_code == 403 and _is_bunnycdn_block(response):
-        current_ua = headers.get("user-agent", "")
-        for fallback_ua in FALLBACK_USER_AGENTS:
-            if fallback_ua == current_ua:
-                continue
-            headers["user-agent"] = fallback_ua
-            logger.warning(
-                "BunnyCDN WAF 403 on %s. Retrying async POST with fallback UA.", url
-            )
-            response = await make_http_request_with_retry_async(
-                "POST",
-                url,
-                headers,
-                data=filtered_data,
-                cached_session=cached_session,
-                retry_config=r_config,
-                timeout_config=t_config,
-                debug=debug,
-            )
-            if response.status_code == 200 or not _is_bunnycdn_block(response):
-                break
-
-    if response.status_code in (401, 403) and "Authorization" in headers:
+    if (
+        response.status_code in (401, 403)
+        and "Authorization" in headers
+        and not _is_bunnycdn_block(response)
+    ):
         if _handle_token_refresh(url, headers, debug):
             response = await make_http_request_with_retry_async(
                 "POST",

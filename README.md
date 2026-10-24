@@ -285,7 +285,7 @@ Accédez ensuite à la documentation Swagger interactive sur `http://localhost:8
 
 ## 🛠️ Robustesse, CI/CD & Découverte Quotidienne
 
-* **Origine Directus & Anti-403** : Bascule native vers l'origine Directus `https://bo.ffbb.com/` (et fallback miroir `https://bo.ffbb.app/`) avec User-Agent mobile Safari authentique, éliminant définitivement les erreurs 403 Forbidden de l'ancienne pullzone BunnyCDN.
+* **Origine Directus & Anti-403** : Origine Directus `https://bo.ffbb.com/` (fallback miroir `https://bo.ffbb.app/`). En cas de blocage WAF BunnyCDN, un disjoncteur coupe l'hôte (`FFBB_WAF_COOLDOWN_SECONDS`) et les données disponibles basculent sur Meilisearch ; les réponses partielles sont signalées (`degraded`, `X-FFBB-Data-Source`).
 * **Auto-Résolution des Tokens** : Découverte et rotation dynamiques des jetons Bearer Directus et Meilisearch sans configuration requise.
 * **Découverte Quotidienne du Schéma** : Un cron GitHub Actions analyse chaque matin à 5h17 UTC l'OpenAPI spec officielle de la FFBB et détecte automatiquement tout nouveau champ ou collection Directus.
 * **Cache Intelligent Sécurisé** : Gestionnaire de cache HTTP `hishel` avec SQLite distinct pour les flux synchrones et asynchrones.

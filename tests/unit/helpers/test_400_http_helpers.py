@@ -327,7 +327,7 @@ class Test045HttpHelpers(unittest.TestCase):
     @patch(
         "ffbb_data_client.helpers.http_requests_utils.make_http_request_with_retry_async"
     )
-    def test_025_http_get_async_bunnycdn_fallback(
+    def test_025_http_get_async_bunnycdn_no_ua_rotation(
         self, mock_async_http: MagicMock
     ) -> None:
         import asyncio
@@ -341,16 +341,9 @@ class Test045HttpHelpers(unittest.TestCase):
             headers={"content-type": "text/html"},
             content=b"<html><body>BunnyCDN blocked</body></html>",
         )
-        ok_resp = Response(
-            200,
-            request=req,
-            headers={"content-type": "application/json"},
-            content=b'{"data": [{"id": 1}]}',
-        )
+        mock_async_http.return_value = blocked_resp
 
-        mock_async_http.side_effect = [blocked_resp, ok_resp]
-
-        headers = {"user-agent": "okhttp/4.9.2"}
+        headers = {"user-agent": "okhttp/4.9.2", "Authorization": "Bearer x"}
         loop = asyncio.new_event_loop()
         try:
             resp = loop.run_until_complete(
@@ -359,16 +352,15 @@ class Test045HttpHelpers(unittest.TestCase):
         finally:
             loop.close()
 
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(mock_async_http.call_count, 2)
-        # Verify the user-agent header was changed on fallback
-        second_call_headers = mock_async_http.call_args_list[1][0][2]
-        self.assertNotEqual(second_call_headers.get("user-agent"), "okhttp/4.9.2")
+        # Ni rotation de User-Agent ni rafraîchissement de token sur un blocage WAF
+        self.assertEqual(resp.status_code, 403)
+        self.assertEqual(mock_async_http.call_count, 1)
+        self.assertEqual(headers["user-agent"], "okhttp/4.9.2")
 
     @patch(
         "ffbb_data_client.helpers.http_requests_utils.make_http_request_with_retry_async"
     )
-    def test_026_http_post_async_bunnycdn_fallback(
+    def test_026_http_post_async_bunnycdn_no_ua_rotation(
         self, mock_async_http: MagicMock
     ) -> None:
         import asyncio
@@ -382,16 +374,9 @@ class Test045HttpHelpers(unittest.TestCase):
             headers={"content-type": "text/html"},
             content=b"<html><body>BunnyCDN blocked</body></html>",
         )
-        ok_resp = Response(
-            200,
-            request=req,
-            headers={"content-type": "application/json"},
-            content=b'{"data": []}',
-        )
+        mock_async_http.return_value = blocked_resp
 
-        mock_async_http.side_effect = [blocked_resp, ok_resp]
-
-        headers = {"user-agent": "okhttp/4.9.2"}
+        headers = {"user-agent": "okhttp/4.9.2", "Authorization": "Bearer x"}
         loop = asyncio.new_event_loop()
         try:
             resp = loop.run_until_complete(
@@ -402,10 +387,9 @@ class Test045HttpHelpers(unittest.TestCase):
         finally:
             loop.close()
 
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(mock_async_http.call_count, 2)
-        second_call_headers = mock_async_http.call_args_list[1][0][2]
-        self.assertNotEqual(second_call_headers.get("user-agent"), "okhttp/4.9.2")
+        self.assertEqual(resp.status_code, 403)
+        self.assertEqual(mock_async_http.call_count, 1)
+        self.assertEqual(headers["user-agent"], "okhttp/4.9.2")
 
 
 if __name__ == "__main__":

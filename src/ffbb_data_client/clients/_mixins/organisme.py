@@ -111,52 +111,11 @@ class OrganismeMixin:
         self, organisme_id: int | str
     ) -> GetOrganismeResponse | None:
         """Fallback résilient via Meilisearch lorsque Directus est bloqué par BunnyCDN WAF."""
-        import os
-
-        from ...config import MEILISEARCH_BASE_URL
-
-        token = (
-            os.environ.get("MEILISEARCH_BEARER_TOKEN")
-            or "98f07e4d3869853c218a0f65edce2ae56cc670728d9bcb8b035a5107ce1b55dc"
-        )
-        url = (os.environ.get("MEILISEARCH_URL") or MEILISEARCH_BASE_URL).rstrip("/")
-        org_id_str = str(organisme_id).strip()
-        headers = {"Authorization": f"Bearer {token}"}
+        from ...helpers.meilisearch_fallback import organisme_from_meilisearch
 
         try:
-            async with httpx.AsyncClient(headers=headers, timeout=10.0) as http_client:
-                res_org = await http_client.post(
-                    f"{url}/indexes/ffbbserver_organismes/search",
-                    json={"q": org_id_str, "limit": 20},
-                )
-                hits = (
-                    res_org.json().get("hits", []) if res_org.status_code == 200 else []
-                )
-                org_hit = None
-                for h in hits:
-                    if (
-                        str(h.get("id")) == org_id_str
-                        or str(h.get("code", "")).upper() == org_id_str.upper()
-                    ):
-                        org_hit = h
-                        break
-
-                if not org_hit:
-                    return None
-
-                club_code = org_hit.get("code")
-                if club_code:
-                    res_eng = await http_client.post(
-                        f"{url}/indexes/ffbbserver_engagements/search",
-                        json={"q": club_code, "limit": 100},
-                    )
-                    if res_eng.status_code == 200:
-                        eng_hits = res_eng.json().get("hits", [])
-                        org_hit["engagements"] = [
-                            e for e in eng_hits if e.get("codeClub") == club_code
-                        ]
-
-                return GetOrganismeResponse.from_dict(org_hit)
+            org_hit = await organisme_from_meilisearch(organisme_id)
+            return GetOrganismeResponse.from_dict(org_hit) if org_hit else None
         except Exception as exc:
             if self.debug:
                 self.logger.error(f"Fallback Meilisearch organisme échoué: {exc}")

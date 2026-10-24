@@ -32,9 +32,10 @@ from pydantic import BaseModel, Field
 
 from .clients.ffbb_data_client import FFBBDataClient
 from .config import API_FFBB_BASE_URL
+from .helpers.meilisearch_fallback import club_rencontres_from_meilisearch
 from .helpers.normalization import parse_categorie
 from .models.query_fields_manager import QueryFieldsManager
-from .utils.retry_utils import aclose_default_clients
+from .utils.retry_utils import aclose_default_clients, waf_blocked_hosts
 
 logger = logging.getLogger(__name__)
 
@@ -158,7 +159,7 @@ l'ensemble des données publiques de la **Fédération Française de BasketBall*
 - ⭐ **Code Source GitHub** : [`https://github.com/nickdesi/ffbb-data-client`](https://github.com/nickdesi/ffbb-data-client)
 - 📖 **Documentation Sphinx complète** : [`https://nickdesi.github.io/ffbb-data-client/`](https://nickdesi.github.io/ffbb-data-client/)
 """,
-    version="2.4.39",
+    version="2.4.40",
     contact={
         "name": "FFBB Data Client — Support & Open Data",
         "url": "https://github.com/nickdesi/ffbb-data-client/issues",
@@ -773,6 +774,9 @@ async def health_ready(response: Response):
         logger.warning("Erreur check readiness directus: %s", e)
         checks["directus"] = "error"
         is_ready = False
+    # Bloqué mais servi via Meilisearch : dégradé, pas indisponible.
+    if waf_blocked_hosts():
+        checks["directus"] = "waf_blocked"
 
     try:
         res = client.multi_search(name="Clermont")
@@ -854,6 +858,13 @@ async def metrics():
         f'ffbb_api_cache_entries{{cache="organisme"}} {len(_org_cache._cache)}',
         f'ffbb_api_cache_entries{{cache="logo"}} {len(_logo_cache._cache)}',
         f'ffbb_api_cache_entries{{cache="salle"}} {len(_salle_cache._cache)}',
+        "",
+        "# HELP ffbb_upstream_waf_blocked_seconds Secondes restantes du disjoncteur WAF par hote amont",
+        "# TYPE ffbb_upstream_waf_blocked_seconds gauge",
+        *(
+            f'ffbb_upstream_waf_blocked_seconds{{host="{host}"}} {remaining}'
+            for host, remaining in waf_blocked_hosts().items()
+        ),
         "",
     ]
 
@@ -1290,96 +1301,49 @@ async def get_club_matches(
     )
     matches_list = [m for m in built_matches if m is not None]
 
-    if not matches_list and club_name:
+    club_code = getattr(org, "code", "") or ""
+    if not matches_list and club_code:
         try:
-            import httpx
-
-            from .config import MEILISEARCH_BASE_URL
-
-            meili_tok = (
-                os.environ.get("MEILISEARCH_BEARER_TOKEN")
-                or "98f07e4d3869853c218a0f65edce2ae56cc670728d9bcb8b035a5107ce1b55dc"
-            )
-            meili_url = (
-                os.environ.get("MEILISEARCH_URL") or MEILISEARCH_BASE_URL
-            ).rstrip("/")
-            headers_m = {"Authorization": f"Bearer {meili_tok}"}
-            async with httpx.AsyncClient(
-                headers=headers_m, timeout=10.0
-            ) as http_client:
-                res_m = await http_client.post(
-                    f"{meili_url}/indexes/ffbbserver_rencontres/search",
-                    json={"q": club_name, "limit": 100},
+            for hm in await club_rencontres_from_meilisearch(club_code):
+                is_h = (hm.get("idOrganismeEquipe1") or {}).get("code") == club_code
+                neq1 = hm.get("nomEquipe1", "") or ""
+                neq2 = hm.get("nomEquipe2", "") or ""
+                p_obj = hm.get("idPoule") or {}
+                dt_r = hm.get("date_rencontre") or hm.get("date") or ""
+                d_iso = dt_r[:10]
+                r1 = hm.get("resultatEquipe1")
+                r2 = hm.get("resultatEquipe2")
+                r1_int = int(r1) if r1 is not None and str(r1).isdigit() else None
+                r2_int = int(r2) if r2 is not None and str(r2).isdigit() else None
+                matches_list.append(
+                    {
+                        "ffbbMatchId": str(hm.get("id")),
+                        "team": neq1 if is_h else neq2,
+                        "opponent": neq2 if is_h else neq1,
+                        "date": format_french_date(d_iso) if d_iso else "",
+                        "dateISO": d_iso,
+                        "time": dt_r[11:16],
+                        "location": (hm.get("salle") or {}).get("libelle", "") or "",
+                        "isHome": is_h,
+                        "competition": (hm.get("competitionId") or {}).get("nom", "")
+                        or "",
+                        "poule": p_obj.get("nom", "") or "",
+                        "pouleId": str(p_obj.get("id", "") or ""),
+                        "round": hm.get("numeroJournee"),
+                        "isPlayed": bool(hm.get("joue") or r1_int is not None),
+                        "scoreLocal": r1_int if is_h else r2_int,
+                        "scoreOpponent": r2_int if is_h else r1_int,
+                        "scoreEquipe1": r1_int,
+                        "scoreEquipe2": r2_int,
+                        "competitionUrl": hm.get("url_competition", "") or "",
+                        "teamLogo": club_logo_url,
+                    }
                 )
-                if res_m.status_code == 200:
-                    hits = res_m.json().get("hits", [])
-                    c_words = [w.upper() for w in club_name.split() if len(w) > 3]
-                    for hm in hits:
-                        neq1 = hm.get("nomEquipe1", "") or ""
-                        neq2 = hm.get("nomEquipe2", "") or ""
-                        is_c1 = club_name.upper() in neq1.upper() or (
-                            neq1 and any(w in neq1.upper() for w in c_words)
-                        )
-                        is_c2 = club_name.upper() in neq2.upper() or (
-                            neq2 and any(w in neq2.upper() for w in c_words)
-                        )
-                        if not (is_c1 or is_c2):
-                            continue
-                        is_h = is_c1
-                        scba_t = neq1 if is_h else neq2
-                        opp = neq2 if is_h else neq1
-                        p_obj = hm.get("idPoule") or {}
-                        c_obj = hm.get("idCompetition") or {}
-                        p_nom = p_obj.get("nom", "") if isinstance(p_obj, dict) else ""
-                        p_id_v = (
-                            p_obj.get("id", "")
-                            if isinstance(p_obj, dict)
-                            else str(p_obj or "")
-                        )
-                        c_nom_v = (
-                            c_obj.get("nom", "") if isinstance(c_obj, dict) else ""
-                        )
-                        dt_r = hm.get("date_rencontre") or hm.get("date") or ""
-                        t_str = dt_r[11:16] if len(dt_r) >= 16 else ""
-                        d_iso = dt_r[:10] if len(dt_r) >= 10 else ""
-                        r1 = hm.get("resultatEquipe1")
-                        r2 = hm.get("resultatEquipe2")
-                        r1_int = (
-                            int(r1) if r1 is not None and str(r1).isdigit() else None
-                        )
-                        r2_int = (
-                            int(r2) if r2 is not None and str(r2).isdigit() else None
-                        )
-                        is_pl = bool(hm.get("joue") or r1_int is not None)
-                        matches_list.append(
-                            {
-                                "ffbbMatchId": str(hm.get("id")),
-                                "team": scba_t,
-                                "opponent": opp,
-                                "date": (format_french_date(d_iso) if d_iso else ""),
-                                "dateISO": d_iso,
-                                "time": t_str,
-                                "location": (
-                                    hm.get("terrain", {}).get("nom", "")
-                                    if isinstance(hm.get("terrain"), dict)
-                                    else ""
-                                ),
-                                "isHome": is_h,
-                                "competition": c_nom_v,
-                                "poule": p_nom,
-                                "pouleId": p_id_v,
-                                "round": hm.get("numeroJournee"),
-                                "isPlayed": is_pl,
-                                "scoreLocal": r1_int if is_h else r2_int,
-                                "scoreOpponent": r2_int if is_h else r1_int,
-                                "scoreEquipe1": r1_int,
-                                "scoreEquipe2": r2_int,
-                                "competitionUrl": hm.get("url_competition", "") or "",
-                                "teamLogo": club_logo_url,
-                            }
-                        )
         except Exception as exc:
             logger.warning("Fallback Meilisearch rencontres échoué: %s", exc)
+        if matches_list:
+            # Index Meilisearch = fenêtre glissante, pas la saison complète.
+            response.headers["X-FFBB-Data-Source"] = "meilisearch-window"
 
     if has_date_filter:
         matches_list = [
@@ -1499,6 +1463,7 @@ async def get_club_details(
     response_description="Composition, classements et rencontres",
 )
 async def get_poule(
+    response: Response,
     poule_id: int = PathParam(
         ..., ge=1, description="ID de la poule FFBB", examples=[129759]
     ),
@@ -1507,22 +1472,20 @@ async def get_poule(
     client = get_client()
     try:
         poule = await client.get_poule_async(poule_id)
-        if not poule:
-            return {
-                "id": str(poule_id),
-                "nom": f"Poule {poule_id}",
-                "rencontres": [],
-                "classements": [],
-            }
-        return poule
     except Exception as e:
         logger.warning("Fallback get_poule %s: %s", poule_id, e)
-        return {
-            "id": str(poule_id),
-            "nom": f"Poule {poule_id}",
-            "rencontres": [],
-            "classements": [],
-        }
+        poule = None
+    if poule:
+        return poule
+    # Ne jamais laisser un cache (navigateur, HA, transients WP) figer un résultat vide.
+    response.headers["Cache-Control"] = "no-store"
+    return {
+        "id": str(poule_id),
+        "nom": f"Poule {poule_id}",
+        "rencontres": [],
+        "classements": [],
+        "degraded": True,
+    }
 
 
 @app.get(
@@ -1545,36 +1508,28 @@ async def get_poule_classement(
             poule_id,
             fields=QueryFieldsManager.get_classement_fields(),
         )
-        classement = (
-            (
-                getattr(poule, "classement", None)
-                or getattr(poule, "classements", [])
-                or []
-            )
-            if poule
-            else []
-        )
-        response.headers["Cache-Control"] = (
-            "public, max-age=300, stale-while-revalidate=60"
-        )
-        return {
-            "poule_id": poule_id,
-            "nom": (
-                (getattr(poule, "nom", "") or getattr(poule, "libelle", ""))
-                if poule
-                else f"Poule {poule_id}"
-            ),
-            "classement": classement,
-            "count": len(classement),
-        }
     except Exception as e:
         logger.warning("Fallback get_poule_classement %s: %s", poule_id, e)
+        poule = None
+    if not poule:
+        response.headers["Cache-Control"] = "no-store"
         return {
             "poule_id": poule_id,
             "nom": f"Poule {poule_id}",
             "classement": [],
             "count": 0,
+            "degraded": True,
         }
+    classement = (
+        getattr(poule, "classement", None) or getattr(poule, "classements", []) or []
+    )
+    response.headers["Cache-Control"] = "public, max-age=300, stale-while-revalidate=60"
+    return {
+        "poule_id": poule_id,
+        "nom": getattr(poule, "nom", "") or getattr(poule, "libelle", ""),
+        "classement": classement,
+        "count": len(classement),
+    }
 
 
 @app.get(

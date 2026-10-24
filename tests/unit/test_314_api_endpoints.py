@@ -231,3 +231,63 @@ async def test_club_matches_date_range_validation():
 
         r = await ac.get("/api/v1/club/42/matches?date_from=2026-13-01")
         assert r.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_club_matches_meilisearch_fallback_is_exact():
+    """Directus blocked: matches come from Meilisearch filtered on the club code."""
+    transport = ASGITransport(app=app)
+    mock_client = MagicMock()
+    mock_client.get_organisme_async = AsyncMock(
+        return_value=SimpleNamespace(
+            nom="STADE CLERMONTOIS BASKET AUVERGNE",
+            code="ARA0063074",
+            logo=None,
+            engagements=[],
+        )
+    )
+    hit = {
+        "id": "200000014721289",
+        "nomEquipe1": "ALFA SAINT JACQUES - 1",
+        "nomEquipe2": "STADE CLERMONTOIS BASKET AUVERGNE - 1",
+        "idOrganismeEquipe1": {"code": "ARA0063070"},
+        "idOrganismeEquipe2": {"code": "ARA0063074"},
+        "date_rencontre": "2026-10-17T13:00:00",
+        "resultatEquipe1": 52,
+        "resultatEquipe2": 111,
+        "joue": True,
+        "idPoule": {"id": "200000003058530", "nom": "Poule A"},
+        "competitionId": {"nom": "Départementale masculine U15 - Division 10"},
+        "salle": {"libelle": "GYMNASE LOUIS THEVENET - SALLE 1"},
+    }
+    search = AsyncMock(return_value=[hit])
+    with (
+        patch("ffbb_data_client.api.get_client", return_value=mock_client),
+        patch("ffbb_data_client.api.club_rencontres_from_meilisearch", search),
+    ):
+        async with AsyncClient(transport=transport, base_url="http://test") as ac:
+            r = await ac.get("/api/v1/club/9326/matches")
+
+    assert r.status_code == 200
+    assert r.headers["x-ffbb-data-source"] == "meilisearch-window"
+    search.assert_awaited_once_with("ARA0063074")
+    match = r.json()["matches"][0]
+    assert match["isHome"] is False
+    assert (match["scoreLocal"], match["scoreOpponent"]) == (111, 52)
+    assert match["competition"] == "Départementale masculine U15 - Division 10"
+    assert match["location"] == "GYMNASE LOUIS THEVENET - SALLE 1"
+
+
+@pytest.mark.asyncio
+async def test_poule_unavailable_is_flagged_and_not_cached():
+    transport = ASGITransport(app=app)
+    mock_client = MagicMock()
+    mock_client.get_poule_async = AsyncMock(side_effect=RuntimeError("blocked"))
+
+    with patch("ffbb_data_client.api.get_client", return_value=mock_client):
+        async with AsyncClient(transport=transport, base_url="http://test") as ac:
+            for path in ("/api/v1/poule/42", "/api/v1/poule/42/classement"):
+                r = await ac.get(path)
+                assert r.status_code == 200
+                assert r.json()["degraded"] is True
+                assert r.headers["cache-control"] == "no-store"

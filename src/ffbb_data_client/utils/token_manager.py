@@ -19,7 +19,6 @@ from ..config import (
     ENDPOINT_CONFIGURATION,
     ENV_API_TOKEN,
     ENV_MEILISEARCH_TOKEN,
-    FALLBACK_USER_AGENTS,
 )
 from ..exceptions import FFBBAuthenticationError, FFBBResponseValidationError
 from ..models.configuration_models import GetConfigurationResponse
@@ -148,9 +147,7 @@ class TokenManager:
             if u not in urls_to_try:
                 urls_to_try.append(u)
 
-        candidate_user_agents = [DEFAULT_USER_AGENT] + [
-            ua for ua in FALLBACK_USER_AGENTS if ua != DEFAULT_USER_AGENT
-        ]
+        candidate_user_agents = [DEFAULT_USER_AGENT]
 
         last_error: Exception | None = None
         for config_url in urls_to_try:

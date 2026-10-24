@@ -72,6 +72,16 @@ def configure_cache_for_worker(
     CacheManager.reset_instance()
 
 
+@pytest.fixture(autouse=True)
+def reset_waf_circuit() -> Generator[None]:
+    """Prevent a WAF block recorded by one test from short-circuiting the next."""
+    from ffbb_data_client.utils.retry_utils import reset_waf_circuit as _reset
+
+    _reset()
+    yield
+    _reset()
+
+
 @pytest.fixture
 def isolated_env() -> Generator[dict[str, str]]:
     """Fixture providing isolated environment variables.
