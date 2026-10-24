@@ -41,6 +41,9 @@
 > 🔄 **Cartographie API synchronisée** : `162` collections Directus OpenAPI cartographiées, `17` index Meilisearch surveillés.
 <!-- DISCOVERY_METRICS:END -->
 
+> [!WARNING]
+> **Mode dégradé — blocage WAF BunnyCDN (octobre 2026)** : l'origine Directus (`bo.ffbb.com` / `bo.ffbb.app`) est actuellement bloquée en 403 par le WAF BunnyCDN, y compris avec un jeton valide. Les clubs, équipes et matchs récents restent servis via Meilisearch. En revanche, **les classements de poule resteront vides (avec `degraded: true`) tant que Directus est bloqué**, car Meilisearch n'en contient pas. La seule issue durable reste un accès officiel auprès de la FFBB.
+
 ---
 
 ## 🏆 Pourquoi choisir `ffbb-data-client` ?
