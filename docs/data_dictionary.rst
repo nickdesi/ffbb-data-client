@@ -235,7 +235,7 @@ Index ``ffbbnational_pratiques``
 Index ``ffbbnational_rss``
 --------------------------
 
-- **Nombre d'enregistrements estimés** : ``4432``
+- **Nombre d'enregistrements estimés** : ``4433``
 
 .. list-table::
    :header-rows: 1
@@ -314,7 +314,7 @@ Index ``ffbbnational_rss``
 Index ``ffbbserver_competitions``
 ---------------------------------
 
-- **Nombre d'enregistrements estimés** : ``3552``
+- **Nombre d'enregistrements estimés** : ``3546``
 
 .. list-table::
    :header-rows: 1
@@ -1233,7 +1233,7 @@ Index ``ffbbsite_jobs``
 Index ``ffbbsite_news``
 -----------------------
 
-- **Nombre d'enregistrements estimés** : ``6433``
+- **Nombre d'enregistrements estimés** : ``6434``
 
 .. list-table::
    :header-rows: 1
