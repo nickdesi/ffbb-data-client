@@ -101,7 +101,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 4432,
+      "estimatedTotalHits": 4433,
       "indexUid": "ffbbnational_rss",
       "sampleKeys": [
         "categories",
@@ -131,7 +131,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 3552,
+      "estimatedTotalHits": 3546,
       "indexUid": "ffbbserver_competitions",
       "sampleKeys": [
         "age",
@@ -474,7 +474,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 6433,
+      "estimatedTotalHits": 6434,
       "indexUid": "ffbbsite_news",
       "sampleKeys": [
         "author",
@@ -566,7 +566,7 @@
   ],
   "metadata": {
     "source": "https://meilisearch-prod.ffbb.app/multi-search",
-    "timestamp": "2026-10-24T11:44:11.951983+00:00"
+    "timestamp": "2026-10-25T09:50:12.251743+00:00"
   },
   "unavailable_indexes": [
     {

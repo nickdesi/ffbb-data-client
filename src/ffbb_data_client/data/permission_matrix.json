@@ -3,79 +3,9 @@
     "added": [],
     "flips": [
       {
-        "after": "blocked_cdn",
-        "before": "forbidden_directus",
-        "probe": "competition_archived_direct"
-      },
-      {
-        "after": "blocked_cdn",
-        "before": "empty",
-        "probe": "competition_archived_filter"
-      },
-      {
-        "after": "blocked_cdn",
-        "before": "ok",
-        "probe": "competition_current_direct"
-      },
-      {
-        "after": "blocked_cdn",
-        "before": "ok",
-        "probe": "competition_current_filter"
-      },
-      {
-        "after": "blocked_cdn",
-        "before": "ok",
-        "probe": "competitions_listing"
-      },
-      {
-        "after": "blocked_cdn",
-        "before": "ok",
-        "probe": "config_noauth"
-      },
-      {
-        "after": "blocked_cdn",
-        "before": "ok",
-        "probe": "config_noauth_ipv4"
-      },
-      {
-        "after": "blocked_cdn",
-        "before": "error:ConnectError",
+        "after": "error:ConnectError",
+        "before": "blocked_cdn",
         "probe": "config_noauth_ipv6"
-      },
-      {
-        "after": "blocked_cdn",
-        "before": "ok",
-        "probe": "config_tripwire_okhttp_ipv4"
-      },
-      {
-        "after": "blocked_cdn",
-        "before": "ok",
-        "probe": "engagements_listing"
-      },
-      {
-        "after": "blocked_cdn",
-        "before": "ok",
-        "probe": "organismes_listing"
-      },
-      {
-        "after": "blocked_cdn",
-        "before": "ok",
-        "probe": "relational_nested_expand"
-      },
-      {
-        "after": "blocked_cdn",
-        "before": "ok",
-        "probe": "rencontres_listing"
-      },
-      {
-        "after": "blocked_cdn",
-        "before": "ok",
-        "probe": "saisons_id_field"
-      },
-      {
-        "after": "blocked_cdn",
-        "before": "forbidden_directus",
-        "probe": "saisons_nom_field"
       }
     ],
     "removed": []
@@ -85,7 +15,7 @@
     "archived_competition_id": "200000002872733",
     "canary_season": "2026-2027",
     "current_competition_id": "200000002900744",
-    "timestamp": "2026-10-24T11:43:45.501709+00:00",
+    "timestamp": "2026-10-25T09:50:17.585131+00:00",
     "token_source": "public-fallback"
   },
   "probes": [
@@ -104,10 +34,11 @@
       "url": "https://bo.ffbb.com/items/configuration"
     },
     {
+      "detail": "[Errno 101] Network is unreachable",
       "name": "config_noauth_ipv6",
       "notes": "Public endpoint sans auth en IPv6 strict.",
-      "outcome": "blocked_cdn",
-      "status": 403,
+      "outcome": "error:ConnectError",
+      "status": null,
       "url": "https://bo.ffbb.com/items/configuration"
     },
     {
