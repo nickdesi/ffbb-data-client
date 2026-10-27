@@ -75,7 +75,7 @@ Index ``ffbbnational_galeries``
 Index ``ffbbnational_pratiques``
 --------------------------------
 
-- **Nombre d'enregistrements estimés** : ``634``
+- **Nombre d'enregistrements estimés** : ``639``
 
 .. list-table::
    :header-rows: 1
@@ -235,7 +235,7 @@ Index ``ffbbnational_pratiques``
 Index ``ffbbnational_rss``
 --------------------------
 
-- **Nombre d'enregistrements estimés** : ``4433``
+- **Nombre d'enregistrements estimés** : ``4444``
 
 .. list-table::
    :header-rows: 1
@@ -314,7 +314,7 @@ Index ``ffbbnational_rss``
 Index ``ffbbserver_competitions``
 ---------------------------------
 
-- **Nombre d'enregistrements estimés** : ``3546``
+- **Nombre d'enregistrements estimés** : ``3607``
 
 .. list-table::
    :header-rows: 1
@@ -532,7 +532,7 @@ Index ``ffbbserver_engagements``
 Index ``ffbbserver_formations``
 -------------------------------
 
-- **Nombre d'enregistrements estimés** : ``122``
+- **Nombre d'enregistrements estimés** : ``121``
 
 .. list-table::
    :header-rows: 1
@@ -723,7 +723,7 @@ Index ``ffbbserver_organismes``
 Index ``ffbbserver_rencontres``
 -------------------------------
 
-- **Nombre d'enregistrements estimés** : ``5000``
+- **Nombre d'enregistrements estimés** : ``3280``
 
 .. list-table::
    :header-rows: 1
@@ -805,9 +805,6 @@ Index ``ffbbserver_rencontres``
      - ``général``
      - Attribut exposé dans l'index.
    * - ``officiels``
-     - ``général``
-     - Attribut exposé dans l'index.
-   * - ``officiels_string``
      - ``général``
      - Attribut exposé dans l'index.
    * - ``organisateur``
@@ -966,7 +963,7 @@ Index ``ffbbserver_terrains``
 Index ``ffbbserver_tournois``
 -----------------------------
 
-- **Nombre d'enregistrements estimés** : ``28``
+- **Nombre d'enregistrements estimés** : ``24``
 
 .. list-table::
    :header-rows: 1
@@ -1233,7 +1230,7 @@ Index ``ffbbsite_jobs``
 Index ``ffbbsite_news``
 -----------------------
 
-- **Nombre d'enregistrements estimés** : ``6434``
+- **Nombre d'enregistrements estimés** : ``6446``
 
 .. list-table::
    :header-rows: 1

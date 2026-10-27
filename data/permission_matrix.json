@@ -1,13 +1,7 @@
 {
   "drift": {
     "added": [],
-    "flips": [
-      {
-        "after": "error:ConnectError",
-        "before": "blocked_cdn",
-        "probe": "config_noauth_ipv6"
-      }
-    ],
+    "flips": [],
     "removed": []
   },
   "metadata": {
@@ -15,7 +9,7 @@
     "archived_competition_id": "200000002872733",
     "canary_season": "2026-2027",
     "current_competition_id": "200000002900744",
-    "timestamp": "2026-10-25T09:50:17.585131+00:00",
+    "timestamp": "2026-10-27T10:37:39.458428+00:00",
     "token_source": "public-fallback"
   },
   "probes": [
