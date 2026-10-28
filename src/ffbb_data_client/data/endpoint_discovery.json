@@ -331,7 +331,7 @@
     "metadata": {
       "openapi_version": "4aa55950ce1db53a17db2c04c935dc112989a92c",
       "source": "https://bo.ffbb.com/server/specs/oas",
-      "timestamp": "2026-10-25T09:50:12.251743+00:00"
+      "timestamp": "2026-10-27T10:37:32.761487+00:00"
     },
     "paths": {
       "items/configuration": [
@@ -1356,7 +1356,14 @@
       "modified_schemas": {},
       "removed_schemas": []
     },
-    "meilisearch_indexes": {}
+    "meilisearch_indexes": {
+      "ffbbserver_rencontres": {
+        "added": [],
+        "removed": [
+          "officiels_string"
+        ]
+      }
+    }
   },
   "meilisearch": {
     "available_indexes": [
@@ -1404,7 +1411,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 634,
+        "estimatedTotalHits": 639,
         "indexUid": "ffbbnational_pratiques",
         "sampleKeys": [
           "_geo",
@@ -1461,7 +1468,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 4433,
+        "estimatedTotalHits": 4444,
         "indexUid": "ffbbnational_rss",
         "sampleKeys": [
           "categories",
@@ -1491,7 +1498,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 3546,
+        "estimatedTotalHits": 3607,
         "indexUid": "ffbbserver_competitions",
         "sampleKeys": [
           "age",
@@ -1571,7 +1578,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 122,
+        "estimatedTotalHits": 121,
         "indexUid": "ffbbserver_formations",
         "sampleKeys": [
           "certification",
@@ -1642,7 +1649,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 5000,
+        "estimatedTotalHits": 3280,
         "indexUid": "ffbbserver_rencontres",
         "sampleKeys": [
           "_geo",
@@ -1670,7 +1677,6 @@
           "nomEquipe2",
           "numeroJournee",
           "officiels",
-          "officiels_string",
           "organisateur",
           "pratique",
           "rematch_videos",
@@ -1734,7 +1740,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 28,
+        "estimatedTotalHits": 24,
         "indexUid": "ffbbserver_tournois",
         "sampleKeys": [
           "_geo",
@@ -1834,7 +1840,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 6434,
+        "estimatedTotalHits": 6446,
         "indexUid": "ffbbsite_news",
         "sampleKeys": [
           "author",
@@ -1926,7 +1932,7 @@
     ],
     "metadata": {
       "source": "https://meilisearch-prod.ffbb.app/multi-search",
-      "timestamp": "2026-10-25T09:50:12.251743+00:00"
+      "timestamp": "2026-10-27T10:37:32.761487+00:00"
     },
     "unavailable_indexes": [
       {
@@ -2670,7 +2676,7 @@
     "openapi_sha256": "023cee7b018aed058369ca6757cfa08c823328ebe64f1e055dca22387b862bce",
     "openapi_snapshot_sha256": "023cee7b018aed058369ca6757cfa08c823328ebe64f1e055dca22387b862bce",
     "openapi_version": "4aa55950ce1db53a17db2c04c935dc112989a92c",
-    "timestamp": "2026-10-25T09:50:12.251743+00:00",
+    "timestamp": "2026-10-27T10:37:32.761487+00:00",
     "web_probe": {
       "all_ffbb_hosts": [
         "https://api.ffbb.app",
