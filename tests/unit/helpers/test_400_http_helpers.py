@@ -327,12 +327,14 @@ class Test045HttpHelpers(unittest.TestCase):
     @patch(
         "ffbb_data_client.helpers.http_requests_utils.make_http_request_with_retry_async"
     )
-    def test_025_http_get_async_bunnycdn_no_ua_rotation(
+    def test_025_http_get_async_bunnycdn_rotates_user_agents(
         self, mock_async_http: MagicMock
     ) -> None:
         import asyncio
 
         from httpx import Request, Response
+
+        from ffbb_data_client.config import FALLBACK_USER_AGENTS
 
         req = Request("GET", "https://bo.ffbb.com/items/competitions")
         blocked_resp = Response(
@@ -352,20 +354,21 @@ class Test045HttpHelpers(unittest.TestCase):
         finally:
             loop.close()
 
-        # Ni rotation de User-Agent ni rafraîchissement de token sur un blocage WAF
+        # Rotation de User-Agent sur un blocage WAF (1 initial + tous les fallbacks)
         self.assertEqual(resp.status_code, 403)
-        self.assertEqual(mock_async_http.call_count, 1)
-        self.assertEqual(headers["user-agent"], "okhttp/4.9.2")
+        self.assertEqual(mock_async_http.call_count, len(FALLBACK_USER_AGENTS) + 1)
 
     @patch(
         "ffbb_data_client.helpers.http_requests_utils.make_http_request_with_retry_async"
     )
-    def test_026_http_post_async_bunnycdn_no_ua_rotation(
+    def test_026_http_post_async_bunnycdn_rotates_user_agents(
         self, mock_async_http: MagicMock
     ) -> None:
         import asyncio
 
         from httpx import Request, Response
+
+        from ffbb_data_client.config import FALLBACK_USER_AGENTS
 
         req = Request("POST", "https://bo.ffbb.com/items/search")
         blocked_resp = Response(
@@ -388,8 +391,7 @@ class Test045HttpHelpers(unittest.TestCase):
             loop.close()
 
         self.assertEqual(resp.status_code, 403)
-        self.assertEqual(mock_async_http.call_count, 1)
-        self.assertEqual(headers["user-agent"], "okhttp/4.9.2")
+        self.assertEqual(mock_async_http.call_count, len(FALLBACK_USER_AGENTS) + 1)
 
 
 if __name__ == "__main__":

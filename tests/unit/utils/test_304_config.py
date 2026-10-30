@@ -24,9 +24,17 @@ class Test019Config(unittest.TestCase):
         """Test user agent is defined."""
         self.assertIsNotNone(config.DEFAULT_USER_AGENT)
         self.assertTrue(
-            config.DEFAULT_USER_AGENT.startswith("Mozilla/")
+            config.DEFAULT_USER_AGENT.startswith("FFBB/")
+            or config.DEFAULT_USER_AGENT.startswith("Mozilla/")
             or "okhttp" in config.DEFAULT_USER_AGENT
         )
+
+    def test_fallback_user_agents_defined(self):
+        """Test fallback user agents list is defined and contains official mobile UAs."""
+        self.assertIsNotNone(config.FALLBACK_USER_AGENTS)
+        self.assertGreaterEqual(len(config.FALLBACK_USER_AGENTS), 3)
+        self.assertIn(config.DEFAULT_ANDROID_USER_AGENT, config.FALLBACK_USER_AGENTS)
+        self.assertIn(config.DEFAULT_IOS_USER_AGENT, config.FALLBACK_USER_AGENTS)
 
     def test_env_token_names_defined(self):
         """Test environment variable names are defined."""

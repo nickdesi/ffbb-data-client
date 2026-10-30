@@ -254,6 +254,38 @@ def http_get(
         debug=debug,
     )
 
+    if response.status_code == 403 and _is_bunnycdn_block(response):
+        from ..config import FALLBACK_USER_AGENTS
+        from ..utils.retry_utils import reset_host_waf_block
+
+        current_ua = headers.get("user-agent") or headers.get("User-Agent", "")
+        for fallback_ua in FALLBACK_USER_AGENTS:
+            if fallback_ua == current_ua:
+                continue
+            headers_copy = dict(headers)
+            headers_copy["user-agent"] = fallback_ua
+            if "User-Agent" in headers_copy:
+                del headers_copy["User-Agent"]
+            reset_host_waf_block(url)
+            fallback_resp = make_http_request_with_retry(
+                "GET",
+                url,
+                headers_copy,
+                cached_session=cached_session,
+                retry_config=r_config,
+                timeout_config=t_config,
+                debug=debug,
+            )
+            if fallback_resp.status_code == 200 or not _is_bunnycdn_block(
+                fallback_resp
+            ):
+                headers["user-agent"] = fallback_ua
+                if "User-Agent" in headers:
+                    del headers["User-Agent"]
+                reset_host_waf_block(url)
+                response = fallback_resp
+                break
+
     if (
         response.status_code in (401, 403)
         and "Authorization" in headers
@@ -325,6 +357,39 @@ def http_post(
         timeout_config=t_config,
         debug=debug,
     )
+
+    if response.status_code == 403 and _is_bunnycdn_block(response):
+        from ..config import FALLBACK_USER_AGENTS
+        from ..utils.retry_utils import reset_host_waf_block
+
+        current_ua = headers.get("user-agent") or headers.get("User-Agent", "")
+        for fallback_ua in FALLBACK_USER_AGENTS:
+            if fallback_ua == current_ua:
+                continue
+            headers_copy = dict(headers)
+            headers_copy["user-agent"] = fallback_ua
+            if "User-Agent" in headers_copy:
+                del headers_copy["User-Agent"]
+            reset_host_waf_block(url)
+            fallback_resp = make_http_request_with_retry(
+                "POST",
+                url,
+                headers_copy,
+                data=data,
+                cached_session=cached_session,
+                retry_config=r_config,
+                timeout_config=t_config,
+                debug=debug,
+            )
+            if fallback_resp.status_code == 200 or not _is_bunnycdn_block(
+                fallback_resp
+            ):
+                headers["user-agent"] = fallback_ua
+                if "User-Agent" in headers:
+                    del headers["User-Agent"]
+                reset_host_waf_block(url)
+                response = fallback_resp
+                break
 
     if (
         response.status_code in (401, 403)
@@ -469,6 +534,38 @@ async def http_get_async(
         debug=debug,
     )
 
+    if response.status_code == 403 and _is_bunnycdn_block(response):
+        from ..config import FALLBACK_USER_AGENTS
+        from ..utils.retry_utils import reset_host_waf_block
+
+        current_ua = headers.get("user-agent") or headers.get("User-Agent", "")
+        for fallback_ua in FALLBACK_USER_AGENTS:
+            if fallback_ua == current_ua:
+                continue
+            headers_copy = dict(headers)
+            headers_copy["user-agent"] = fallback_ua
+            if "User-Agent" in headers_copy:
+                del headers_copy["User-Agent"]
+            reset_host_waf_block(url)
+            fallback_resp = await make_http_request_with_retry_async(
+                "GET",
+                url,
+                headers_copy,
+                cached_session=cached_session,
+                retry_config=r_config,
+                timeout_config=t_config,
+                debug=debug,
+            )
+            if fallback_resp.status_code == 200 or not _is_bunnycdn_block(
+                fallback_resp
+            ):
+                headers["user-agent"] = fallback_ua
+                if "User-Agent" in headers:
+                    del headers["User-Agent"]
+                reset_host_waf_block(url)
+                response = fallback_resp
+                break
+
     if (
         response.status_code in (401, 403)
         and "Authorization" in headers
@@ -559,6 +656,39 @@ async def http_post_async(
         timeout_config=t_config,
         debug=debug,
     )
+
+    if response.status_code == 403 and _is_bunnycdn_block(response):
+        from ..config import FALLBACK_USER_AGENTS
+        from ..utils.retry_utils import reset_host_waf_block
+
+        current_ua = headers.get("user-agent") or headers.get("User-Agent", "")
+        for fallback_ua in FALLBACK_USER_AGENTS:
+            if fallback_ua == current_ua:
+                continue
+            headers_copy = dict(headers)
+            headers_copy["user-agent"] = fallback_ua
+            if "User-Agent" in headers_copy:
+                del headers_copy["User-Agent"]
+            reset_host_waf_block(url)
+            fallback_resp = await make_http_request_with_retry_async(
+                "POST",
+                url,
+                headers_copy,
+                data=filtered_data,
+                cached_session=cached_session,
+                retry_config=r_config,
+                timeout_config=t_config,
+                debug=debug,
+            )
+            if fallback_resp.status_code == 200 or not _is_bunnycdn_block(
+                fallback_resp
+            ):
+                headers["user-agent"] = fallback_ua
+                if "User-Agent" in headers:
+                    del headers["User-Agent"]
+                reset_host_waf_block(url)
+                response = fallback_resp
+                break
 
     if (
         response.status_code in (401, 403)

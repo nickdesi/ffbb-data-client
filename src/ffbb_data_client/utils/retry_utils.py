@@ -252,6 +252,12 @@ def reset_waf_circuit() -> None:
     _waf_blocked_until.clear()
 
 
+def reset_host_waf_block(url_or_host: str) -> None:
+    """Clear WAF circuit breaker for a specific host (used during fallback UA retry)."""
+    host = urlparse(url_or_host).netloc if "://" in url_or_host else url_or_host
+    _waf_blocked_until.pop(host, None)
+
+
 def _waf_short_circuit(method: str, url: str) -> Response | None:
     host = urlparse(url).netloc
     until = _waf_blocked_until.get(host)

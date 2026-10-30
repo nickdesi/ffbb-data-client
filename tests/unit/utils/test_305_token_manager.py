@@ -135,13 +135,15 @@ class Test020TokenManager(unittest.TestCase):
 
     @patch("ffbb_data_client.utils.token_manager.make_http_request_with_retry")
     def test_get_tokens_fallback_host_on_bunnycdn_403(self, mock_http):
-        """A BunnyCDN block on one host moves to the next host (single User-Agent)."""
+        """A BunnyCDN block on all candidate UAs of one host moves to the next host."""
         os.environ.pop(ENV_API_TOKEN, None)
         os.environ.pop(ENV_MEILISEARCH_TOKEN, None)
 
         from unittest.mock import MagicMock
 
         from httpx import Request, Response
+
+        from ffbb_data_client.config import FALLBACK_USER_AGENTS
 
         req = Request("GET", "https://bo.ffbb.com/items/configuration")
         blocked_resp = Response(
@@ -156,14 +158,44 @@ class Test020TokenManager(unittest.TestCase):
             '{"data": {"id": 1, "key_dh": "fallback_token", "key_ms": "fallback_ms"}}'
         )
 
-        mock_http.side_effect = [blocked_resp, ok_resp]
+        mock_http.side_effect = [blocked_resp] * len(FALLBACK_USER_AGENTS) + [ok_resp]
 
         tokens = TokenManager.get_tokens()
         self.assertEqual(tokens.api_token, "fallback_token")
         self.assertEqual(tokens.meilisearch_token, "fallback_ms")
+        self.assertEqual(mock_http.call_count, len(FALLBACK_USER_AGENTS) + 1)
+        hosts = [c.args[1].split("/items")[0] for c in mock_http.call_args_list]
+        self.assertNotEqual(hosts[0], hosts[-1])
+
+    @patch("ffbb_data_client.utils.token_manager.make_http_request_with_retry")
+    def test_get_tokens_fallback_ua_on_same_host_on_bunnycdn_403(self, mock_http):
+        """A BunnyCDN block on first UA triggers fallback UA on the same host."""
+        os.environ.pop(ENV_API_TOKEN, None)
+        os.environ.pop(ENV_MEILISEARCH_TOKEN, None)
+
+        from unittest.mock import MagicMock
+
+        from httpx import Request, Response
+
+        req = Request("GET", "https://bo.ffbb.com/items/configuration")
+        blocked_resp = Response(
+            403,
+            request=req,
+            headers={"content-type": "text/html"},
+            content=b"<html><body>BunnyCDN blocked UA1</body></html>",
+        )
+        ok_resp = MagicMock()
+        ok_resp.status_code = 200
+        ok_resp.text = '{"data": {"id": 1, "key_dh": "ua2_token", "key_ms": "ua2_ms"}}'
+
+        mock_http.side_effect = [blocked_resp, ok_resp]
+
+        tokens = TokenManager.get_tokens()
+        self.assertEqual(tokens.api_token, "ua2_token")
+        self.assertEqual(tokens.meilisearch_token, "ua2_ms")
         self.assertEqual(mock_http.call_count, 2)
         hosts = [c.args[1].split("/items")[0] for c in mock_http.call_args_list]
-        self.assertNotEqual(hosts[0], hosts[1])
+        self.assertEqual(hosts[0], hosts[1])
 
     @patch("ffbb_data_client.utils.token_manager.make_http_request_with_retry")
     def test_get_tokens_fallback_to_default_tokens_when_all_uas_blocked_by_bunnycdn(

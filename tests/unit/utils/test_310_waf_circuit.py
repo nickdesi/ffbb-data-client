@@ -117,3 +117,58 @@ async def test_club_rencontres_uses_exact_code_filter() -> None:
         'OR idOrganismeEquipe2.code = "ARA0063074"'
     )
     assert search.await_count == 1
+
+
+def test_reset_host_waf_block() -> None:
+    session = MagicMock()
+    session.get.return_value = _blocked()
+    make_http_request_with_retry("GET", URL, {}, cached_session=session)
+    assert "bo.ffbb.com" in waf_blocked_hosts()
+
+    retry_utils.reset_host_waf_block(URL)
+    assert "bo.ffbb.com" not in waf_blocked_hosts()
+
+
+def test_http_get_rotates_user_agent_on_bunnycdn_403() -> None:
+    from ffbb_data_client.helpers.http_requests_utils import http_get
+
+    retry_utils.reset_waf_circuit()
+    session = MagicMock()
+    # First call with initial UA returns blocked, second with fallback returns 200
+    session.get.side_effect = [
+        _blocked(),
+        httpx.Response(200, json={"status": "ok"}, request=httpx.Request("GET", URL)),
+    ]
+
+    headers = {"user-agent": "BlockedBot/1.0"}
+    response = http_get(URL, headers, cached_session=session)
+
+    assert response.status_code == 200
+    assert session.get.call_count == 2
+    # Verify fallback UA was applied
+    called_headers = session.get.call_args_list[1].kwargs["headers"]
+    assert "FFBB/" in called_headers["user-agent"]
+
+
+@pytest.mark.asyncio
+async def test_http_get_async_rotates_user_agent_on_bunnycdn_403() -> None:
+    from ffbb_data_client.helpers.http_requests_utils import http_get_async
+
+    retry_utils.reset_waf_circuit()
+    session = MagicMock()
+    session.get = AsyncMock(
+        side_effect=[
+            _blocked(),
+            httpx.Response(
+                200, json={"status": "ok"}, request=httpx.Request("GET", URL)
+            ),
+        ]
+    )
+
+    headers = {"user-agent": "BlockedBot/1.0"}
+    response = await http_get_async(URL, headers, cached_session=session)
+
+    assert response.status_code == 200
+    assert session.get.await_count == 2
+    called_headers = session.get.await_args_list[1].kwargs["headers"]
+    assert "FFBB/" in called_headers["user-agent"]

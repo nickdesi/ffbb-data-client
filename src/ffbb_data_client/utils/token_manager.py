@@ -15,10 +15,10 @@ from ..config import (
     API_FFBB_BASE_URL,
     DEFAULT_FALLBACK_API_TOKEN,
     DEFAULT_FALLBACK_MEILISEARCH_TOKEN,
-    DEFAULT_USER_AGENT,
     ENDPOINT_CONFIGURATION,
     ENV_API_TOKEN,
     ENV_MEILISEARCH_TOKEN,
+    FALLBACK_USER_AGENTS,
 )
 from ..exceptions import FFBBAuthenticationError, FFBBResponseValidationError
 from ..models.configuration_models import GetConfigurationResponse
@@ -133,7 +133,7 @@ class TokenManager:
         _cache_config: CacheConfig | None = None,
     ) -> GetConfigurationResponse:
         """Fetch configuration without persisting its bearer tokens in HTTP cache."""
-        from .retry_utils import _is_bunnycdn_block
+        from .retry_utils import _is_bunnycdn_block, reset_host_waf_block
 
         candidate_hosts: list[str] = []
         if TokenManager._discovered_healthy_origin:
@@ -147,12 +147,13 @@ class TokenManager:
             if u not in urls_to_try:
                 urls_to_try.append(u)
 
-        candidate_user_agents = [DEFAULT_USER_AGENT]
+        candidate_user_agents = FALLBACK_USER_AGENTS
 
         last_error: Exception | None = None
         for config_url in urls_to_try:
             for ua in candidate_user_agents:
                 headers = {"user-agent": ua}
+                reset_host_waf_block(config_url)
 
                 def _get_json() -> dict[str, Any]:
                     response = make_http_request_with_retry(
@@ -236,6 +237,7 @@ class TokenManager:
                     )
                     for ua in candidate_user_agents:
                         headers = {"user-agent": ua}
+                        reset_host_waf_block(discovered_config_url)
                         try:
                             resp = make_http_request_with_retry(
                                 "GET",

@@ -1,6 +1,20 @@
 # Release Notes - FFBB Data Client
 
-## Version 2.4.40 (Latest Release)
+## Version 2.4.41 (Latest Release)
+
+### 📱 Official FFBB Mobile App User-Agents & Targeted WAF Fallback
+- **Official Mobile User-Agents**: Added authentic User-Agents extracted from the official FFBB React Native mobile application (Hermes bytecode):
+  - Android: `FFBB/1.6.7.42 Dalvik/2.1.0 (Linux; U; Android 5.1.1; Android SDK built for x86 Build/LMY48X)` (now default)
+  - iOS: `FFBB/1.6.4.176 CFNetwork/897.15 Darwin/17.5.0 (iPhone/6s iOS/11.3)`
+  - Safari iOS: `Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15`
+- **Targeted Fallback Rotation & Circuit Unlocking**:
+  - Re-introduced resilient `FALLBACK_USER_AGENTS` rotation in `http_get`, `http_post`, `http_get_async`, and `http_post_async` upon receiving BunnyCDN 403 HTML.
+  - Added `reset_host_waf_block()` to ensure each candidate User-Agent gets executed without premature tripping of the 600s circuit breaker.
+  - Full support in `TokenManager._fetch_configuration` across Directus origins.
+
+---
+
+## Version 2.4.40
 
 ### 🛡️ BunnyCDN WAF: circuit breaker instead of evasion
 - **Per-host WAF circuit breaker**: a BunnyCDN 403 opens the circuit for `FFBB_WAF_COOLDOWN_SECONDS` (default 600 s). Subsequent calls fail instantly with no network traffic, then the host is probed again.

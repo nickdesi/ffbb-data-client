@@ -303,7 +303,7 @@ Le SDK fonctionne instantanément sans configuration. Des variables d'environnem
 | Variable | Description | Valeur par défaut |
 | :--- | :--- | :--- |
 | `API_FFBB_BASE_URL` | URL de base du backend Directus | `https://bo.ffbb.com/` |
-| `FFBB_USER_AGENT` | En-tête User-Agent transmis aux requêtes | iOS Safari Mobile |
+| `FFBB_USER_AGENT` | En-tête User-Agent transmis aux requêtes | FFBB Android Mobile (1.6.7.42) |
 | `API_FFBB_APP_BEARER_TOKEN` | Jeton Directus explicite (override l'auto-résolution) | Auto-résolu dynamiquement |
 | `MEILISEARCH_BEARER_TOKEN` | Jeton Meilisearch explicite (override l'auto-résolution) | Auto-résolu dynamiquement |
 | `HTTP_PROXY` / `HTTPS_PROXY` | Proxy HTTP/HTTPS sortant (ex: swarm / environnement conteneurisé) | Aucun |

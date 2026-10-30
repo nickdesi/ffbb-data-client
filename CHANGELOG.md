@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.41] - 2026-10-30
+
+### Resilience & WAF Bypass (Mobile App Discovery)
+- **User-Agents mobiles officiels FFBB** : Intégration des User-Agents authentiques issus du reverse-engineering de l'application officielle FFBB React Native (moteur Hermes) :
+  - Android : `FFBB/1.6.7.42 Dalvik/2.1.0 (Linux; U; Android 5.1.1; Android SDK built for x86 Build/LMY48X)` (par défaut)
+  - iOS : `FFBB/1.6.4.176 CFNetwork/897.15 Darwin/17.5.0 (iPhone/6s iOS/11.3)`
+  - Safari iOS : `Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15`
+- **Rotation ciblée `FALLBACK_USER_AGENTS` & réarmement du disjoncteur** :
+  - Réintroduction de la boucle de fallback automatique sur `FALLBACK_USER_AGENTS` dans `http_get`, `http_post`, `http_get_async` et `http_post_async` lors d'un code HTTP 403 HTML BunnyCDN.
+  - Ajout de `reset_host_waf_block(url_or_host)` permettant d'essayer chirurgicalement chaque User-Agent candidat sans que le premier échec ne verrouille immédiatement le disjoncteur pour 600s.
+  - Prise en charge dans `TokenManager._fetch_configuration` pour tenter l'ensemble des User-Agents mobiles officiels avant de basculer sur les jetons résilients par défaut.
+
 ## [2.4.40] - 2026-10-24
 
 ### Resilience (BunnyCDN WAF)
