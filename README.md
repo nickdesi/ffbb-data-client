@@ -41,8 +41,8 @@
 > 🔄 **Cartographie API synchronisée** : `162` collections Directus OpenAPI cartographiées, `17` index Meilisearch surveillés.
 <!-- DISCOVERY_METRICS:END -->
 
-> [!WARNING]
-> **Mode dégradé — blocage WAF BunnyCDN (octobre 2026)** : l'origine Directus (`bo.ffbb.com` / `bo.ffbb.app`) est actuellement bloquée en 403 par le WAF BunnyCDN, y compris avec un jeton valide. Les clubs, équipes et matchs récents restent servis via Meilisearch. En revanche, **les classements de poule resteront vides (avec `degraded: true`) tant que Directus est bloqué**, car Meilisearch n'en contient pas. La seule issue durable reste un accès officiel auprès de la FFBB.
+> [!NOTE]
+> **API Mobile Officielle (`v2.4.42+`)** : Utilisation native de l'origine mobile officielle `https://api.ffbb.com/` avec bootstrapping dynamique des jetons (`/items/configuration`) et émulation User-Agent Android officielle. L'intégralité des données Directus (y compris les feuilles de poules et les classements complets) est accessible en temps réel avec fallback résilient Meilisearch.
 
 ---
 
@@ -50,7 +50,7 @@
 
 | Fonctionnalité | Ancien client (`ffbb-api-client`) | **`ffbb-data-client` (v2.4+)** |
 | :--- | :---: | :---: |
-| **Origine Directus & Anti-403** | ❌ Bloqué en 403 Forbidden (BunnyCDN) | ✅ **Origine directe `bo.ffbb.com` + multi-miroirs** |
+| **Origine Directus & Anti-403** | ❌ Bloqué en 403 Forbidden (BunnyCDN) | ✅ **API mobile `api.ffbb.com` + bootstrapping dynamique** |
 | **Architecture Asynchrone Native** | ❌ 100% bloquant / synchrone | ✅ **Async native (`async/await` + `aiter`)** |
 | **Modèles de Données & Typage** | ❌ Dictionnaires bruts sans type | ✅ **Dataclasses & Pydantic v2 validés** |
 | **Recherche Meilisearch Instantanée** | ❌ Partielle ou absente | ✅ **Multi-index (Clubs, Salles, Poules, 3x3)** |
@@ -288,7 +288,7 @@ Accédez ensuite à la documentation Swagger interactive sur `http://localhost:8
 
 ## 🛠️ Robustesse, CI/CD & Découverte Quotidienne
 
-* **Origine Directus & Anti-403** : Origine Directus `https://bo.ffbb.com/` (fallback miroir `https://bo.ffbb.app/`). En cas de blocage WAF BunnyCDN, un disjoncteur coupe l'hôte (`FFBB_WAF_COOLDOWN_SECONDS`) et les données disponibles basculent sur Meilisearch ; les réponses partielles sont signalées (`degraded`, `X-FFBB-Data-Source`).
+* **Origine Directus & API Mobile** : Origine officielle `https://api.ffbb.com/` issue du reverse engineering de l'app mobile (pullzone 5204911). Les jetons Directus et Meilisearch sont découverts à chaud via `/items/configuration`. En cas d'indisponibilité temporaire de l'upstream, un disjoncteur bascule sur Meilisearch avec signalement défensif (`degraded`).
 * **Auto-Résolution des Tokens** : Découverte et rotation dynamiques des jetons Bearer Directus et Meilisearch sans configuration requise.
 * **Découverte Quotidienne du Schéma** : Un cron GitHub Actions analyse chaque matin à 5h17 UTC l'OpenAPI spec officielle de la FFBB et détecte automatiquement tout nouveau champ ou collection Directus.
 * **Cache Intelligent Sécurisé** : Gestionnaire de cache HTTP `hishel` avec SQLite distinct pour les flux synchrones et asynchrones.
@@ -302,7 +302,7 @@ Le SDK fonctionne instantanément sans configuration. Des variables d'environnem
 
 | Variable | Description | Valeur par défaut |
 | :--- | :--- | :--- |
-| `API_FFBB_BASE_URL` | URL de base du backend Directus | `https://bo.ffbb.com/` |
+| `API_FFBB_BASE_URL` | URL de base du backend Directus | `https://api.ffbb.com/` |
 | `FFBB_USER_AGENT` | En-tête User-Agent transmis aux requêtes | FFBB Android Mobile (1.6.7.42) |
 | `API_FFBB_APP_BEARER_TOKEN` | Jeton Directus explicite (override l'auto-résolution) | Auto-résolu dynamiquement |
 | `MEILISEARCH_BEARER_TOKEN` | Jeton Meilisearch explicite (override l'auto-résolution) | Auto-résolu dynamiquement |
