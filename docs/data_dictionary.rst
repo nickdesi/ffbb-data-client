@@ -75,7 +75,7 @@ Index ``ffbbnational_galeries``
 Index ``ffbbnational_pratiques``
 --------------------------------
 
-- **Nombre d'enregistrements estimés** : ``639``
+- **Nombre d'enregistrements estimés** : ``649``
 
 .. list-table::
    :header-rows: 1
@@ -235,7 +235,7 @@ Index ``ffbbnational_pratiques``
 Index ``ffbbnational_rss``
 --------------------------
 
-- **Nombre d'enregistrements estimés** : ``4444``
+- **Nombre d'enregistrements estimés** : ``4460``
 
 .. list-table::
    :header-rows: 1
@@ -314,7 +314,7 @@ Index ``ffbbnational_rss``
 Index ``ffbbserver_competitions``
 ---------------------------------
 
-- **Nombre d'enregistrements estimés** : ``3607``
+- **Nombre d'enregistrements estimés** : ``3705``
 
 .. list-table::
    :header-rows: 1
@@ -532,7 +532,7 @@ Index ``ffbbserver_engagements``
 Index ``ffbbserver_formations``
 -------------------------------
 
-- **Nombre d'enregistrements estimés** : ``121``
+- **Nombre d'enregistrements estimés** : ``125``
 
 .. list-table::
    :header-rows: 1
@@ -723,7 +723,7 @@ Index ``ffbbserver_organismes``
 Index ``ffbbserver_rencontres``
 -------------------------------
 
-- **Nombre d'enregistrements estimés** : ``3280``
+- **Nombre d'enregistrements estimés** : ``3376``
 
 .. list-table::
    :header-rows: 1
@@ -805,6 +805,9 @@ Index ``ffbbserver_rencontres``
      - ``général``
      - Attribut exposé dans l'index.
    * - ``officiels``
+     - ``général``
+     - Attribut exposé dans l'index.
+   * - ``officiels_string``
      - ``général``
      - Attribut exposé dans l'index.
    * - ``organisateur``
@@ -963,7 +966,7 @@ Index ``ffbbserver_terrains``
 Index ``ffbbserver_tournois``
 -----------------------------
 
-- **Nombre d'enregistrements estimés** : ``24``
+- **Nombre d'enregistrements estimés** : ``25``
 
 .. list-table::
    :header-rows: 1
@@ -1230,7 +1233,7 @@ Index ``ffbbsite_jobs``
 Index ``ffbbsite_news``
 -----------------------
 
-- **Nombre d'enregistrements estimés** : ``6446``
+- **Nombre d'enregistrements estimés** : ``6464``
 
 .. list-table::
    :header-rows: 1
@@ -1377,7 +1380,7 @@ Index ``youtube_playlists``
 Index ``youtube_videos``
 ------------------------
 
-- **Nombre d'enregistrements estimés** : ``1871``
+- **Nombre d'enregistrements estimés** : ``1872``
 
 .. list-table::
    :header-rows: 1

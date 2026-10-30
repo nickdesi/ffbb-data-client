@@ -1,6 +1,6 @@
 # FFBB API update summary
 
-- Timestamp: `2026-10-27T10:37:32.761487+00:00`
+- Timestamp: `2026-10-30T11:25:15.308982+00:00`
 - API base URL: `https://bo.ffbb.com/`
 - Meilisearch base URL: `https://meilisearch-prod.ffbb.app/`
 - OpenAPI version: `4aa55950ce1db53a17db2c04c935dc112989a92c`
@@ -23,14 +23,14 @@
 
 ## Meilisearch index attributes drift
 - **ffbbserver_rencontres** :
-  - Removed attributes: `officiels_string`
+  - Added attributes: `officiels_string`
 
 ---
 
 ## 📖 Analyse & Contexte Métier des Nouveautés
 
 ### Index Meilisearch
-- **`ffbbserver_rencontres` &rarr; Champ `officiels_string`** (supprimé) :
+- **`ffbbserver_rencontres` &rarr; Champ `officiels_string`** (ajouté) :
   - *Nouvel attribut non documenté dans le dictionnaire de référence.*
 
 ## 🌐 Next.js Web Origin Probe
