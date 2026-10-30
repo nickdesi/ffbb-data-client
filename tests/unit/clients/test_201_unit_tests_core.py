@@ -187,7 +187,7 @@ class Test001ApiFfbbAppCore(unittest.TestCase):
     def test_001_init_with_valid_token(self):
         """Test client initializes correctly with valid token."""
         self.assertEqual(self.client.bearer_token, self.bearer_token)
-        self.assertEqual(self.client.url, "https://bo.ffbb.com/")
+        self.assertEqual(self.client.url, "https://api.ffbb.com/")
         self.assertFalse(self.client.debug)
         self.assertEqual(
             self.client.headers,

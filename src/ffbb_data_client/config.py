@@ -4,7 +4,7 @@ import os
 
 # API URLs
 API_FFBB_BASE_URL = (
-    os.getenv("API_FFBB_BASE_URL", "https://bo.ffbb.com/").rstrip("/") + "/"
+    os.getenv("API_FFBB_BASE_URL", "https://api.ffbb.com/").rstrip("/") + "/"
 )
 MEILISEARCH_BASE_URL = "https://meilisearch-prod.ffbb.app/"
 

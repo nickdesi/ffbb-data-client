@@ -20,7 +20,7 @@ async def test_get_classement_async():
 
     with respx.mock:
         respx.get(
-            url__startswith=f"https://bo.ffbb.com/items/ffbbserver_poules/{poule_id}"
+            url__startswith=f"https://api.ffbb.com/items/ffbbserver_poules/{poule_id}"
         ).respond(
             json={
                 "data": {
@@ -62,7 +62,7 @@ async def test_get_equipes_async():
 
     with respx.mock:
         respx.get(
-            url__startswith=f"https://bo.ffbb.com/items/ffbbserver_organismes/{organisme_id}"
+            url__startswith=f"https://api.ffbb.com/items/ffbbserver_organismes/{organisme_id}"
         ).respond(
             json={
                 "data": {
@@ -232,7 +232,7 @@ async def test_get_lives_async_returns_empty_list():
     client = ApiFFBBAppClient(bearer_token="test-token")
 
     with respx.mock:
-        respx.get("https://bo.ffbb.com/json/lives.json").respond(json=[])
+        respx.get("https://api.ffbb.com/json/lives.json").respond(json=[])
 
         lives = await client.get_lives_async()
         assert lives is not None
@@ -245,7 +245,7 @@ async def test_get_lives_async_raises_on_server_error():
     client = ApiFFBBAppClient(bearer_token="test-token")
 
     with respx.mock:
-        respx.get("https://bo.ffbb.com/json/lives.json").respond(503)
+        respx.get("https://api.ffbb.com/json/lives.json").respond(503)
 
         with pytest.raises(FFBBServerError, match="HTTP 503"):
             await client.get_lives_async()

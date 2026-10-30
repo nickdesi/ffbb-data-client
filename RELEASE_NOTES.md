@@ -1,6 +1,15 @@
 # Release Notes - FFBB Data Client
 
-## Version 2.4.41 (Latest Release)
+## Version 2.4.42 (Latest Release)
+
+### 🎯 Official Mobile Base URL Switch (`api.ffbb.com`) & Live Directus Recovery
+- **Default Base URL Switch**: Switched `API_FFBB_BASE_URL` default from `https://bo.ffbb.com/` to `https://api.ffbb.com/`. Reverse engineering of the official FFBB React Native Hermes app bundle (`com.ffbb.ffbb` v2.4.1) proved that the official mobile app targets `https://api.ffbb.com` (Pullzone `5204911`), whereas `bo.ffbb.com` (Pullzone `6828445`) is the locked-down administrative back-office.
+- **Dynamic Configuration & Token Resolution**: Dynamic bootstrapping on `GET /items/configuration` now succeeds in real-time, yielding valid `key_dh` and `key_ms` tokens.
+- **Multi-Host Fallback Hierarchy**: `TokenManager` now evaluates candidate hosts in order: `[API_FFBB_BASE_URL, https://api.ffbb.com/, https://api.ffbb.app/, https://bo.ffbb.com/, https://bo.ffbb.app/]`.
+
+---
+
+## Version 2.4.41
 
 ### 📱 Official FFBB Mobile App User-Agents & Targeted WAF Fallback
 - **Official Mobile User-Agents**: Added authentic User-Agents extracted from the official FFBB React Native mobile application (Hermes bytecode):

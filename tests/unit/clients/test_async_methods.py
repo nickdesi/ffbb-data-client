@@ -12,7 +12,7 @@ async def test_get_lives_async():
     client = ApiFFBBAppClient(bearer_token="test-token", debug=True)
 
     with respx.mock:
-        respx.get("https://bo.ffbb.com/json/lives.json").respond(
+        respx.get("https://api.ffbb.com/json/lives.json").respond(
             json=[
                 {
                     "matchId": 1,
@@ -36,7 +36,7 @@ async def test_get_competition_async():
     with respx.mock:
         # Use a regex match to handle the complex query parameters
         respx.get(
-            url__startswith="https://bo.ffbb.com/items/ffbbserver_competitions/123"
+            url__startswith="https://api.ffbb.com/items/ffbbserver_competitions/123"
         ).respond(
             json={
                 "data": {

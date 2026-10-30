@@ -27,7 +27,7 @@ async def test_get_club_contacts_async():
 
     with respx.mock:
         respx.get(
-            url__startswith=f"https://bo.ffbb.com/items/ffbbserver_organismes/{organisme_id}"
+            url__startswith=f"https://api.ffbb.com/items/ffbbserver_organismes/{organisme_id}"
         ).respond(
             json={
                 "data": {
@@ -89,7 +89,7 @@ async def test_aiter_all_rencontres_streaming():
             return httpx.Response(200, json={"data": page_data})
 
         respx.get(
-            url__startswith="https://bo.ffbb.com/items/ffbbserver_rencontres"
+            url__startswith="https://api.ffbb.com/items/ffbbserver_rencontres"
         ).mock(side_effect=rencontres_callback)
 
         results = []
@@ -114,7 +114,7 @@ async def test_aiter_all_salles_early_break():
 
     with respx.mock:
         respx.get(
-            url__startswith="https://bo.ffbb.com/items/ffbbserver_salles"
+            url__startswith="https://api.ffbb.com/items/ffbbserver_salles"
         ).respond(
             json={
                 "data": [

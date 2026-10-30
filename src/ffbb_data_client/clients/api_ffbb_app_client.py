@@ -52,7 +52,7 @@ class ApiFFBBAppClient(
 
         Args:
             bearer_token (str): The bearer token used for authentication.
-            url (str, optional): The base URL. Defaults to API_FFBB_BASE_URL ("https://bo.ffbb.com/").
+            url (str, optional): The base URL. Defaults to API_FFBB_BASE_URL ("https://api.ffbb.com/").
             debug (bool, optional): Whether to enable debug mode. Defaults to False.
             cached_session (Client, optional): The cached session to use.
             retry_config (RetryConfig, optional): Retry configuration. Defaults to None.

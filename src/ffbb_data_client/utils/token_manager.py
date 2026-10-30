@@ -138,7 +138,13 @@ class TokenManager:
         candidate_hosts: list[str] = []
         if TokenManager._discovered_healthy_origin:
             candidate_hosts.append(TokenManager._discovered_healthy_origin)
-        for h in [API_FFBB_BASE_URL, "https://bo.ffbb.com/", "https://bo.ffbb.app/"]:
+        for h in [
+            API_FFBB_BASE_URL,
+            "https://api.ffbb.com/",
+            "https://api.ffbb.app/",
+            "https://bo.ffbb.com/",
+            "https://bo.ffbb.app/",
+        ]:
             if h not in candidate_hosts:
                 candidate_hosts.append(h)
         urls_to_try: list[str] = []
