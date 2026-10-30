@@ -238,7 +238,7 @@ def _is_bunnycdn_block(response: Any) -> bool:
 
 
 # Disjoncteur WAF : un 403 BunnyCDN coupe l'hôte pendant le cooldown (zéro requête sortante).
-_WAF_COOLDOWN_SECONDS = float(os.getenv("FFBB_WAF_COOLDOWN_SECONDS", "600"))
+_WAF_COOLDOWN_SECONDS = float(os.getenv("FFBB_WAF_COOLDOWN_SECONDS", "30"))
 _waf_blocked_until: dict[str, float] = {}
 
 
