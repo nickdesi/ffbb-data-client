@@ -121,12 +121,22 @@ class TokenManager:
         if api_token and meilisearch_token:
             return FFBBTokens(api_token=api_token, meilisearch_token=meilisearch_token)
 
-        # Fetch from API (HTTP layer handles caching)
-        config = TokenManager._fetch_configuration(cache_config)
-        return FFBBTokens(
-            api_token=config.api_bearer_token,
-            meilisearch_token=config.meilisearch_token,
-        )
+        # Autonomous fast fallback on known official Directus & Meilisearch bearer tokens
+        # if configuration endpoint is challenged or fails
+        try:
+            config = TokenManager._fetch_configuration(cache_config)
+            return FFBBTokens(
+                api_token=config.api_bearer_token,
+                meilisearch_token=config.meilisearch_token,
+            )
+        except Exception as exc:
+            logger.warning(
+                "Fetching /items/configuration failed (%s), using resilient default tokens.", exc
+            )
+            return FFBBTokens(
+                api_token=DEFAULT_FALLBACK_API_TOKEN,
+                meilisearch_token=DEFAULT_FALLBACK_MEILISEARCH_TOKEN,
+            )
 
     @staticmethod
     def _fetch_configuration(
