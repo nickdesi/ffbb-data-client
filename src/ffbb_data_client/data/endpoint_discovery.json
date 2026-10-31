@@ -329,9 +329,9 @@
       "items/youtube_videos_youtube_tags"
     ],
     "metadata": {
-      "openapi_version": "4aa55950ce1db53a17db2c04c935dc112989a92c",
-      "source": "https://bo.ffbb.com/server/specs/oas",
-      "timestamp": "2026-10-30T11:25:15.308982+00:00"
+      "openapi_version": "af9259c6e0484f7b9dc574d8d80505b469cc983d",
+      "source": "https://api.ffbb.com/server/specs/oas",
+      "timestamp": "2026-10-31T10:56:34.152988+00:00"
     },
     "paths": {
       "items/configuration": [
@@ -1353,17 +1353,20 @@
   "drift": {
     "directus_openapi": {
       "added_schemas": [],
-      "modified_schemas": {},
+      "modified_schemas": {
+        "ItemsFfbbserverEngagements": {
+          "added_properties": [
+            "creation",
+            "forfaitGeneral",
+            "modification"
+          ],
+          "modified_properties": {},
+          "removed_properties": []
+        }
+      },
       "removed_schemas": []
     },
-    "meilisearch_indexes": {
-      "ffbbserver_rencontres": {
-        "added": [
-          "officiels_string"
-        ],
-        "removed": []
-      }
-    }
+    "meilisearch_indexes": {}
   },
   "meilisearch": {
     "available_indexes": [
@@ -1468,7 +1471,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 4460,
+        "estimatedTotalHits": 4465,
         "indexUid": "ffbbnational_rss",
         "sampleKeys": [
           "categories",
@@ -1498,7 +1501,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 3705,
+        "estimatedTotalHits": 3717,
         "indexUid": "ffbbserver_competitions",
         "sampleKeys": [
           "age",
@@ -1578,7 +1581,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 125,
+        "estimatedTotalHits": 121,
         "indexUid": "ffbbserver_formations",
         "sampleKeys": [
           "certification",
@@ -1649,7 +1652,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 3376,
+        "estimatedTotalHits": 5000,
         "indexUid": "ffbbserver_rencontres",
         "sampleKeys": [
           "_geo",
@@ -1841,7 +1844,7 @@
       },
       {
         "available": true,
-        "estimatedTotalHits": 6464,
+        "estimatedTotalHits": 6469,
         "indexUid": "ffbbsite_news",
         "sampleKeys": [
           "author",
@@ -1933,7 +1936,7 @@
     ],
     "metadata": {
       "source": "https://meilisearch-prod.ffbb.app/multi-search",
-      "timestamp": "2026-10-30T11:25:15.308982+00:00"
+      "timestamp": "2026-10-31T10:56:34.152988+00:00"
     },
     "unavailable_indexes": [
       {
@@ -2671,13 +2674,13 @@
     ]
   },
   "metadata": {
-    "api_base_url": "https://bo.ffbb.com/",
-    "configured_api_base_url": "https://bo.ffbb.com/",
+    "api_base_url": "https://api.ffbb.com/",
+    "configured_api_base_url": "https://api.ffbb.com/",
     "meilisearch_base_url": "https://meilisearch-prod.ffbb.app/",
-    "openapi_sha256": "023cee7b018aed058369ca6757cfa08c823328ebe64f1e055dca22387b862bce",
-    "openapi_snapshot_sha256": "023cee7b018aed058369ca6757cfa08c823328ebe64f1e055dca22387b862bce",
-    "openapi_version": "4aa55950ce1db53a17db2c04c935dc112989a92c",
-    "timestamp": "2026-10-30T11:25:15.308982+00:00",
+    "openapi_sha256": "ae88edf5226ffdc5a750301af3b1147cc06e328bfdbc19456009f11e21f5ecfc",
+    "openapi_snapshot_sha256": "eb80efc08c16a881f9f3e4caf0433729698c765c90f6a3a82bdda95827930291",
+    "openapi_version": "af9259c6e0484f7b9dc574d8d80505b469cc983d",
+    "timestamp": "2026-10-31T10:56:34.152988+00:00",
     "web_probe": {
       "all_ffbb_hosts": [
         "https://api.ffbb.app",

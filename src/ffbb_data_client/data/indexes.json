@@ -101,7 +101,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 4460,
+      "estimatedTotalHits": 4465,
       "indexUid": "ffbbnational_rss",
       "sampleKeys": [
         "categories",
@@ -131,7 +131,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 3705,
+      "estimatedTotalHits": 3717,
       "indexUid": "ffbbserver_competitions",
       "sampleKeys": [
         "age",
@@ -211,7 +211,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 125,
+      "estimatedTotalHits": 121,
       "indexUid": "ffbbserver_formations",
       "sampleKeys": [
         "certification",
@@ -282,7 +282,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 3376,
+      "estimatedTotalHits": 5000,
       "indexUid": "ffbbserver_rencontres",
       "sampleKeys": [
         "_geo",
@@ -474,7 +474,7 @@
     },
     {
       "available": true,
-      "estimatedTotalHits": 6464,
+      "estimatedTotalHits": 6469,
       "indexUid": "ffbbsite_news",
       "sampleKeys": [
         "author",
@@ -566,7 +566,7 @@
   ],
   "metadata": {
     "source": "https://meilisearch-prod.ffbb.app/multi-search",
-    "timestamp": "2026-10-30T11:25:15.308982+00:00"
+    "timestamp": "2026-10-31T10:56:34.152988+00:00"
   },
   "unavailable_indexes": [
     {
