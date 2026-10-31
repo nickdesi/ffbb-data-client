@@ -3264,6 +3264,11 @@
             "nullable": true,
             "type": "string"
           },
+          "creation": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "date_created": {
             "format": "timestamp",
             "nullable": true,
@@ -3299,6 +3304,10 @@
                 "$ref": "#/components/schemas/ItemsFfbbserverEntraineurs"
               }
             ]
+          },
+          "forfaitGeneral": {
+            "nullable": true,
+            "type": "boolean"
           },
           "id": {
             "nullable": false,
@@ -3361,6 +3370,11 @@
             ]
           },
           "logo_genius": {
+            "nullable": true,
+            "type": "string"
+          },
+          "modification": {
+            "format": "date-time",
             "nullable": true,
             "type": "string"
           },
@@ -11690,7 +11704,7 @@
   "info": {
     "description": "This is a dynamically generated API specification for all endpoints existing on the current project.",
     "title": "Dynamic API Specification",
-    "version": "4aa55950ce1db53a17db2c04c935dc112989a92c"
+    "version": "af9259c6e0484f7b9dc574d8d80505b469cc983d"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -35527,7 +35541,7 @@
   "servers": [
     {
       "description": "Your current Directus instance.",
-      "url": "https://bo.ffbb.com/"
+      "url": "https://api.ffbb.com/"
     }
   ]
 }
