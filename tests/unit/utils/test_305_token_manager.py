@@ -7,7 +7,12 @@ import unittest
 from unittest.mock import patch
 
 from ffbb_data_client import FFBBResponseValidationError, FFBBTokens, TokenManager
-from ffbb_data_client.config import ENV_API_TOKEN, ENV_MEILISEARCH_TOKEN
+from ffbb_data_client.config import (
+    DEFAULT_FALLBACK_API_TOKEN,
+    DEFAULT_FALLBACK_MEILISEARCH_TOKEN,
+    ENV_API_TOKEN,
+    ENV_MEILISEARCH_TOKEN,
+)
 
 
 class Test020TokenManager(unittest.TestCase):
@@ -97,10 +102,16 @@ class Test020TokenManager(unittest.TestCase):
         mock_response.status_code = 200
         mock_http.return_value = mock_response
 
+        # _fetch_configuration raises RuntimeError
         with self.assertRaises(RuntimeError) as context:
-            TokenManager.get_tokens()
+            TokenManager._fetch_configuration()
 
         self.assertIn("Failed to fetch configuration", str(context.exception))
+
+        # get_tokens() falls back resiliently to default official tokens
+        tokens = TokenManager.get_tokens()
+        self.assertEqual(tokens.api_token, DEFAULT_FALLBACK_API_TOKEN)
+        self.assertEqual(tokens.meilisearch_token, DEFAULT_FALLBACK_MEILISEARCH_TOKEN)
 
     @patch("ffbb_data_client.utils.token_manager.make_http_request_with_retry")
     def test_get_tokens_rejects_missing_token_fields(self, mock_http):
@@ -108,8 +119,14 @@ class Test020TokenManager(unittest.TestCase):
         os.environ.pop(ENV_MEILISEARCH_TOKEN, None)
         mock_http.return_value.text = '{"data": {"id": 1}}'
 
+        # _fetch_configuration raises FFBBResponseValidationError
         with self.assertRaises(FFBBResponseValidationError):
-            TokenManager.get_tokens()
+            TokenManager._fetch_configuration()
+
+        # get_tokens() falls back resiliently
+        tokens = TokenManager.get_tokens()
+        self.assertEqual(tokens.api_token, DEFAULT_FALLBACK_API_TOKEN)
+        self.assertEqual(tokens.meilisearch_token, DEFAULT_FALLBACK_MEILISEARCH_TOKEN)
 
     @patch("ffbb_data_client.utils.token_manager.make_http_request_with_retry")
     def test_get_tokens_partial_env_fetches_from_api(self, mock_http):
