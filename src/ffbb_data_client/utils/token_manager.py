@@ -131,7 +131,8 @@ class TokenManager:
             )
         except Exception as exc:
             logger.warning(
-                "Fetching /items/configuration failed (%s), using resilient default tokens.", exc
+                "Fetching /items/configuration failed (%s), using resilient default tokens.",
+                exc,
             )
             return FFBBTokens(
                 api_token=DEFAULT_FALLBACK_API_TOKEN,

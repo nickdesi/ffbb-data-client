@@ -12,7 +12,6 @@ This module provides sophisticated caching strategies including:
 from __future__ import annotations
 
 import hashlib
-import os
 import threading
 from dataclasses import dataclass
 from typing import Any, cast
@@ -172,6 +171,7 @@ class CacheManager:
         # Permet de maintenir les sockets TLS chauds et d'éviter les handshakes répétés
         limits = httpx.Limits(max_keepalive_connections=50, max_connections=200)
         from ffbb_data_client.utils.retry_utils import get_configured_egress_proxy
+
         proxy = get_configured_egress_proxy()
 
         if self.config.backend == "memory":

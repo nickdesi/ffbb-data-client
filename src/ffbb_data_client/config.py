@@ -10,11 +10,11 @@ MEILISEARCH_BASE_URL = "https://meilisearch-prod.ffbb.app/"
 
 # HTTP Headers
 # User-Agents officiels décompilés depuis l'application mobile React Native officielle (Hermes) v2.4.1 (Build 2412)
-DEFAULT_ANDROID_USER_AGENT = "FFBB/2.4.1 (Linux; U; Android 14; com.ffbb.ffbb; Build/2412)"
-DEFAULT_ANDROID_LEGACY_USER_AGENT = "FFBB/1.6.7.42 Dalvik/2.1.0 (Linux; U; Android 5.1.1; Android SDK built for x86 Build/LMY48X)"
-DEFAULT_IOS_USER_AGENT = (
-    "FFBB/2.4.1 (iPhone; iOS 18.0; Scale/3.00)"
+DEFAULT_ANDROID_USER_AGENT = (
+    "FFBB/2.4.1 (Linux; U; Android 14; com.ffbb.ffbb; Build/2412)"
 )
+DEFAULT_ANDROID_LEGACY_USER_AGENT = "FFBB/1.6.7.42 Dalvik/2.1.0 (Linux; U; Android 5.1.1; Android SDK built for x86 Build/LMY48X)"
+DEFAULT_IOS_USER_AGENT = "FFBB/2.4.1 (iPhone; iOS 18.0; Scale/3.00)"
 DEFAULT_SAFARI_USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"
 
 # Use official FFBB Android mobile app User-Agent by default, overridable via FFBB_USER_AGENT.

@@ -49,7 +49,12 @@ def get_configured_egress_proxy() -> str | None:
     toute requête directe non masquée vers l'API FFBB.
     """
     proxy = os.getenv("HTTPS_PROXY") or os.getenv("HTTP_PROXY") or None
-    if not proxy and os.getenv("REQUIRE_EGRESS_PROXY", "0") in ("1", "true", "yes", "on"):
+    if not proxy and os.getenv("REQUIRE_EGRESS_PROXY", "0") in (
+        "1",
+        "true",
+        "yes",
+        "on",
+    ):
         raise RuntimeError(
             "CRITICAL SECURITY: REQUIRE_EGRESS_PROXY est actif mais aucun HTTP_PROXY/HTTPS_PROXY "
             "n'est configuré. Requête directe vers l'API FFBB avortée pour protéger l'IP résidentielle."
