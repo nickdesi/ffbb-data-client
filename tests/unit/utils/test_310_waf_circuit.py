@@ -36,7 +36,7 @@ def test_waf_block_opens_circuit_and_skips_network() -> None:
 
     assert first.status_code == second.status_code == 403
     assert session.get.call_count == 1
-    assert "bo.ffbb.com" in waf_blocked_hosts()
+    assert waf_blocked_hosts().get("bo.ffbb.com") is not None
 
 
 def test_directus_json_403_does_not_open_circuit() -> None:
@@ -123,10 +123,10 @@ def test_reset_host_waf_block() -> None:
     session = MagicMock()
     session.get.return_value = _blocked()
     make_http_request_with_retry("GET", URL, {}, cached_session=session)
-    assert "bo.ffbb.com" in waf_blocked_hosts()
+    assert waf_blocked_hosts().get("bo.ffbb.com") is not None
 
     retry_utils.reset_host_waf_block(URL)
-    assert "bo.ffbb.com" not in waf_blocked_hosts()
+    assert waf_blocked_hosts().get("bo.ffbb.com") is None
 
 
 def test_http_get_rotates_user_agent_on_bunnycdn_403() -> None:

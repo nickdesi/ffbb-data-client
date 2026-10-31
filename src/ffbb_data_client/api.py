@@ -1473,7 +1473,8 @@ async def get_poule(
     try:
         poule = await client.get_poule_async(poule_id)
     except Exception as e:
-        logger.warning("Fallback get_poule %s: %s", poule_id, e)
+        safe_err = str(e).replace("\r", " ").replace("\n", " ")
+        logger.warning("Fallback get_poule %d: %s", int(poule_id), safe_err)
         poule = None
     if poule:
         return poule
@@ -1509,7 +1510,8 @@ async def get_poule_classement(
             fields=QueryFieldsManager.get_classement_fields(),
         )
     except Exception as e:
-        logger.warning("Fallback get_poule_classement %s: %s", poule_id, e)
+        safe_err = str(e).replace("\r", " ").replace("\n", " ")
+        logger.warning("Fallback get_poule_classement %d: %s", int(poule_id), safe_err)
         poule = None
     if not poule:
         response.headers["Cache-Control"] = "no-store"
