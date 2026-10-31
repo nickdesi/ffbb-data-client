@@ -41,10 +41,26 @@ def _validate_url(url: str) -> str:
     return f"{parsed.scheme}://{parsed.netloc}{path}{query}"
 
 
+def get_configured_egress_proxy() -> str | None:
+    """Retourne le proxy de sortie configuré (HTTP_PROXY / HTTPS_PROXY).
+
+    Si REQUIRE_EGRESS_PROXY est activé (mode conteneur/production anti-fuite IP résidentielle)
+    et qu'aucun proxy n'est présent, une exception bloquante est levée pour empêcher
+    toute requête directe non masquée vers l'API FFBB.
+    """
+    proxy = os.getenv("HTTPS_PROXY") or os.getenv("HTTP_PROXY") or None
+    if not proxy and os.getenv("REQUIRE_EGRESS_PROXY", "0") in ("1", "true", "yes", "on"):
+        raise RuntimeError(
+            "CRITICAL SECURITY: REQUIRE_EGRESS_PROXY est actif mais aucun HTTP_PROXY/HTTPS_PROXY "
+            "n'est configuré. Requête directe vers l'API FFBB avortée pour protéger l'IP résidentielle."
+        )
+    return proxy
+
+
 def _get_default_client() -> httpx.Client:
     global _DEFAULT_CLIENT
     if _DEFAULT_CLIENT is None or _DEFAULT_CLIENT.is_closed:
-        proxy = os.getenv("HTTPS_PROXY") or os.getenv("HTTP_PROXY") or None
+        proxy = get_configured_egress_proxy()
         _DEFAULT_CLIENT = httpx.Client(limits=_POOL_LIMITS, proxy=proxy)
     return _DEFAULT_CLIENT
 
@@ -52,7 +68,7 @@ def _get_default_client() -> httpx.Client:
 async def _get_default_async_client() -> httpx.AsyncClient:
     global _DEFAULT_ASYNC_CLIENT
     if _DEFAULT_ASYNC_CLIENT is None or _DEFAULT_ASYNC_CLIENT.is_closed:
-        proxy = os.getenv("HTTPS_PROXY") or os.getenv("HTTP_PROXY") or None
+        proxy = get_configured_egress_proxy()
         _DEFAULT_ASYNC_CLIENT = httpx.AsyncClient(limits=_POOL_LIMITS, proxy=proxy)
     return _DEFAULT_ASYNC_CLIENT
 

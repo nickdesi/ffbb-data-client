@@ -28,6 +28,11 @@ COPY --from=builder /app /app
 ENV PYTHONUNBUFFERED=1
 ENV PORT=8000
 ENV HOST=0.0.0.0
+# Egress proxy par défaut : protège l'IP résidentielle contre toute détection ou blocage WAF BunnyCDN
+ENV HTTP_PROXY="http://192.168.1.146:8888"
+ENV HTTPS_PROXY="http://192.168.1.146:8888"
+ENV NO_PROXY="localhost,127.0.0.1,192.168.1.0/24,dokploy-dnsrr"
+ENV REQUIRE_EGRESS_PROXY="1"
 
 EXPOSE 8000
 

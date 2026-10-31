@@ -171,7 +171,8 @@ class CacheManager:
         # ⚡ Optimisation des performances réseau : connection pooling robuste pour HTTPX
         # Permet de maintenir les sockets TLS chauds et d'éviter les handshakes répétés
         limits = httpx.Limits(max_keepalive_connections=50, max_connections=200)
-        proxy = os.getenv("HTTPS_PROXY") or os.getenv("HTTP_PROXY") or None
+        from ffbb_data_client.utils.retry_utils import get_configured_egress_proxy
+        proxy = get_configured_egress_proxy()
 
         if self.config.backend == "memory":
             import sqlite3
