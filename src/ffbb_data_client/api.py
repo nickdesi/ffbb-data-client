@@ -159,7 +159,7 @@ l'ensemble des données publiques de la **Fédération Française de BasketBall*
 - ⭐ **Code Source GitHub** : [`https://github.com/nickdesi/ffbb-data-client`](https://github.com/nickdesi/ffbb-data-client)
 - 📖 **Documentation Sphinx complète** : [`https://nickdesi.github.io/ffbb-data-client/`](https://nickdesi.github.io/ffbb-data-client/)
 """,
-    version="2.4.41",
+    version="2.4.43",
     contact={
         "name": "FFBB Data Client — Support & Open Data",
         "url": "https://github.com/nickdesi/ffbb-data-client/issues",
@@ -779,7 +779,7 @@ async def health_ready(response: Response):
         checks["directus"] = "waf_blocked"
 
     try:
-        res = client.multi_search(name="Clermont")
+        res = await asyncio.to_thread(client.multi_search, name="Clermont")
         checks["meilisearch"] = "ok" if res else "empty"
     except Exception as e:
         logger.warning("Erreur check readiness meilisearch: %s", e)
@@ -926,7 +926,7 @@ async def search_ffbb(
     effective_query = _SEARCH_ACRONYMS.get(search_term.upper(), search_term)
     client = get_client()
     try:
-        results = client.multi_search(name=effective_query)
+        results = await asyncio.to_thread(client.multi_search, name=effective_query)
         return results
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur de recherche: {e}")

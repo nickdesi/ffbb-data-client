@@ -14,8 +14,14 @@ from ...exceptions import (
     FFBBAuthenticationError,
     FFBBHTTPError,
     FFBBNotFoundError,
+    FFBBTransportError,
 )
 from ...helpers.http_requests_utils import http_get_json_async, url_with_params
+from ...helpers.meilisearch_fallback import (
+    competition_from_meilisearch,
+    poule_from_meilisearch,
+    register_poule_competition,
+)
 from ...models.field_set import FieldSet
 from ...models.get_competition_response import GetCompetitionResponse
 from ...models.get_poule_response import GetPouleResponse
@@ -87,6 +93,13 @@ class CompetitionMixin:
             )
             actual_data = data.get("data") if data and isinstance(data, dict) else data
             if actual_data:
+                if isinstance(actual_data, dict):
+                    cid_str = str(actual_data.get("id") or competition_id)
+                    for p_item in actual_data.get("poules") or []:
+                        if isinstance(p_item, dict) and p_item.get("id"):
+                            register_poule_competition(
+                                p_item["id"], cid_str, p_item.get("nom") or ""
+                            )
                 return GetCompetitionResponse.from_dict(actual_data)
             return None
         except FFBBAuthenticationError as exc:
@@ -103,6 +116,14 @@ class CompetitionMixin:
         except FFBBNotFoundError as e:
             if self.debug:
                 self.logger.error(f"Error in get_competition_async: {e}")
+            return None
+        except (FFBBHTTPError, FFBBTransportError):
+            try:
+                comp_hit = await competition_from_meilisearch(competition_id)
+                if comp_hit:
+                    return GetCompetitionResponse.from_dict(comp_hit)
+            except Exception:
+                pass
             return None
 
     async def _get_competition_via_filter(
@@ -217,9 +238,15 @@ class CompetitionMixin:
             if self.debug:
                 self.logger.error(f"Error in get_poule_async: {e}")
             return None
-        except (FFBBAuthenticationError, FFBBHTTPError) as e:
+        except (FFBBAuthenticationError, FFBBHTTPError, FFBBTransportError) as e:
             if self.debug:
                 self.logger.warning(f"Error in get_poule_async: {e}")
+            try:
+                poule_hit = await poule_from_meilisearch(poule_id)
+                if poule_hit:
+                    return GetPouleResponse.from_dict(poule_hit)
+            except Exception:
+                pass
             return None
 
     def get_classement(
@@ -297,7 +324,7 @@ class CompetitionMixin:
             if self.debug:
                 self.logger.error(f"Error in get_saisons_async: {e}")
             return []
-        except FFBBAuthenticationError as e:
+        except (FFBBAuthenticationError, FFBBHTTPError, FFBBTransportError) as e:
             if self.debug:
                 self.logger.warning(
                     f"Directus saisons endpoint blocked by WAF/CDN: {e}. Engaging fallback."

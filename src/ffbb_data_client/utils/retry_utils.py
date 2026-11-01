@@ -65,16 +65,16 @@ def get_configured_egress_proxy() -> str | None:
 def _get_default_client() -> httpx.Client:
     global _DEFAULT_CLIENT
     if _DEFAULT_CLIENT is None or _DEFAULT_CLIENT.is_closed:
-        proxy = get_configured_egress_proxy()
-        _DEFAULT_CLIENT = httpx.Client(limits=_POOL_LIMITS, proxy=proxy)
+        _ = get_configured_egress_proxy()
+        _DEFAULT_CLIENT = httpx.Client(limits=_POOL_LIMITS)
     return _DEFAULT_CLIENT
 
 
 async def _get_default_async_client() -> httpx.AsyncClient:
     global _DEFAULT_ASYNC_CLIENT
     if _DEFAULT_ASYNC_CLIENT is None or _DEFAULT_ASYNC_CLIENT.is_closed:
-        proxy = get_configured_egress_proxy()
-        _DEFAULT_ASYNC_CLIENT = httpx.AsyncClient(limits=_POOL_LIMITS, proxy=proxy)
+        _ = get_configured_egress_proxy()
+        _DEFAULT_ASYNC_CLIENT = httpx.AsyncClient(limits=_POOL_LIMITS)
     return _DEFAULT_ASYNC_CLIENT
 
 

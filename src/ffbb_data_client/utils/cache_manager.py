@@ -172,35 +172,35 @@ class CacheManager:
         limits = httpx.Limits(max_keepalive_connections=50, max_connections=200)
         from ffbb_data_client.utils.retry_utils import get_configured_egress_proxy
 
-        proxy = get_configured_egress_proxy()
+        _ = get_configured_egress_proxy()
 
         if self.config.backend == "memory":
             import sqlite3
 
+            import anysqlite
+
             # Use separate in-memory SQLite connections for sync and async:
             # sharing one connection across threads (sync vs asyncio) is not safe.
             sync_conn = sqlite3.connect(":memory:", check_same_thread=False)
-            async_conn = sqlite3.connect(":memory:", check_same_thread=False)
+            async_conn = anysqlite.Connection(
+                sqlite3.connect(":memory:", check_same_thread=False)
+            )
             storage: Any = hishel.SyncSqliteStorage(
                 connection=sync_conn, default_ttl=self.config.expire_after
             )
             self._client = hishel.httpx.SyncCacheClient(
                 storage=storage,
                 policy=policy,
-                transport=httpx.HTTPTransport(
-                    retries=self.config.transport_retries, limits=limits, proxy=proxy
-                ),
+                limits=limits,
             )
             # Async version uses its own connection
             async_storage: Any = hishel.AsyncSqliteStorage(
-                connection=cast(Any, async_conn), default_ttl=self.config.expire_after
+                connection=async_conn, default_ttl=self.config.expire_after
             )
             self._async_client = hishel.httpx.AsyncCacheClient(
                 storage=async_storage,
                 policy=policy,
-                transport=httpx.AsyncHTTPTransport(
-                    retries=self.config.transport_retries, limits=limits, proxy=proxy
-                ),
+                limits=limits,
             )
         elif self.config.backend == "sqlite":
             # Use separate database files to avoid "database is locked" errors
@@ -211,9 +211,7 @@ class CacheManager:
             self._client = hishel.httpx.SyncCacheClient(
                 storage=storage,
                 policy=policy,
-                transport=httpx.HTTPTransport(
-                    retries=self.config.transport_retries, limits=limits, proxy=proxy
-                ),
+                limits=limits,
             )
             # Async version uses its own database file
             async_storage = hishel.AsyncSqliteStorage(
@@ -223,9 +221,7 @@ class CacheManager:
             self._async_client = hishel.httpx.AsyncCacheClient(
                 storage=async_storage,
                 policy=policy,
-                transport=httpx.AsyncHTTPTransport(
-                    retries=self.config.transport_retries, limits=limits, proxy=proxy
-                ),
+                limits=limits,
             )
         else:
             raise ValueError(f"Unsupported cache backend: {self.config.backend}")

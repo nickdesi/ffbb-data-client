@@ -31,8 +31,10 @@ ENV HOST=0.0.0.0
 # Egress proxy par défaut : protège l'IP résidentielle contre toute détection ou blocage WAF BunnyCDN
 ENV HTTP_PROXY="http://192.168.1.146:8888"
 ENV HTTPS_PROXY="http://192.168.1.146:8888"
-ENV NO_PROXY="localhost,127.0.0.1,192.168.1.0/24,dokploy-dnsrr"
+ENV NO_PROXY="localhost,127.0.0.1,192.168.1.0/24,dokploy-dnsrr,meilisearch-prod.ffbb.app"
 ENV REQUIRE_EGRESS_PROXY="1"
+ENV API_FFBB_APP_BEARER_TOKEN="bvBdsqADOnQmvFNzDRQnzYYw2g2J1ad6"
+ENV MEILISEARCH_BEARER_TOKEN="98f07e4d3869853c218a0f65edce2ae56cc670728d9bcb8b035a5107ce1b55dc"
 
 EXPOSE 8000
 

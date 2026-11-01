@@ -91,7 +91,12 @@ async def test_async_waf_block_opens_circuit() -> None:
 async def test_organisme_from_meilisearch_matches_exact_ids() -> None:
     org = {"id": "9326", "code": "ARA0063074", "nom": "SCBA"}
     engagements = [
-        {"id": "1", "codeClub": "ARA0063074"},
+        {
+            "id": "1",
+            "codeClub": "ARA0063074",
+            "idPoule": {"id": "p1", "nom": "Poule A"},
+            "idCompetition": {"id": "c1"},
+        },
         {"id": "2", "codeClub": "ARA0063010"},
     ]
     search = AsyncMock(side_effect=[[{"id": "93260"}, org], engagements])
@@ -102,6 +107,49 @@ async def test_organisme_from_meilisearch_matches_exact_ids() -> None:
     assert result["id"] == "9326"
     assert [e["id"] for e in result["engagements"]] == ["1"]
     assert search.await_args_list[1].args[1]["attributesToSearchOn"] == ["codeClub"]
+    assert mf._POULE_TO_COMP_CACHE.get("p1") == ("c1", "Poule A")
+
+
+@pytest.mark.asyncio
+async def test_poule_from_meilisearch_reconstructs_poule() -> None:
+    mf.register_poule_competition("200000003055513", "200000002897652", "Poule B")
+    comp_hit = {
+        "id": "200000002897652",
+        "nom": "PNM",
+        "phases": ["200000002897652"],
+        "saison": {"code": "26-27"},
+        "poules": [
+            {
+                "id": "200000003055513",
+                "nom": "Poule B",
+                "engagements": [{"id": "eng1", "nom": "SCBA"}],
+            }
+        ],
+    }
+    rencontres_hits = [
+        {
+            "id": "m1",
+            "numeroJournee": "1",
+            "idPoule": {"id": "200000003055513", "nom": "Poule B"},
+            "joue": True,
+            "nomEquipe1": "SCBA",
+            "nomEquipe2": "ADV",
+            "resultatEquipe1": "80",
+            "resultatEquipe2": "70",
+            "date_rencontre": "2026-10-10T20:00:00",
+        }
+    ]
+    search = AsyncMock(side_effect=[[comp_hit], rencontres_hits])
+    with patch.object(mf, "meili_search_async", search):
+        poule = await mf.poule_from_meilisearch("200000003055513")
+
+    assert poule is not None
+    assert poule["id"] == "200000003055513"
+    assert poule["nom"] == "Poule B"
+    assert len(poule["rencontres"]) == 1
+    assert poule["rencontres"][0]["resultatEquipe1"] == "80"
+    assert len(poule["classements"]) == 1
+    assert poule["classements"][0]["idEngagement"]["nom"] == "SCBA"
 
 
 @pytest.mark.asyncio

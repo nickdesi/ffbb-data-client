@@ -74,10 +74,15 @@ def configure_cache_for_worker(
 
 @pytest.fixture(autouse=True)
 def reset_waf_circuit() -> Generator[None]:
-    """Prevent a WAF block recorded by one test from short-circuiting the next."""
+    """Prevent a WAF block or cached mock response recorded by one test from polluting the next."""
+    from ffbb_data_client.utils.cache_manager import CacheConfig, CacheManager
     from ffbb_data_client.utils.retry_utils import reset_waf_circuit as _reset
 
     _reset()
+    CacheManager.reset_instance()
+    CacheManager(
+        CacheConfig(enabled=True, backend="memory", expire_after=1800, max_size=1000)
+    )
     yield
     _reset()
 

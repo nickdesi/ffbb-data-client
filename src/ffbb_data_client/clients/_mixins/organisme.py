@@ -10,8 +10,10 @@ from ...exceptions import (
     FFBBAuthenticationError,
     FFBBHTTPError,
     FFBBNotFoundError,
+    FFBBTransportError,
 )
 from ...helpers.http_requests_utils import http_get_json_async, url_with_params
+from ...helpers.meilisearch_fallback import register_poule_competition
 from ...models.field_set import FieldSet
 from ...models.get_competition_response import GetCompetitionResponse
 from ...models.get_organisme_response import GetOrganismeResponse
@@ -94,13 +96,23 @@ class OrganismeMixin:
             )
             actual_data = data.get("data") if data and isinstance(data, dict) else data
             if actual_data:
+                if isinstance(actual_data, dict):
+                    for eng in actual_data.get("engagements") or []:
+                        if isinstance(eng, dict):
+                            p_obj = eng.get("idPoule") or {}
+                            c_obj = eng.get("idCompetition") or {}
+                            pid = p_obj.get("id") if isinstance(p_obj, dict) else p_obj
+                            cid = c_obj.get("id") if isinstance(c_obj, dict) else c_obj
+                            p_nom = p_obj.get("nom") if isinstance(p_obj, dict) else ""
+                            if pid and cid:
+                                register_poule_competition(pid, cid, p_nom or "")
                 return GetOrganismeResponse.from_dict(actual_data)
             return None
         except FFBBNotFoundError as e:
             if self.debug:
                 self.logger.error(f"Error in get_organisme_async: {e}")
             return None
-        except (FFBBAuthenticationError, FFBBHTTPError) as exc:
+        except (FFBBAuthenticationError, FFBBHTTPError, FFBBTransportError) as exc:
             if self.debug:
                 self.logger.warning(
                     f"Directus get_organisme_async failed ({exc}), engagement du fallback Meilisearch..."
