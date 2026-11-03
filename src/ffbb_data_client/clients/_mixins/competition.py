@@ -90,6 +90,7 @@ class CompetitionMixin:
                 self.headers,
                 debug=self.debug,
                 cached_session=cached_session or self.async_cached_session,
+                timeout=3,
             )
             actual_data = data.get("data") if data and isinstance(data, dict) else data
             if actual_data:
@@ -229,6 +230,7 @@ class CompetitionMixin:
                 self.headers,
                 debug=self.debug,
                 cached_session=cached_session or self.async_cached_session,
+                timeout=3,
             )
             actual_data = data.get("data") if data and isinstance(data, dict) else data
             if actual_data:
@@ -315,6 +317,7 @@ class CompetitionMixin:
                 self.headers,
                 debug=self.debug,
                 cached_session=cached_session or self.async_cached_session,
+                timeout=3,
             )
             actual_data = data.get("data") if data and isinstance(data, dict) else data
             if actual_data and isinstance(actual_data, list):

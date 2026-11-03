@@ -1442,9 +1442,36 @@ async def get_club_teams(
     ),
 ):
     """Retourne la liste des équipes engagées pour un organisme/club."""
+    # Fast-path Meilisearch : résolution instantanée (< 40ms, zéro WAF, zéro proxy)
+    try:
+        from .helpers.meilisearch_fallback import organisme_from_meilisearch
+        org_hit = await organisme_from_meilisearch(organisme_id)
+        if org_hit and org_hit.get("engagements"):
+            teams = []
+            for eng in org_hit.get("engagements") or []:
+                comp = eng.get("idCompetition") or {}
+                poule = eng.get("idPoule") or {}
+                teams.append(
+                    {
+                        "engagement_id": str(eng.get("id") or ""),
+                        "team_number": str(eng.get("numeroEquipe") or "1"),
+                        "competition": str(comp.get("nom") or "") if isinstance(comp, dict) else "",
+                        "competition_id": str(comp.get("id") or "") if isinstance(comp, dict) else "",
+                        "poule_id": str(poule.get("id") or "") if isinstance(poule, dict) else str(poule or ""),
+                    }
+                )
+            return {
+                "organisme_id": organisme_id,
+                "nom": org_hit.get("nom", ""),
+                "teams": teams,
+                "count": len(teams),
+            }
+    except Exception as e:
+        logger.debug("Fast-path Meilisearch get_club_teams %d: %s", int(organisme_id), e)
+
     client = get_client()
     try:
-        org = await client.get_organisme_async(organisme_id)
+        org = await asyncio.wait_for(client.get_organisme_async(organisme_id), timeout=2.5)
         if not org:
             raise HTTPException(status_code=404, detail="Club introuvable.")
     except HTTPException:
@@ -1462,6 +1489,7 @@ async def get_club_teams(
                 "engagement_id": str(getattr(eng, "id", "")),
                 "team_number": getattr(eng, "numeroEquipe", "") or "1",
                 "competition": getattr(comp, "nom", "") if comp else "",
+                "competition_id": str(getattr(comp, "id", "")) if comp else "",
                 "poule_id": (
                     str(getattr(poule, "id", "")) if poule else str(poule or "")
                 ),
@@ -1516,17 +1544,39 @@ async def get_poule(
     poule_id: int = PathParam(
         ..., ge=1, description="ID de la poule FFBB", examples=[129759]
     ),
+    competition_id: str | None = Query(
+        None, description="ID optionnel de la compétition pour résolution Meilisearch instantanée"
+    ),
 ):
     """Retourne les détails complets, classements et rencontres d'une poule."""
+    # Fast path Meilisearch (si competition_id est fourni ou déjà en cache mémoire)
+    try:
+        from .helpers.meilisearch_fallback import poule_from_meilisearch
+        fast_poule = await poule_from_meilisearch(poule_id, competition_id)
+        if fast_poule and (fast_poule.get("rencontres") or fast_poule.get("classements")):
+            return fast_poule
+    except Exception as e:
+        logger.debug("Fast-path Meilisearch poule %d: %s", int(poule_id), e)
+
     client = get_client()
     try:
-        poule = await client.get_poule_async(poule_id)
+        # Directus capé à 2.5s max pour ne jamais bloquer les pages web
+        poule = await asyncio.wait_for(client.get_poule_async(poule_id), timeout=2.5)
     except Exception as e:
         safe_err = str(e).replace("\r", " ").replace("\n", " ")
         logger.warning("Fallback get_poule %d: %s", int(poule_id), safe_err)
         poule = None
+
+    if not poule:
+        try:
+            from .helpers.meilisearch_fallback import poule_from_meilisearch
+            poule = await poule_from_meilisearch(poule_id, competition_id)
+        except Exception:
+            poule = None
+
     if poule:
         return poule
+
     # Ne jamais laisser un cache (navigateur, HA, transients WP) figer un résultat vide.
     response.headers["Cache-Control"] = "no-store"
     return {
@@ -1554,14 +1604,35 @@ async def get_poule_classement(
     """Retourne le classement officiel d'une poule avec victoires, défaites, points et goal-average."""
     client = get_client()
     try:
-        poule = await client.get_poule_async(
-            poule_id,
-            fields=QueryFieldsManager.get_classement_fields(),
+        poule = await asyncio.wait_for(
+            client.get_poule_async(
+                poule_id,
+                fields=QueryFieldsManager.get_classement_fields(),
+            ),
+            timeout=2.5,
         )
     except Exception as e:
         safe_err = str(e).replace("\r", " ").replace("\n", " ")
         logger.warning("Fallback get_poule_classement %d: %s", int(poule_id), safe_err)
         poule = None
+
+    if not poule:
+        try:
+            from .helpers.meilisearch_fallback import poule_from_meilisearch
+            poule_hit = await poule_from_meilisearch(poule_id)
+            if poule_hit and poule_hit.get("classements"):
+                cls_list = poule_hit.get("classements") or []
+                response.headers["Cache-Control"] = "public, max-age=300, stale-while-revalidate=60"
+                return {
+                    "poule_id": poule_id,
+                    "nom": poule_hit.get("nom", f"Poule {poule_id}"),
+                    "classement": cls_list,
+                    "count": len(cls_list),
+                    "degraded": False,
+                }
+        except Exception:
+            pass
+
     if not poule:
         response.headers["Cache-Control"] = "no-store"
         return {

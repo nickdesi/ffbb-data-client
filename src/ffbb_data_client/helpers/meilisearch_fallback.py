@@ -81,7 +81,7 @@ async def competition_from_meilisearch(
         return None
     hits = await meili_search_async(
         MEILISEARCH_INDEX_COMPETITIONS,
-        {"q": f'"{cid}"', "attributesToSearchOn": ["id"], "limit": 5},
+        {"q": cid, "attributesToSearchOn": ["id"], "limit": 50},
     )
     comp = next((h for h in hits if str(h.get("id")) == cid), None)
     if not comp:
@@ -164,8 +164,18 @@ async def poule_from_meilisearch(
     for r in rencontres_raw:
         if not isinstance(r, dict):
             continue
-        if str((r.get("idPoule") or {}).get("id") or pid) != pid:
+        p_obj = r.get("idPoule") or {}
+        p_id = str(p_obj.get("id") if isinstance(p_obj, dict) else p_obj or "")
+        if p_id and p_id != pid:
             continue
+        if not poule_nom and isinstance(p_obj, dict) and p_obj.get("nom"):
+            poule_nom = str(p_obj.get("nom"))
+
+        org1 = r.get("idOrganismeEquipe1") or {}
+        org2 = r.get("idOrganismeEquipe2") or {}
+        logo1 = (org1.get("logo") or {}).get("id") if isinstance(org1, dict) and isinstance(org1.get("logo"), dict) else (org1.get("logo") if isinstance(org1, dict) else "")
+        logo2 = (org2.get("logo") or {}).get("id") if isinstance(org2, dict) and isinstance(org2.get("logo"), dict) else (org2.get("logo") if isinstance(org2, dict) else "")
+
         rencontres.append(
             {
                 "id": str(r.get("id") or ""),
@@ -178,6 +188,8 @@ async def poule_from_meilisearch(
                 "joue": 1 if r.get("joue") in (True, 1, "1") else 0,
                 "nomEquipe1": str(r.get("nomEquipe1") or ""),
                 "nomEquipe2": str(r.get("nomEquipe2") or ""),
+                "logoEquipe1": str(logo1 or ""),
+                "logoEquipe2": str(logo2 or ""),
                 "date_rencontre": str(
                     r.get("date_rencontre") or r.get("date") or "1970-01-01"
                 ),
@@ -213,6 +225,82 @@ async def poule_from_meilisearch(
                 "quotient": 0.0,
             }
         )
+
+    # Si le tableau de bord n'a pas pu récupérer les engagements officiels depuis la compétition,
+    # on déduit les équipes et classements directement depuis les rencontres de la poule.
+    if not classements and rencontres:
+        teams_stats: dict[str, dict[str, Any]] = {}
+        for r in rencontres:
+            for k in ["nomEquipe1", "nomEquipe2"]:
+                name = r.get(k)
+                if name and name not in teams_stats:
+                    teams_stats[name] = {
+                        "nom": name,
+                        "matchJoues": 0,
+                        "gagnes": 0,
+                        "perdus": 0,
+                        "points": 0,
+                        "paniersMarques": 0,
+                        "paniersEncaisses": 0,
+                    }
+            if r.get("joue") == 1:
+                try:
+                    s1 = int(r.get("resultatEquipe1", 0) or 0)
+                    s2 = int(r.get("resultatEquipe2", 0) or 0)
+                    t1 = r.get("nomEquipe1")
+                    t2 = r.get("nomEquipe2")
+                    if t1 and t2 and (s1 > 0 or s2 > 0):
+                        teams_stats[t1]["matchJoues"] += 1
+                        teams_stats[t2]["matchJoues"] += 1
+                        teams_stats[t1]["paniersMarques"] += s1
+                        teams_stats[t1]["paniersEncaisses"] += s2
+                        teams_stats[t2]["paniersMarques"] += s2
+                        teams_stats[t2]["paniersEncaisses"] += s1
+                        if s1 > s2:
+                            teams_stats[t1]["gagnes"] += 1
+                            teams_stats[t1]["points"] += 2
+                            teams_stats[t2]["perdus"] += 1
+                            teams_stats[t2]["points"] += 1
+                        elif s2 > s1:
+                            teams_stats[t2]["gagnes"] += 1
+                            teams_stats[t2]["points"] += 2
+                            teams_stats[t1]["perdus"] += 1
+                            teams_stats[t1]["points"] += 1
+                except (ValueError, TypeError):
+                    pass
+
+        sorted_teams = sorted(
+            teams_stats.values(),
+            key=lambda x: (x["points"], x["paniersMarques"] - x["paniersEncaisses"]),
+            reverse=True,
+        )
+        for idx, t in enumerate(sorted_teams, start=1):
+            diff = t["paniersMarques"] - t["paniersEncaisses"]
+            quot = round(t["paniersMarques"] / t["paniersEncaisses"], 3) if t["paniersEncaisses"] > 0 else 0.0
+            classements.append(
+                {
+                    "id": f"{pid}_{idx}",
+                    "position": idx,
+                    "idEngagement": {
+                        "id": f"meili_{pid}_{idx}",
+                        "nom": t["nom"],
+                    },
+                    "organisme": {
+                        "id": "",
+                        "nom": t["nom"],
+                    },
+                    "idCompetition": cid,
+                    "idPoule": {"id": pid},
+                    "points": t["points"],
+                    "matchJoues": t["matchJoues"],
+                    "gagnes": t["gagnes"],
+                    "perdus": t["perdus"],
+                    "paniersMarques": t["paniersMarques"],
+                    "paniersEncaisses": t["paniersEncaisses"],
+                    "difference": diff,
+                    "quotient": quot,
+                }
+            )
 
     return {
         "id": pid,
