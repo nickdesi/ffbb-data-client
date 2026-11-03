@@ -14,7 +14,7 @@ import re
 import threading
 import time
 from collections import OrderedDict
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -46,11 +46,60 @@ if not _WEBSITE_DIR.exists():
     _WEBSITE_DIR = Path("/app/website")
 
 
+def _get_process_rss_mb() -> float:
+    """Mesure le RSS mémoire du processus en Mo de manière native et ultra-légère."""
+    try:
+        with open("/proc/self/statm") as f:
+            pages = int(f.read().split()[1])
+            return (pages * os.sysconf("SC_PAGE_SIZE")) / (1024 * 1024)
+    except Exception:
+        try:
+            import resource
+
+            return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0
+        except Exception:
+            return 0.0
+
+
+async def _memory_watchdog_task() -> None:
+    """Watchdog périodique pour prévenir toute fuite mémoire et recycler le worker si nécessaire."""
+    import gc
+    import signal
+
+    while True:
+        await asyncio.sleep(60)
+        try:
+            rss_mb = _get_process_rss_mb()
+            if rss_mb > 350.0:
+                gc.collect()
+                new_rss_mb = _get_process_rss_mb()
+                logger.info(
+                    "Watchdog mémoire : RSS était de %.1f Mo, après gc.collect(): %.1f Mo",
+                    rss_mb,
+                    new_rss_mb,
+                )
+                if new_rss_mb > 500.0:
+                    logger.critical(
+                        "Watchdog mémoire : seuil critique dépassé (%.1f Mo > 500 Mo). Déclenchement arrêt gracieux pour recyclage Swarm.",
+                        new_rss_mb,
+                    )
+                    os.kill(os.getpid(), signal.SIGTERM)
+                    break
+        except Exception as e:
+            logger.debug("Watchdog mémoire exception: %s", e)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan context manager for startup and graceful shutdown (FastAPI/Context7 standard)."""
-    yield
-    await aclose_default_clients()
+    watchdog = asyncio.create_task(_memory_watchdog_task())
+    try:
+        yield
+    finally:
+        watchdog.cancel()
+        with suppress(asyncio.CancelledError):
+            await watchdog
+        await aclose_default_clients()
 
 
 TAGS_METADATA = [
