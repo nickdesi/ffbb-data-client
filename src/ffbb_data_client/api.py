@@ -208,7 +208,7 @@ l'ensemble des données publiques de la **Fédération Française de BasketBall*
 - ⭐ **Code Source GitHub** : [`https://github.com/nickdesi/ffbb-data-client`](https://github.com/nickdesi/ffbb-data-client)
 - 📖 **Documentation Sphinx complète** : [`https://nickdesi.github.io/ffbb-data-client/`](https://nickdesi.github.io/ffbb-data-client/)
 """,
-    version="2.4.44",
+    version="2.4.45",
     contact={
         "name": "FFBB Data Client — Support & Open Data",
         "url": "https://github.com/nickdesi/ffbb-data-client/issues",
@@ -1092,8 +1092,8 @@ async def get_club_matches(
                 "comp_id": int(comp_id) if comp_id else None,
             }
 
-    # 2. Récupération asynchrone concurrente de l'ensemble des poules
-    sem_poule = asyncio.Semaphore(10)
+    # 2. Récupération asynchrone concurrente de l'ensemble des poules (concurrence max 2 anti-429)
+    sem_poule = asyncio.Semaphore(2)
 
     async def fetch_poule(pid: int):
         async with sem_poule:
@@ -1185,8 +1185,8 @@ async def get_club_matches(
                 (m_id, comp_nom, str(pid), poule_nom or "", is_club1, is_club2)
             )
 
-    # 5. Récupération asynchrone non-bloquante des fiches rencontres détaillées
-    sem_rencontre = asyncio.Semaphore(10)
+    # 5. Récupération asynchrone non-bloquante des fiches rencontres détaillées (concurrence max 2 anti-429)
+    sem_rencontre = asyncio.Semaphore(2)
 
     async def fetch_full_rencontre_async(item):
         m_id, comp_nom, poule_id, poule_nom, is_club1, is_club2 = item
@@ -1560,8 +1560,8 @@ async def get_poule(
 
     client = get_client()
     try:
-        # Directus capé à 5.0s max pour laisser le temps au proxy et aux requêtes complexes
-        poule = await asyncio.wait_for(client.get_poule_async(poule_id), timeout=5.0)
+        # Directus capé à 6.0s max pour laisser le temps au proxy et aux requêtes complexes
+        poule = await asyncio.wait_for(client.get_poule_async(poule_id), timeout=6.0)
     except Exception as e:
         safe_err = str(e).replace("\r", " ").replace("\n", " ")
         logger.warning("Fallback get_poule %d: %s", int(poule_id), safe_err)
@@ -1609,7 +1609,7 @@ async def get_poule_classement(
                 poule_id,
                 fields=QueryFieldsManager.get_classement_fields(),
             ),
-            timeout=5.0,
+            timeout=6.0,
         )
     except Exception as e:
         safe_err = str(e).replace("\r", " ").replace("\n", " ")

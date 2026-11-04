@@ -17,6 +17,7 @@ from urllib.parse import urlparse
 import httpx
 from httpx import Client, Response
 
+from .rate_limiter import get_directus_rate_limiter
 from .secure_logging import get_secure_logger
 
 logger = get_secure_logger(__name__)
@@ -65,16 +66,16 @@ def get_configured_egress_proxy() -> str | None:
 def _get_default_client() -> httpx.Client:
     global _DEFAULT_CLIENT
     if _DEFAULT_CLIENT is None or _DEFAULT_CLIENT.is_closed:
-        _ = get_configured_egress_proxy()
-        _DEFAULT_CLIENT = httpx.Client(limits=_POOL_LIMITS)
+        proxy = get_configured_egress_proxy()
+        _DEFAULT_CLIENT = httpx.Client(limits=_POOL_LIMITS, proxy=proxy)
     return _DEFAULT_CLIENT
 
 
 async def _get_default_async_client() -> httpx.AsyncClient:
     global _DEFAULT_ASYNC_CLIENT
     if _DEFAULT_ASYNC_CLIENT is None or _DEFAULT_ASYNC_CLIENT.is_closed:
-        _ = get_configured_egress_proxy()
-        _DEFAULT_ASYNC_CLIENT = httpx.AsyncClient(limits=_POOL_LIMITS)
+        proxy = get_configured_egress_proxy()
+        _DEFAULT_ASYNC_CLIENT = httpx.AsyncClient(limits=_POOL_LIMITS, proxy=proxy)
     return _DEFAULT_ASYNC_CLIENT
 
 
@@ -202,17 +203,45 @@ DEFAULT_RETRY_CONFIG = RetryConfig()
 DEFAULT_TIMEOUT_CONFIG = TimeoutConfig()
 
 
-def calculate_delay(attempt: int, config: RetryConfig) -> float:
+def calculate_delay(
+    attempt: int,
+    config: RetryConfig,
+    response: Response | None = None,
+) -> float:
     """
     Calculate delay for the given retry attempt.
 
     Args:
         attempt: Current attempt number (0-based).
         config: Retry configuration.
+        response: Optional HTTP response to extract Retry-After header.
 
     Returns:
         Delay in seconds.
     """
+    # ⚡ Gestion intelligente HTTP 429 (Too Many Requests)
+    if response is not None and getattr(response, "status_code", None) == 429:
+        retry_after: float | None = None
+        headers = getattr(response, "headers", None)
+        if headers and hasattr(headers, "get"):
+            retry_hdr = headers.get("Retry-After") or headers.get("retry-after")
+            if retry_hdr:
+                try:
+                    retry_after = float(retry_hdr)
+                except (ValueError, TypeError):
+                    pass
+        if retry_after is not None and retry_after > 0:
+            return retry_after + secrets.SystemRandom().uniform(0.1, 0.5)
+
+        # Délai plancher de 3.0s pour laisser expirer la fenêtre de rate-limiting CDN
+        base_429 = max(3.0, config.base_delay * 3.0)
+        delay = base_429 * (config.backoff_factor**attempt)
+        delay = min(delay, config.max_delay)
+        if config.jitter:
+            jitter_range = delay * 0.2
+            delay += secrets.SystemRandom().uniform(-jitter_range, jitter_range)
+        return max(2.5, delay)
+
     delay = config.base_delay * (config.backoff_factor**attempt)
     delay = min(delay, config.max_delay)
 
@@ -379,7 +408,7 @@ def execute_with_retry(
             # Check if we should retry based on response
             if should_retry(attempt, response, None, config):
                 if attempt < config.max_attempts - 1:
-                    delay = calculate_delay(attempt, config)
+                    delay = calculate_delay(attempt, config, response)
                     time.sleep(delay)
                     continue
 
@@ -441,32 +470,39 @@ def make_http_request_with_retry(
     if (blocked := _waf_short_circuit(method, url)) is not None:
         return blocked
 
+    is_directus = "api.ffbb.com" in url
+    if is_directus and os.getenv("REQUIRE_EGRESS_PROXY", "0") in (
+        "1",
+        "true",
+        "yes",
+        "on",
+    ):
+        if not get_configured_egress_proxy():
+            raise RuntimeError(
+                "CRITICAL SECURITY FAIL-CLOSED: REQUIRE_EGRESS_PROXY est actif mais aucun HTTP_PROXY "
+                "n'est configuré. Requête vers api.ffbb.com avortée pour protéger l'IP résidentielle."
+            )
+
+    limiter = get_directus_rate_limiter() if is_directus else None
+
     def _make_request(**_kwargs: Any) -> Response:
         if debug:
             logger.debug(f"Making {method} request to {url}")
 
         if cached_session:
-            if method.upper() == "GET":
-                return cached_session.get(
-                    url, headers=headers, timeout=timeout_config.to_httpx()
-                )
-            elif method.upper() == "POST":
-                return cached_session.post(
-                    url,
-                    headers=headers,
-                    json=data,
-                    timeout=timeout_config.to_httpx(),
-                )
-            else:
-                raise ValueError(f"Unsupported HTTP method: {method}")
+            session = cached_session
         else:
             session = _get_default_client()
+
+        if limiter:
+            limiter.acquire_sync()
+        try:
             if method.upper() == "GET":
-                return session.get(
+                resp = session.get(
                     url, headers=headers, timeout=timeout_config.to_httpx()
                 )
             elif method.upper() == "POST":
-                return session.post(
+                resp = session.post(
                     url,
                     headers=headers,
                     json=data,
@@ -474,6 +510,20 @@ def make_http_request_with_retry(
                 )
             else:
                 raise ValueError(f"Unsupported HTTP method: {method}")
+
+            if getattr(resp, "status_code", None) == 429 and limiter:
+                retry_after = None
+                if "Retry-After" in resp.headers:
+                    try:
+                        retry_after = float(resp.headers["Retry-After"])
+                    except (ValueError, TypeError):
+                        pass
+                limiter.report_rate_limit(retry_after)
+
+            return resp
+        finally:
+            if limiter:
+                limiter.release_sync()
 
     response = execute_with_retry(
         _make_request, config=retry_config, timeout_config=timeout_config
@@ -523,7 +573,11 @@ async def execute_with_retry_async(
                 config,
             ):
                 if attempt < config.max_attempts - 1:
-                    delay = calculate_delay(attempt, config)
+                    delay = calculate_delay(
+                        attempt,
+                        config,
+                        response if isinstance(response, Response) else None,
+                    )
                     await asyncio.sleep(delay)
                     continue
 
@@ -585,6 +639,21 @@ async def make_http_request_with_retry_async(
     if (blocked := _waf_short_circuit(method, url)) is not None:
         return blocked
 
+    is_directus = "api.ffbb.com" in url
+    if is_directus and os.getenv("REQUIRE_EGRESS_PROXY", "0") in (
+        "1",
+        "true",
+        "yes",
+        "on",
+    ):
+        if not get_configured_egress_proxy():
+            raise RuntimeError(
+                "CRITICAL SECURITY FAIL-CLOSED: REQUIRE_EGRESS_PROXY est actif mais aucun HTTP_PROXY "
+                "n'est configuré. Requête vers api.ffbb.com avortée pour protéger l'IP résidentielle."
+            )
+
+    limiter = get_directus_rate_limiter() if is_directus else None
+
     async def _make_request(**_kwargs: Any) -> Response:
         if debug:
             logger.debug(f"Making async {method} request to {url}")
@@ -595,19 +664,36 @@ async def make_http_request_with_retry_async(
         else:
             session = await _get_default_async_client()
 
-        if method.upper() == "GET":
-            return await session.get(
-                url, headers=headers, timeout=timeout_config.to_httpx()
-            )
-        elif method.upper() == "POST":
-            return await session.post(
-                url,
-                headers=headers,
-                json=data,
-                timeout=timeout_config.to_httpx(),
-            )
-        else:
-            raise ValueError(f"Unsupported HTTP method: {method}")
+        if limiter:
+            await limiter.acquire()
+        try:
+            if method.upper() == "GET":
+                resp = await session.get(
+                    url, headers=headers, timeout=timeout_config.to_httpx()
+                )
+            elif method.upper() == "POST":
+                resp = await session.post(
+                    url,
+                    headers=headers,
+                    json=data,
+                    timeout=timeout_config.to_httpx(),
+                )
+            else:
+                raise ValueError(f"Unsupported HTTP method: {method}")
+
+            if getattr(resp, "status_code", None) == 429 and limiter:
+                retry_after = None
+                if "Retry-After" in resp.headers:
+                    try:
+                        retry_after = float(resp.headers["Retry-After"])
+                    except (ValueError, TypeError):
+                        pass
+                limiter.report_rate_limit(retry_after)
+
+            return resp
+        finally:
+            if limiter:
+                limiter.release()
 
     response = cast(
         Response,

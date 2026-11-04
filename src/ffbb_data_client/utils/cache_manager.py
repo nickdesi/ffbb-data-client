@@ -205,10 +205,20 @@ class CacheManager:
                 proxy=proxy,
             )
         elif self.config.backend == "sqlite":
+            import os
+
+            cache_dir = os.getenv("FFBB_CACHE_DIR") or os.getenv("FFBB_DATA_DIR")
+            if cache_dir and os.path.isdir(cache_dir):
+                sync_db_path = os.path.join(cache_dir, "http_cache.db")
+                async_db_path = os.path.join(cache_dir, "http_cache_async.db")
+            else:
+                sync_db_path = "http_cache.db"
+                async_db_path = "http_cache_async.db"
+
             # Use separate database files to avoid "database is locked" errors
             # when sync and async clients write concurrently.
             storage = hishel.SyncSqliteStorage(
-                database_path="http_cache.db", default_ttl=self.config.expire_after
+                database_path=sync_db_path, default_ttl=self.config.expire_after
             )
             self._client = hishel.httpx.SyncCacheClient(
                 storage=storage,
@@ -218,7 +228,7 @@ class CacheManager:
             )
             # Async version uses its own database file
             async_storage = hishel.AsyncSqliteStorage(
-                database_path="http_cache_async.db",
+                database_path=async_db_path,
                 default_ttl=self.config.expire_after,
             )
             self._async_client = hishel.httpx.AsyncCacheClient(
@@ -399,7 +409,8 @@ class CacheManager:
         headers = headers or {}
         import asyncio
 
-        semaphore = asyncio.Semaphore(10)
+        # ⚡ Concurrency frugale (2) pour ne jamais déclencher de 429 ou pic de burst sur le WAF CDN
+        semaphore = asyncio.Semaphore(2)
 
         async def _fetch(url: str) -> bool:
             async with semaphore:
