@@ -1549,15 +1549,6 @@ async def get_poule(
     ),
 ):
     """Retourne les détails complets, classements et rencontres d'une poule."""
-    # Fast path Meilisearch (si competition_id est fourni ou déjà en cache mémoire)
-    try:
-        from .helpers.meilisearch_fallback import poule_from_meilisearch
-        fast_poule = await poule_from_meilisearch(poule_id, competition_id)
-        if fast_poule and (fast_poule.get("rencontres") or fast_poule.get("classements")):
-            return fast_poule
-    except Exception as e:
-        logger.debug("Fast-path Meilisearch poule %d: %s", int(poule_id), e)
-
     client = get_client()
     try:
         # Directus capé à 6.0s max pour laisser le temps au proxy et aux requêtes complexes
