@@ -172,7 +172,7 @@ class CacheManager:
         limits = httpx.Limits(max_keepalive_connections=10, max_connections=30)
         from ffbb_data_client.utils.retry_utils import get_configured_egress_proxy
 
-        _ = get_configured_egress_proxy()
+        proxy: str | None = get_configured_egress_proxy()
 
         if self.config.backend == "memory":
             import sqlite3
@@ -192,6 +192,7 @@ class CacheManager:
                 storage=storage,
                 policy=policy,
                 limits=limits,
+                proxy=proxy,
             )
             # Async version uses its own connection
             async_storage: Any = hishel.AsyncSqliteStorage(
@@ -201,6 +202,7 @@ class CacheManager:
                 storage=async_storage,
                 policy=policy,
                 limits=limits,
+                proxy=proxy,
             )
         elif self.config.backend == "sqlite":
             # Use separate database files to avoid "database is locked" errors
@@ -212,6 +214,7 @@ class CacheManager:
                 storage=storage,
                 policy=policy,
                 limits=limits,
+                proxy=proxy,
             )
             # Async version uses its own database file
             async_storage = hishel.AsyncSqliteStorage(
@@ -222,6 +225,7 @@ class CacheManager:
                 storage=async_storage,
                 policy=policy,
                 limits=limits,
+                proxy=proxy,
             )
         else:
             raise ValueError(f"Unsupported cache backend: {self.config.backend}")

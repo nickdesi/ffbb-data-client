@@ -208,7 +208,7 @@ l'ensemble des données publiques de la **Fédération Française de BasketBall*
 - ⭐ **Code Source GitHub** : [`https://github.com/nickdesi/ffbb-data-client`](https://github.com/nickdesi/ffbb-data-client)
 - 📖 **Documentation Sphinx complète** : [`https://nickdesi.github.io/ffbb-data-client/`](https://nickdesi.github.io/ffbb-data-client/)
 """,
-    version="2.4.43",
+    version="2.4.44",
     contact={
         "name": "FFBB Data Client — Support & Open Data",
         "url": "https://github.com/nickdesi/ffbb-data-client/issues",
@@ -1471,7 +1471,7 @@ async def get_club_teams(
 
     client = get_client()
     try:
-        org = await asyncio.wait_for(client.get_organisme_async(organisme_id), timeout=2.5)
+        org = await asyncio.wait_for(client.get_organisme_async(organisme_id), timeout=5.0)
         if not org:
             raise HTTPException(status_code=404, detail="Club introuvable.")
     except HTTPException:
@@ -1560,8 +1560,8 @@ async def get_poule(
 
     client = get_client()
     try:
-        # Directus capé à 2.5s max pour ne jamais bloquer les pages web
-        poule = await asyncio.wait_for(client.get_poule_async(poule_id), timeout=2.5)
+        # Directus capé à 5.0s max pour laisser le temps au proxy et aux requêtes complexes
+        poule = await asyncio.wait_for(client.get_poule_async(poule_id), timeout=5.0)
     except Exception as e:
         safe_err = str(e).replace("\r", " ").replace("\n", " ")
         logger.warning("Fallback get_poule %d: %s", int(poule_id), safe_err)
@@ -1609,7 +1609,7 @@ async def get_poule_classement(
                 poule_id,
                 fields=QueryFieldsManager.get_classement_fields(),
             ),
-            timeout=2.5,
+            timeout=5.0,
         )
     except Exception as e:
         safe_err = str(e).replace("\r", " ").replace("\n", " ")
