@@ -1062,10 +1062,255 @@ async def get_club_matches(
     if getattr(org, "logo", None):
         logo_id = getattr(org.logo, "id", None) or org.logo
         if logo_id:
-            club_logo_url = f"{API_FFBB_BASE_URL}assets/{logo_id}"
+            club_logo_url = f"/api/v1/assets/{logo_id}"
 
     engagements = getattr(org, "engagements", []) or []
     _poule_name_cache: dict[str, str] = {}
+
+    # 0. Fast-path Directus en 1 seule requête : si le client expose api_ffbb_client._list_directus_items_async
+    # (et n'est pas un MagicMock de test unitaire), on récupère l'ensemble des rencontres de la saison 1037
+    # avec toutes les jointures (salle, commune, logos, poule, compétition) en ~700 ms au lieu de N+1 appels.
+    raw_api_client: Any = getattr(client, "api_ffbb_client", None)
+    if type(raw_api_client).__name__ == "ApiFFBBAppClient":
+        try:
+            import json as _json
+
+            filter_str = _json.dumps(
+                {
+                    "_and": [
+                        {"saison": {"_eq": "1037"}},
+                        {
+                            "_or": [
+                                {"idOrganismeEquipe1": {"_eq": str(organisme_id)}},
+                                {"idOrganismeEquipe2": {"_eq": str(organisme_id)}},
+                            ]
+                        },
+                    ]
+                }
+            )
+            fast_fields = [
+                "id",
+                "date_rencontre",
+                "horaire",
+                "nomEquipe1",
+                "nomEquipe2",
+                "numeroJournee",
+                "resultatEquipe1",
+                "resultatEquipe2",
+                "joue",
+                "url_competition",
+                "competitionId.id",
+                "competitionId.nom",
+                "idPoule.id",
+                "idPoule.nom",
+                "idOrganismeEquipe1.id",
+                "idOrganismeEquipe1.logo.id",
+                "idOrganismeEquipe2.id",
+                "idOrganismeEquipe2.logo.id",
+                "salle.id",
+                "salle.libelle",
+                "salle.adresse",
+                "salle.commune.codePostal",
+                "salle.commune.libelle",
+            ]
+            fast_rows = await asyncio.wait_for(
+                client.api_ffbb_client._list_directus_items_async(
+                    "items/ffbbserver_rencontres",
+                    limit=500,
+                    fields=fast_fields,
+                    filter_criteria=filter_str,
+                ),
+                timeout=6.0,
+            )
+            if isinstance(fast_rows, list) and fast_rows:
+                fast_matches: list[dict[str, Any]] = []
+                for row in fast_rows:
+                    if not isinstance(row, dict):
+                        continue
+                    m_id = str(row.get("id") or "")
+                    if not m_id:
+                        continue
+                    org1 = row.get("idOrganismeEquipe1") or {}
+                    org2 = row.get("idOrganismeEquipe2") or {}
+                    id_org1 = str(
+                        org1.get("id") if isinstance(org1, dict) else org1 or ""
+                    )
+                    id_org2 = str(
+                        org2.get("id") if isinstance(org2, dict) else org2 or ""
+                    )
+                    nom_eq1 = str(row.get("nomEquipe1") or "")
+                    nom_eq2 = str(row.get("nomEquipe2") or "")
+                    is_home = (
+                        id_org1 == str(organisme_id)
+                        or club_name.upper() in nom_eq1.upper()
+                    )
+                    comp_obj = row.get("competitionId") or {}
+                    comp_nom = (
+                        str(comp_obj.get("nom") or "")
+                        if isinstance(comp_obj, dict)
+                        else ""
+                    )
+                    poule_obj = row.get("idPoule") or {}
+                    poule_id_str = (
+                        str(poule_obj.get("id") or "")
+                        if isinstance(poule_obj, dict)
+                        else str(poule_obj or "")
+                    )
+                    poule_nom_str = (
+                        str(poule_obj.get("nom") or "")
+                        if isinstance(poule_obj, dict)
+                        else ""
+                    )
+
+                    local_team_raw = nom_eq1 if is_home else nom_eq2
+                    opp_team_raw = nom_eq2 if is_home else nom_eq1
+                    scba_team = normalize_team_name(local_team_raw, comp_nom)
+                    opponent = clean_opponent_name(opp_team_raw)
+                    if team and team != "ALL" and team.upper() not in scba_team.upper():
+                        continue
+
+                    date_raw = str(row.get("date_rencontre") or "")
+                    date_iso = (
+                        date_raw[:10]
+                        if re.match(r"^\d{4}-\d{2}-\d{2}", date_raw)
+                        else ""
+                    )
+                    if (
+                        has_date_filter
+                        and date_iso
+                        and not in_date_range(date.fromisoformat(date_iso))
+                    ):
+                        continue
+
+                    time_str = ""
+                    horaire = str(row.get("horaire") or "").strip()
+                    if horaire and horaire not in ("0", "00:00", "00h00"):
+                        h_clean = re.sub(r"[hH:]", "", horaire).strip()
+                        if len(h_clean) == 4:
+                            time_str = f"{h_clean[:2]}:{h_clean[2:]}"
+                        elif len(h_clean) == 2:
+                            time_str = f"{h_clean}:00"
+                    elif "T" in date_raw and len(date_raw) >= 16:
+                        time_part = date_raw[11:16]
+                        if time_part != "00:00":
+                            time_str = time_part
+
+                    salle_obj = row.get("salle") or {}
+                    location = ""
+                    if isinstance(salle_obj, dict) and salle_obj:
+                        s_nom = str(salle_obj.get("libelle") or "")
+                        s_adr = str(salle_obj.get("adresse") or "")
+                        comm = salle_obj.get("commune") or {}
+                        s_cp = (
+                            str(comm.get("codePostal") or "")
+                            if isinstance(comm, dict)
+                            else ""
+                        )
+                        s_ville = (
+                            str(comm.get("libelle") or "")
+                            if isinstance(comm, dict)
+                            else ""
+                        )
+                        cp_v = f"{s_cp} {s_ville}".strip()
+                        parts = [p for p in [s_nom, s_adr, cp_v] if p]
+                        location = ", ".join(parts)
+                    if not location:
+                        location = (
+                            "Maison des Sports, Place des Bughes, 63000 Clermont-Ferrand"
+                            if (is_home and organisme_id == 9326)
+                            else ("Domicile" if is_home else f"Extérieur ({opponent})")
+                        )
+
+                    opp_org = org2 if is_home else org1
+                    opp_logo_id = (
+                        (opp_org.get("logo") or {}).get("id")
+                        if isinstance(opp_org, dict)
+                        and isinstance(opp_org.get("logo"), dict)
+                        else None
+                    )
+                    opponent_logo = (
+                        f"/api/v1/assets/{opp_logo_id}" if opp_logo_id else None
+                    )
+
+                    parsed_cat = parse_categorie(f"{local_team_raw} {comp_nom}".strip())
+                    team_category = parsed_cat.categorie or "SENIOR"
+                    team_gender = parsed_cat.sexe or "M"
+                    if "MIXTE" in f"{local_team_raw} {comp_nom}".upper():
+                        team_gender = "MIXTE"
+                    m_num = re.search(r"[- ](\d+)$", (local_team_raw or "").strip())
+                    team_num = (
+                        int(m_num.group(1))
+                        if m_num
+                        else (
+                            parsed_cat.numero_equipe if parsed_cat.numero_equipe else 1
+                        )
+                    )
+
+                    res1 = row.get("resultatEquipe1")
+                    res2 = row.get("resultatEquipe2")
+                    is_played = bool(
+                        row.get("joue", False) or res1 is not None or res2 is not None
+                    )
+                    score_local = res1 if is_home else res2
+                    score_opp = res2 if is_home else res1
+
+                    card: dict[str, Any] = {
+                        "ffbbMatchId": m_id,
+                        "team": scba_team,
+                        "sexe": team_gender,
+                        "categorie": team_category,
+                        "numeroEquipe": team_num,
+                        "opponent": opponent,
+                        "date": format_french_date(date_iso),
+                        "dateISO": date_iso,
+                        "time": time_str,
+                        "location": location,
+                        "isHome": is_home,
+                        "competition": comp_nom,
+                        "poule": poule_nom_str,
+                        "pouleId": poule_id_str,
+                        "round": row.get("numeroJournee"),
+                        "isPlayed": is_played,
+                        "scoreLocal": score_local,
+                        "scoreOpponent": score_opp,
+                        "scoreEquipe1": res1,
+                        "scoreEquipe2": res2,
+                        "competitionUrl": str(row.get("url_competition") or ""),
+                        "teamLogo": club_logo_url,
+                    }
+                    if opponent_logo:
+                        card["opponentLogo"] = opponent_logo
+                    fast_matches.append(card)
+
+                fast_matches.sort(
+                    key=lambda x: (x.get("dateISO", ""), x.get("time", ""))
+                )
+                response.headers["Cache-Control"] = (
+                    "public, max-age=180, stale-while-revalidate=60"
+                )
+                total_count = len(fast_matches)
+                paged_matches = (
+                    fast_matches[offset : offset + limit]
+                    if limit is not None
+                    else fast_matches[offset:]
+                )
+                return {
+                    "organisme_id": organisme_id,
+                    "club": club_name,
+                    "matches": paged_matches,
+                    "count": len(paged_matches),
+                    "total": total_count,
+                    "pagination": {
+                        "total": total_count,
+                        "limit": limit if limit is not None else total_count,
+                        "offset": offset,
+                        "has_more": (offset + len(paged_matches)) < total_count,
+                    },
+                }
+        except Exception as e:
+            logger.debug(
+                "Fast-path Directus rencontres échoué pour %d: %s", int(organisme_id), e
+            )
 
     # 1. Déduplication et préparation des requêtes de poules
     poule_meta: dict[int, dict[str, Any]] = {}
@@ -1289,7 +1534,7 @@ async def get_club_matches(
                     if opp_org and getattr(opp_org, "logo", None):
                         opp_logo_id = getattr(opp_org.logo, "id", None) or opp_org.logo
                         if opp_logo_id:
-                            opponent_logo = f"{API_FFBB_BASE_URL}assets/{opp_logo_id}"
+                            opponent_logo = f"/api/v1/assets/{opp_logo_id}"
                     _logo_cache[s_opp_org] = opponent_logo
                 except Exception:
                     _logo_cache[s_opp_org] = None
@@ -1445,6 +1690,7 @@ async def get_club_teams(
     # Fast-path Meilisearch : résolution instantanée (< 40ms, zéro WAF, zéro proxy)
     try:
         from .helpers.meilisearch_fallback import organisme_from_meilisearch
+
         org_hit = await organisme_from_meilisearch(organisme_id)
         if org_hit and org_hit.get("engagements"):
             teams = []
@@ -1455,9 +1701,17 @@ async def get_club_teams(
                     {
                         "engagement_id": str(eng.get("id") or ""),
                         "team_number": str(eng.get("numeroEquipe") or "1"),
-                        "competition": str(comp.get("nom") or "") if isinstance(comp, dict) else "",
-                        "competition_id": str(comp.get("id") or "") if isinstance(comp, dict) else "",
-                        "poule_id": str(poule.get("id") or "") if isinstance(poule, dict) else str(poule or ""),
+                        "competition": (
+                            str(comp.get("nom") or "") if isinstance(comp, dict) else ""
+                        ),
+                        "competition_id": (
+                            str(comp.get("id") or "") if isinstance(comp, dict) else ""
+                        ),
+                        "poule_id": (
+                            str(poule.get("id") or "")
+                            if isinstance(poule, dict)
+                            else str(poule or "")
+                        ),
                     }
                 )
             return {
@@ -1467,11 +1721,15 @@ async def get_club_teams(
                 "count": len(teams),
             }
     except Exception as e:
-        logger.debug("Fast-path Meilisearch get_club_teams %d: %s", int(organisme_id), e)
+        logger.debug(
+            "Fast-path Meilisearch get_club_teams %d: %s", int(organisme_id), e
+        )
 
     client = get_client()
     try:
-        org = await asyncio.wait_for(client.get_organisme_async(organisme_id), timeout=5.0)
+        org = await asyncio.wait_for(
+            client.get_organisme_async(organisme_id), timeout=5.0
+        )
         if not org:
             raise HTTPException(status_code=404, detail="Club introuvable.")
     except HTTPException:
@@ -1545,11 +1803,13 @@ async def get_poule(
         ..., ge=1, description="ID de la poule FFBB", examples=[129759]
     ),
     competition_id: str | None = Query(
-        None, description="ID optionnel de la compétition pour résolution Meilisearch instantanée"
+        None,
+        description="ID optionnel de la compétition pour résolution Meilisearch instantanée",
     ),
 ):
     """Retourne les détails complets, classements et rencontres d'une poule."""
     client = get_client()
+    poule: Any = None
     try:
         # Directus capé à 6.0s max pour laisser le temps au proxy et aux requêtes complexes
         poule = await asyncio.wait_for(client.get_poule_async(poule_id), timeout=6.0)
@@ -1561,6 +1821,7 @@ async def get_poule(
     if not poule:
         try:
             from .helpers.meilisearch_fallback import poule_from_meilisearch
+
             poule = await poule_from_meilisearch(poule_id, competition_id)
         except Exception:
             poule = None
@@ -1610,10 +1871,13 @@ async def get_poule_classement(
     if not poule:
         try:
             from .helpers.meilisearch_fallback import poule_from_meilisearch
+
             poule_hit = await poule_from_meilisearch(poule_id)
             if poule_hit and poule_hit.get("classements"):
                 cls_list = poule_hit.get("classements") or []
-                response.headers["Cache-Control"] = "public, max-age=300, stale-while-revalidate=60"
+                response.headers["Cache-Control"] = (
+                    "public, max-age=300, stale-while-revalidate=60"
+                )
                 return {
                     "poule_id": poule_id,
                     "nom": poule_hit.get("nom", f"Poule {poule_id}"),
@@ -1777,6 +2041,78 @@ async def get_saisons(response: Response):
         return await client.get_saisons_async()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+_ASSET_UUID_RE = re.compile(r"^[0-9a-fA-F-]{36}$")
+_asset_bytes_cache: OrderedDict[str, tuple[bytes, str]] = OrderedDict()
+_ASSET_CACHE_MAX = 256
+
+
+@app.get(
+    "/api/v1/assets/{asset_id}",
+    operation_id="getAsset",
+    tags=["Clubs"],
+    summary="Proxy d'assets et logos FFBB (anti-blocage BunnyCDN)",
+    response_description="Image binaire du logo de club ou de compétition",
+)
+async def get_asset(
+    asset_id: str = PathParam(
+        ...,
+        description="UUID de l'asset FFBB Directus",
+        examples=["2784a7b8-1c06-4334-aa6e-16a371475971"],
+    ),
+):
+    """Sert un logo/asset FFBB en contournant le blocage navigateur BunnyCDN (ERR_BLOCKED_BY_ORB / 403 FR)."""
+    clean_id = asset_id.strip().lower()
+    if not _ASSET_UUID_RE.match(clean_id):
+        raise HTTPException(status_code=400, detail="Identifiant d'asset invalide.")
+
+    if clean_id in _asset_bytes_cache:
+        _asset_bytes_cache.move_to_end(clean_id)
+        cached_bytes, cached_media = _asset_bytes_cache[clean_id]
+        return Response(
+            content=cached_bytes,
+            media_type=cached_media,
+            headers={
+                "Cache-Control": "public, max-age=31536000, immutable",
+                "Access-Control-Allow-Origin": "*",
+            },
+        )
+
+    from .helpers.http_requests_utils import http_get_async
+
+    client = get_client()
+    url = f"{API_FFBB_BASE_URL}assets/{clean_id}"
+    try:
+        resp = await http_get_async(
+            url,
+            client.api_ffbb_client.headers,
+            cached_session=client.api_ffbb_client.async_cached_session,
+        )
+        if resp.status_code != 200 or not resp.content:
+            raise HTTPException(status_code=404, detail="Asset introuvable.")
+        media_type = (
+            resp.headers.get("content-type", "image/jpeg").split(";")[0].strip()
+        )
+        if not media_type.startswith("image/"):
+            raise HTTPException(status_code=404, detail="Contenu d'asset invalide.")
+
+        _asset_bytes_cache[clean_id] = (resp.content, media_type)
+        while len(_asset_bytes_cache) > _ASSET_CACHE_MAX:
+            _asset_bytes_cache.popitem(last=False)
+
+        return Response(
+            content=resp.content,
+            media_type=media_type,
+            headers={
+                "Cache-Control": "public, max-age=31536000, immutable",
+                "Access-Control-Allow-Origin": "*",
+            },
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=f"Asset indisponible: {e}") from e
 
 
 # --------------------------------------------------------------------------

@@ -173,8 +173,16 @@ async def poule_from_meilisearch(
 
         org1 = r.get("idOrganismeEquipe1") or {}
         org2 = r.get("idOrganismeEquipe2") or {}
-        logo1 = (org1.get("logo") or {}).get("id") if isinstance(org1, dict) and isinstance(org1.get("logo"), dict) else (org1.get("logo") if isinstance(org1, dict) else "")
-        logo2 = (org2.get("logo") or {}).get("id") if isinstance(org2, dict) and isinstance(org2.get("logo"), dict) else (org2.get("logo") if isinstance(org2, dict) else "")
+        logo1 = (
+            (org1.get("logo") or {}).get("id")
+            if isinstance(org1, dict) and isinstance(org1.get("logo"), dict)
+            else (org1.get("logo") if isinstance(org1, dict) else "")
+        )
+        logo2 = (
+            (org2.get("logo") or {}).get("id")
+            if isinstance(org2, dict) and isinstance(org2.get("logo"), dict)
+            else (org2.get("logo") if isinstance(org2, dict) else "")
+        )
 
         rencontres.append(
             {
@@ -276,7 +284,11 @@ async def poule_from_meilisearch(
         )
         for idx, t in enumerate(sorted_teams, start=1):
             diff = t["paniersMarques"] - t["paniersEncaisses"]
-            quot = round(t["paniersMarques"] / t["paniersEncaisses"], 3) if t["paniersEncaisses"] > 0 else 0.0
+            quot = (
+                round(t["paniersMarques"] / t["paniersEncaisses"], 3)
+                if t["paniersEncaisses"] > 0
+                else 0.0
+            )
             classements.append(
                 {
                     "id": f"{pid}_{idx}",

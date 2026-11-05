@@ -1,7 +1,6 @@
 """Utility modules for FFBB API client."""
 
 from .concurrency_utils import gather_with_concurrency
-from .rate_limiter import DirectusRateLimiter, get_directus_rate_limiter
 from .converter_utils import (
     from_bool,
     from_datetime,
@@ -14,6 +13,7 @@ from .converter_utils import (
     from_str,
     from_uuid,
 )
+from .rate_limiter import DirectusRateLimiter, get_directus_rate_limiter
 from .web_probe import probe_ffbb_web_origins
 
 __all__ = [

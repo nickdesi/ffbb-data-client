@@ -291,3 +291,33 @@ async def test_poule_unavailable_is_flagged_and_not_cached():
                 assert r.status_code == 200
                 assert r.json()["degraded"] is True
                 assert r.headers["cache-control"] == "no-store"
+
+
+@pytest.mark.asyncio
+async def test_asset_proxy_endpoint():
+    transport = ASGITransport(app=app)
+    mock_client = MagicMock()
+    mock_client.api_ffbb_client.headers = {"user-agent": "test"}
+    mock_client.api_ffbb_client.async_cached_session = None
+
+    fake_resp = SimpleNamespace(
+        status_code=200,
+        content=b"\xff\xd8\xff\xe0JFIF",
+        headers={"content-type": "image/jpeg"},
+    )
+    with (
+        patch("ffbb_data_client.api.get_client", return_value=mock_client),
+        patch(
+            "ffbb_data_client.helpers.http_requests_utils.http_get_async",
+            AsyncMock(return_value=fake_resp),
+        ),
+    ):
+        async with AsyncClient(transport=transport, base_url="http://test") as ac:
+            r_bad = await ac.get("/api/v1/assets/not-a-uuid")
+            assert r_bad.status_code == 400
+
+            r_ok = await ac.get("/api/v1/assets/2784a7b8-1c06-4334-aa6e-16a371475971")
+            assert r_ok.status_code == 200
+            assert r_ok.headers["content-type"] == "image/jpeg"
+            assert "immutable" in r_ok.headers["cache-control"]
+            assert r_ok.content == b"\xff\xd8\xff\xe0JFIF"
