@@ -424,7 +424,9 @@ def format_french_date(iso_str: str) -> str:
         return iso_str
 
 
-def normalize_team_name(team_raw: str, comp_name: str = "") -> str:
+def normalize_team_name(
+    team_raw: str, comp_name: str = "", eng_numero_equipe: str | int | None = None
+) -> str:
     """Normalise le nom d'une équipe en réutilisant le parser centralisé parse_categorie."""
     raw = (team_raw or "").strip()
     comp = (comp_name or "").strip()
@@ -438,12 +440,23 @@ def normalize_team_name(team_raw: str, comp_name: str = "") -> str:
         gender = "MIXTE"
 
     # Priorité au numéro d'équipe explicitement présent dans le nom brut (ex: "STADE CLERMONTOIS - 2")
+    # ou dans l'engagement FFBB (eng.numeroEquipe). Pour les jeunes, ne jamais prendre "Division 2" / "Phase 2"
+    # du libellé de compétition comme numéro d'équipe.
     m_num = re.search(r"[- ](\d+)$", raw)
-    num = (
-        m_num.group(1)
-        if m_num
-        else (str(parsed.numero_equipe) if parsed.numero_equipe else "1")
+    eng_num_str = (
+        str(eng_numero_equipe).strip()
+        if eng_numero_equipe is not None and str(eng_numero_equipe).strip().isdigit()
+        else ""
     )
+    if m_num:
+        num = m_num.group(1)
+    elif eng_num_str:
+        num = eng_num_str
+    elif cat.startswith("U"):
+        parsed_raw = parse_categorie(raw)
+        num = str(parsed_raw.numero_equipe) if parsed_raw.numero_equipe else "1"
+    else:
+        num = str(parsed.numero_equipe) if parsed.numero_equipe else "1"
 
     if cat.startswith("U"):
         if gender == "MIXTE":

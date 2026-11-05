@@ -56,6 +56,10 @@ _F_PATTERN = re.compile(
     re.IGNORECASE,
 )
 _NUM_PATTERN = re.compile(r"(\d+)")
+_COMP_META_NUM_RE = re.compile(
+    r"\b(?:DIVISION|DIV|PHASE|TOUR|POULE|JOURNEE|JOURNÉE|SERIE|SÉRIE|NIVEAU)\s*[-:]?\s*\d+\b",
+    re.IGNORECASE,
+)
 
 
 class ParsedCategorie(NamedTuple):
@@ -125,9 +129,9 @@ def parse_categorie(raw: str | None) -> ParsedCategorie:
     numero_equipe: int | None = None
     remainder = s
     if cat_match:
-        remainder = s[cat_match.end() :]
+        remainder = _COMP_META_NUM_RE.sub("", s[cat_match.end() :])
     elif vet_match := _VETERAN_PATTERN.search(s):
-        remainder = s[vet_match.end() :]
+        remainder = _COMP_META_NUM_RE.sub("", s[vet_match.end() :])
 
     num_match = _NUM_PATTERN.search(remainder)
     if num_match:

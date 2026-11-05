@@ -11,6 +11,27 @@ def test_normalize_team_name_masculine():
     )
     assert (
         normalize_team_name(
+            "STADE CLERMONTOIS BASKET AUVERGNE",
+            "Régionale masculine U13 - Division 2",
+        )
+        == "U13 M1"
+    )
+    assert (
+        normalize_team_name(
+            "STADE CLERMONTOIS BASKET AUVERGNE",
+            "Régionale masculine U15 - Division 2",
+        )
+        == "U15 M1"
+    )
+    assert (
+        normalize_team_name(
+            "STADE CLERMONTOIS BASKET AUVERGNE",
+            "Régionale masculine U18 - Division 2",
+        )
+        == "U18 M1"
+    )
+    assert (
+        normalize_team_name(
             "GERZAT BASKET", "Départementale masculine seniors - Division 3"
         )
         == "SENIOR M3"
