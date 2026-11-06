@@ -3,7 +3,7 @@ from __future__ import annotations
 import httpx
 from httpx import Client
 
-from ..config import API_FFBB_BASE_URL, DEFAULT_USER_AGENT
+from ..config import API_FFBB_BASE_URL, DEFAULT_HEADERS, DEFAULT_USER_AGENT
 from ..utils.cache_manager import CacheConfig, CacheManager
 from ..utils.retry_utils import (
     RetryConfig,
@@ -68,6 +68,7 @@ class ApiFFBBAppClient(
         self.debug = debug
         self.cached_session = cached_session
         self.headers = {
+            **DEFAULT_HEADERS,
             "Authorization": f"Bearer {self._bearer_token}",
             "user-agent": DEFAULT_USER_AGENT,
         }

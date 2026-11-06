@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+import secrets
 import threading
 import time
 from typing import Any
@@ -27,12 +28,16 @@ class DirectusRateLimiter:
         rate: float = 3.0,
         burst: int = 3,
         max_concurrency: int = 2,
+        min_jitter: float = 0.0,
+        max_jitter: float = 0.0,
     ) -> None:
         self.rate = float(os.getenv("FFBB_MAX_RPS", str(rate)))
         self.burst = int(os.getenv("FFBB_MAX_BURST", str(burst)))
         self.max_concurrency = int(
             os.getenv("FFBB_MAX_CONCURRENCY", str(max_concurrency))
         )
+        self.min_jitter = float(os.getenv("FFBB_MIN_JITTER", str(min_jitter)))
+        self.max_jitter = float(os.getenv("FFBB_MAX_JITTER", str(max_jitter)))
 
         self._tokens = float(self.burst)
         self._last_refill = time.monotonic()
@@ -43,6 +48,11 @@ class DirectusRateLimiter:
         self._semaphore: asyncio.Semaphore | None = None
         self._sync_semaphore = threading.Semaphore(self.max_concurrency)
 
+    def _sample_jitter(self) -> float:
+        if self.max_jitter > 0 and self.max_jitter >= self.min_jitter:
+            return secrets.SystemRandom().uniform(self.min_jitter, self.max_jitter)
+        return 0.0
+
     def _get_async_primitives(self) -> tuple[asyncio.Lock, asyncio.Semaphore]:
         """Lazy initialization of asyncio primitives inside the running event loop."""
         if self._async_lock is None:
@@ -52,6 +62,11 @@ class DirectusRateLimiter:
         return self._async_lock, self._semaphore
 
     def _refill(self, now: float) -> None:
+        if now < self._last_refill:
+            self._tokens = float(self.burst)
+            self._last_refill = now
+            self._cooldown_until = 0.0
+            return
         elapsed = now - self._last_refill
         self._tokens = min(float(self.burst), self._tokens + elapsed * self.rate)
         self._last_refill = now
@@ -84,6 +99,11 @@ class DirectusRateLimiter:
                         self._refill(now)
                         if self._tokens >= 1.0:
                             self._tokens -= 1.0
+                            jitter_delay = self._sample_jitter()
+                            if jitter_delay > 0:
+                                self._cooldown_until = max(
+                                    self._cooldown_until, now + jitter_delay
+                                )
                             return
                         wait_time = (1.0 - self._tokens) / self.rate
 
@@ -115,6 +135,11 @@ class DirectusRateLimiter:
                     self._refill(now)
                     if self._tokens >= 1.0:
                         self._tokens -= 1.0
+                        jitter_delay = self._sample_jitter()
+                        if jitter_delay > 0:
+                            self._cooldown_until = max(
+                                self._cooldown_until, now + jitter_delay
+                            )
                         return
                     wait_time = (1.0 - self._tokens) / self.rate
             if wait_time > 0:

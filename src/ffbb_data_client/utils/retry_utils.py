@@ -470,7 +470,9 @@ def make_http_request_with_retry(
     if (blocked := _waf_short_circuit(method, url)) is not None:
         return blocked
 
-    is_directus = "api.ffbb.com" in url
+    is_directus = any(
+        h in url for h in ("api.ffbb.com", "bo.ffbb.com", "bo.ffbb.app", "api.ffbb.app")
+    )
     if is_directus and os.getenv("REQUIRE_EGRESS_PROXY", "0") in (
         "1",
         "true",
@@ -639,7 +641,9 @@ async def make_http_request_with_retry_async(
     if (blocked := _waf_short_circuit(method, url)) is not None:
         return blocked
 
-    is_directus = "api.ffbb.com" in url
+    is_directus = any(
+        h in url for h in ("api.ffbb.com", "bo.ffbb.com", "bo.ffbb.app", "api.ffbb.app")
+    )
     if is_directus and os.getenv("REQUIRE_EGRESS_PROXY", "0") in (
         "1",
         "true",

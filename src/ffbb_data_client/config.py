@@ -20,6 +20,18 @@ DEFAULT_SAFARI_USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS
 # Use official FFBB Android mobile app User-Agent by default, overridable via FFBB_USER_AGENT.
 DEFAULT_USER_AGENT = os.getenv("FFBB_USER_AGENT", DEFAULT_ANDROID_USER_AGENT)
 
+# En-têtes réalistes Browser / Mobile Grade (anti-profilage WAF / BunnyCDN)
+DEFAULT_HEADERS: dict[str, str] = {
+    "user-agent": DEFAULT_USER_AGENT,
+    "Accept": "application/json, text/plain, */*",
+    "Accept-Language": "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7",
+    "Referer": "https://competitions.ffbb.com/",
+    "Origin": "https://competitions.ffbb.com",
+    "Sec-Fetch-Dest": "empty",
+    "Sec-Fetch-Mode": "cors",
+    "Sec-Fetch-Site": "same-site",
+}
+
 # Liste ordonnée de repli en cas de blocage WAF BunnyCDN
 FALLBACK_USER_AGENTS: list[str] = list(
     dict.fromkeys(
