@@ -192,8 +192,15 @@ class Test001ApiFfbbAppCore(unittest.TestCase):
         self.assertEqual(
             self.client.headers,
             {
-                "Authorization": f"Bearer {self.bearer_token}",
                 "user-agent": DEFAULT_USER_AGENT,
+                "Accept": "application/json, text/plain, */*",
+                "Accept-Language": "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7",
+                "Referer": "https://competitions.ffbb.com/",
+                "Origin": "https://competitions.ffbb.com",
+                "Sec-Fetch-Dest": "empty",
+                "Sec-Fetch-Mode": "cors",
+                "Sec-Fetch-Site": "same-site",
+                "Authorization": f"Bearer {self.bearer_token}",
             },
         )
 
