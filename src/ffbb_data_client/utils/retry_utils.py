@@ -229,6 +229,8 @@ def calculate_delay(
                 try:
                     retry_after = float(retry_hdr)
                 except (ValueError, TypeError):
+                    # En-tête non numérique (date HTTP ou valeur libre) : ignoré,
+                    # le délai plancher HTTP 429 ci-dessous s'applique.
                     pass
         if retry_after is not None and retry_after > 0:
             return retry_after + secrets.SystemRandom().uniform(0.1, 0.5)
@@ -519,6 +521,8 @@ def make_http_request_with_retry(
                     try:
                         retry_after = float(resp.headers["Retry-After"])
                     except (ValueError, TypeError):
+                        # En-tête non numérique : ignoré, le limiteur applique
+                        # son cooldown par défaut.
                         pass
                 limiter.report_rate_limit(retry_after)
 
@@ -691,6 +695,8 @@ async def make_http_request_with_retry_async(
                     try:
                         retry_after = float(resp.headers["Retry-After"])
                     except (ValueError, TypeError):
+                        # En-tête non numérique : ignoré, le limiteur applique
+                        # son cooldown par défaut.
                         pass
                 limiter.report_rate_limit(retry_after)
 

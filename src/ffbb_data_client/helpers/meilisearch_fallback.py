@@ -275,6 +275,8 @@ async def poule_from_meilisearch(
                             teams_stats[t1]["perdus"] += 1
                             teams_stats[t1]["points"] += 1
                 except (ValueError, TypeError):
+                    # Scores illisibles (données Meilisearch partielles) : la
+                    # rencontre est exclue du calcul du classement.
                     pass
 
         sorted_teams = sorted(

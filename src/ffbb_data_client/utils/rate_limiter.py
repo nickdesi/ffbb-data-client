@@ -89,7 +89,6 @@ class DirectusRateLimiter:
 
         while True:
             now = time.monotonic()
-            wait_time = 0.0
 
             async with async_lock:
                 with self._thread_lock:
@@ -127,7 +126,6 @@ class DirectusRateLimiter:
         self._sync_semaphore.acquire()
         while True:
             now = time.monotonic()
-            wait_time = 0.0
             with self._thread_lock:
                 if now < self._cooldown_until:
                     wait_time = self._cooldown_until - now

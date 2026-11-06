@@ -14,7 +14,7 @@ import re
 import threading
 import time
 from collections import OrderedDict
-from contextlib import asynccontextmanager, suppress
+from contextlib import asynccontextmanager
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -97,8 +97,8 @@ async def lifespan(app: FastAPI):
         yield
     finally:
         watchdog.cancel()
-        with suppress(asyncio.CancelledError):
-            await watchdog
+        # Attente sans propagation : la tâche annulée lève CancelledError.
+        await asyncio.gather(watchdog, return_exceptions=True)
         await aclose_default_clients()
 
 
@@ -1148,9 +1148,6 @@ async def get_club_matches(
                     id_org1 = str(
                         org1.get("id") if isinstance(org1, dict) else org1 or ""
                     )
-                    id_org2 = str(
-                        org2.get("id") if isinstance(org2, dict) else org2 or ""
-                    )
                     nom_eq1 = str(row.get("nomEquipe1") or "")
                     nom_eq2 = str(row.get("nomEquipe2") or "")
                     is_home = (
@@ -1899,6 +1896,8 @@ async def get_poule_classement(
                     "degraded": False,
                 }
         except Exception:
+            # Fallback Meilisearch best-effort : en cas d'échec on poursuit
+            # avec la réponse dégradée standard ci-dessous.
             pass
 
     if not poule:

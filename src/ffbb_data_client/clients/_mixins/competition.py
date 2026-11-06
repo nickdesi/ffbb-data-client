@@ -124,6 +124,8 @@ class CompetitionMixin:
                 if comp_hit:
                     return GetCompetitionResponse.from_dict(comp_hit)
             except Exception:
+                # Fallback Meilisearch best-effort : toute erreur est avalée,
+                # la compétition est traitée comme introuvable (None).
                 pass
             return None
 
@@ -248,6 +250,8 @@ class CompetitionMixin:
                 if poule_hit:
                     return GetPouleResponse.from_dict(poule_hit)
             except Exception:
+                # Fallback Meilisearch best-effort : toute erreur est avalée,
+                # la poule est traitée comme introuvable (None).
                 pass
             return None
 
