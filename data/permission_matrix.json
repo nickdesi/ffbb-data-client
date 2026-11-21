@@ -1,86 +1,15 @@
 {
   "drift": {
     "added": [],
-    "flips": [
-      {
-        "after": "forbidden_directus",
-        "before": "blocked_cdn",
-        "probe": "competition_archived_direct"
-      },
-      {
-        "after": "empty",
-        "before": "blocked_cdn",
-        "probe": "competition_archived_filter"
-      },
-      {
-        "after": "ok",
-        "before": "blocked_cdn",
-        "probe": "competition_current_direct"
-      },
-      {
-        "after": "ok",
-        "before": "blocked_cdn",
-        "probe": "competition_current_filter"
-      },
-      {
-        "after": "ok",
-        "before": "blocked_cdn",
-        "probe": "competitions_listing"
-      },
-      {
-        "after": "ok",
-        "before": "blocked_cdn",
-        "probe": "config_noauth"
-      },
-      {
-        "after": "ok",
-        "before": "blocked_cdn",
-        "probe": "config_noauth_ipv4"
-      },
-      {
-        "after": "ok",
-        "before": "blocked_cdn",
-        "probe": "config_tripwire_okhttp_ipv4"
-      },
-      {
-        "after": "ok",
-        "before": "blocked_cdn",
-        "probe": "engagements_listing"
-      },
-      {
-        "after": "ok",
-        "before": "blocked_cdn",
-        "probe": "organismes_listing"
-      },
-      {
-        "after": "ok",
-        "before": "blocked_cdn",
-        "probe": "relational_nested_expand"
-      },
-      {
-        "after": "ok",
-        "before": "blocked_cdn",
-        "probe": "rencontres_listing"
-      },
-      {
-        "after": "ok",
-        "before": "blocked_cdn",
-        "probe": "saisons_id_field"
-      },
-      {
-        "after": "forbidden_directus",
-        "before": "blocked_cdn",
-        "probe": "saisons_nom_field"
-      }
-    ],
+    "flips": [],
     "removed": []
   },
   "metadata": {
     "api_base_url": "https://api.ffbb.com/",
     "archived_competition_id": "200000002872733",
-    "canary_season": "2026-2027",
-    "current_competition_id": "200000002900744",
-    "timestamp": "2026-10-31T10:56:40.789952+00:00",
+    "canary_season": "1037",
+    "current_competition_id": "200000002903473",
+    "timestamp": "2026-11-21T13:30:02.104273+00:00",
     "token_source": "public-fallback"
   },
   "probes": [
@@ -157,10 +86,10 @@
     },
     {
       "name": "competition_current_direct",
-      "notes": "Canari saison 2026-2027 : auto-rafraîchissable sur rollover. Un flip ici signale un canari périmé, pas forcément un changement de politique.",
+      "notes": "Canari saison 1037 : auto-rafraîchissable sur rollover. Un flip ici signale un canari périmé, pas forcément un changement de politique.",
       "outcome": "ok",
       "status": 200,
-      "url": "https://api.ffbb.com/items/ffbbserver_competitions/200000002900744"
+      "url": "https://api.ffbb.com/items/ffbbserver_competitions/200000002903473"
     },
     {
       "name": "relational_nested_expand",
@@ -174,7 +103,7 @@
       "notes": "Filtre sur saison courante, attendu ok non vide.",
       "outcome": "ok",
       "status": 200,
-      "url": "https://api.ffbb.com/items/ffbbserver_competitions?filter%5Bid%5D%5B_eq%5D=200000002900744&limit=1"
+      "url": "https://api.ffbb.com/items/ffbbserver_competitions?filter%5Bid%5D%5B_eq%5D=200000002903473&limit=1"
     },
     {
       "name": "competition_archived_direct",
