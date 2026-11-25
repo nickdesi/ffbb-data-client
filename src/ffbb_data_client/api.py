@@ -1818,22 +1818,26 @@ async def get_poule(
     ),
 ):
     """Retourne les détails complets, classements et rencontres d'une poule."""
-    client = get_client()
+    # Fast-path Meilisearch-First (< 40ms, zéro WAF BunnyCDN)
     poule: Any = None
     try:
-        # Directus capé à 6.0s max pour laisser le temps au proxy et aux requêtes complexes
-        poule = await asyncio.wait_for(client.get_poule_async(poule_id), timeout=6.0)
-    except Exception as e:
-        safe_err = str(e).replace("\r", " ").replace("\n", " ")
-        logger.warning("Fallback get_poule %d: %s", int(poule_id), safe_err)
+        from .helpers.meilisearch_fallback import poule_from_meilisearch
+
+        poule = await poule_from_meilisearch(poule_id, competition_id)
+    except Exception:
         poule = None
 
-    if not poule:
+    if not poule and os.getenv("FFBB_ENABLE_DIRECTUS", "0").lower() in (
+        "1",
+        "true",
+        "yes",
+    ):
+        client = get_client()
         try:
-            from .helpers.meilisearch_fallback import poule_from_meilisearch
-
-            poule = await poule_from_meilisearch(poule_id, competition_id)
-        except Exception:
+            poule = await asyncio.wait_for(client.get_poule_async(poule_id), timeout=6.0)
+        except Exception as e:
+            safe_err = str(e).replace("\r", " ").replace("\n", " ")
+            logger.warning("Fallback get_poule %d: %s", int(poule_id), safe_err)
             poule = None
 
     if poule:
@@ -1864,41 +1868,43 @@ async def get_poule_classement(
     ),
 ):
     """Retourne le classement officiel d'une poule avec victoires, défaites, points et goal-average."""
-    client = get_client()
+    # Fast-path Meilisearch-First (< 40ms, zéro WAF BunnyCDN)
     try:
-        poule = await asyncio.wait_for(
-            client.get_poule_async(
-                poule_id,
-                fields=QueryFieldsManager.get_classement_fields(),
-            ),
-            timeout=6.0,
-        )
-    except Exception as e:
-        safe_err = str(e).replace("\r", " ").replace("\n", " ")
-        logger.warning("Fallback get_poule_classement %d: %s", int(poule_id), safe_err)
-        poule = None
+        from .helpers.meilisearch_fallback import poule_from_meilisearch
 
-    if not poule:
+        poule_hit = await poule_from_meilisearch(poule_id)
+        if poule_hit and poule_hit.get("classements"):
+            cls_list = poule_hit.get("classements") or []
+            response.headers["Cache-Control"] = (
+                "public, max-age=300, stale-while-revalidate=60"
+            )
+            return {
+                "poule_id": poule_id,
+                "nom": poule_hit.get("nom", f"Poule {poule_id}"),
+                "classement": cls_list,
+                "count": len(cls_list),
+                "degraded": False,
+            }
+    except Exception:
+        pass
+
+    poule = None
+    if os.getenv("FFBB_ENABLE_DIRECTUS", "0").lower() in ("1", "true", "yes"):
+        client = get_client()
         try:
-            from .helpers.meilisearch_fallback import poule_from_meilisearch
-
-            poule_hit = await poule_from_meilisearch(poule_id)
-            if poule_hit and poule_hit.get("classements"):
-                cls_list = poule_hit.get("classements") or []
-                response.headers["Cache-Control"] = (
-                    "public, max-age=300, stale-while-revalidate=60"
-                )
-                return {
-                    "poule_id": poule_id,
-                    "nom": poule_hit.get("nom", f"Poule {poule_id}"),
-                    "classement": cls_list,
-                    "count": len(cls_list),
-                    "degraded": False,
-                }
-        except Exception:
-            # Fallback Meilisearch best-effort : en cas d'échec on poursuit
-            # avec la réponse dégradée standard ci-dessous.
-            pass
+            poule = await asyncio.wait_for(
+                client.get_poule_async(
+                    poule_id,
+                    fields=QueryFieldsManager.get_classement_fields(),
+                ),
+                timeout=6.0,
+            )
+        except Exception as e:
+            safe_err = str(e).replace("\r", " ").replace("\n", " ")
+            logger.warning(
+                "Fallback get_poule_classement %d: %s", int(poule_id), safe_err
+            )
+            poule = None
 
     if not poule:
         response.headers["Cache-Control"] = "no-store"

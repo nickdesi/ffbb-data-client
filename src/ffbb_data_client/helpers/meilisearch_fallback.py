@@ -234,50 +234,96 @@ async def poule_from_meilisearch(
             }
         )
 
+    # Calculer les statistiques réelles depuis les rencontres jouées de la poule
+    teams_stats: dict[str, dict[str, Any]] = {}
+    for r in rencontres:
+        for k in ["nomEquipe1", "nomEquipe2"]:
+            name = r.get(k)
+            if name and name not in teams_stats:
+                teams_stats[name] = {
+                    "nom": name,
+                    "matchJoues": 0,
+                    "gagnes": 0,
+                    "perdus": 0,
+                    "points": 0,
+                    "paniersMarques": 0,
+                    "paniersEncaisses": 0,
+                }
+        if r.get("joue") == 1:
+            try:
+                s1 = int(r.get("resultatEquipe1", 0) or 0)
+                s2 = int(r.get("resultatEquipe2", 0) or 0)
+                t1 = r.get("nomEquipe1")
+                t2 = r.get("nomEquipe2")
+                if t1 and t2 and (s1 > 0 or s2 > 0):
+                    teams_stats[t1]["matchJoues"] += 1
+                    teams_stats[t2]["matchJoues"] += 1
+                    teams_stats[t1]["paniersMarques"] += s1
+                    teams_stats[t1]["paniersEncaisses"] += s2
+                    teams_stats[t2]["paniersMarques"] += s2
+                    teams_stats[t2]["paniersEncaisses"] += s1
+                    if s1 > s2:
+                        teams_stats[t1]["gagnes"] += 1
+                        teams_stats[t1]["points"] += 2
+                        teams_stats[t2]["perdus"] += 1
+                        teams_stats[t2]["points"] += 1
+                    elif s2 > s1:
+                        teams_stats[t2]["gagnes"] += 1
+                        teams_stats[t2]["points"] += 2
+                        teams_stats[t1]["perdus"] += 1
+                        teams_stats[t1]["points"] += 1
+            except (ValueError, TypeError):
+                # Scores illisibles (données Meilisearch partielles) : la
+                # rencontre est exclue du calcul du classement.
+                pass
+
+    if classements and teams_stats:
+        norm_stats = {
+            " ".join(k.upper().split()): v for k, v in teams_stats.items() if k
+        }
+        for c in classements:
+            c_nom = " ".join(
+                str((c.get("organisme") or {}).get("nom") or "").upper().split()
+            )
+            st = norm_stats.get(c_nom)
+            if not st and c_nom:
+                for k_norm, v in norm_stats.items():
+                    if c_nom in k_norm or k_norm in c_nom:
+                        st = v
+                        break
+            if st:
+                diff = st["paniersMarques"] - st["paniersEncaisses"]
+                quot = (
+                    round(st["paniersMarques"] / st["paniersEncaisses"], 3)
+                    if st["paniersEncaisses"] > 0
+                    else 0.0
+                )
+                c.update(
+                    {
+                        "points": st["points"],
+                        "matchJoues": st["matchJoues"],
+                        "gagnes": st["gagnes"],
+                        "perdus": st["perdus"],
+                        "paniersMarques": st["paniersMarques"],
+                        "paniersEncaisses": st["paniersEncaisses"],
+                        "difference": diff,
+                        "quotient": quot,
+                    }
+                )
+        classements.sort(
+            key=lambda x: (
+                int(x.get("points") or 0),
+                int(x.get("difference") or 0),
+                int(x.get("paniersMarques") or 0),
+            ),
+            reverse=True,
+        )
+        for idx, c in enumerate(classements, start=1):
+            c["position"] = idx
+
     # Si le tableau de bord n'a pas pu récupérer les engagements officiels depuis la compétition,
     # on déduit les équipes et classements directement depuis les rencontres de la poule.
     if not classements and rencontres:
-        teams_stats: dict[str, dict[str, Any]] = {}
-        for r in rencontres:
-            for k in ["nomEquipe1", "nomEquipe2"]:
-                name = r.get(k)
-                if name and name not in teams_stats:
-                    teams_stats[name] = {
-                        "nom": name,
-                        "matchJoues": 0,
-                        "gagnes": 0,
-                        "perdus": 0,
-                        "points": 0,
-                        "paniersMarques": 0,
-                        "paniersEncaisses": 0,
-                    }
-            if r.get("joue") == 1:
-                try:
-                    s1 = int(r.get("resultatEquipe1", 0) or 0)
-                    s2 = int(r.get("resultatEquipe2", 0) or 0)
-                    t1 = r.get("nomEquipe1")
-                    t2 = r.get("nomEquipe2")
-                    if t1 and t2 and (s1 > 0 or s2 > 0):
-                        teams_stats[t1]["matchJoues"] += 1
-                        teams_stats[t2]["matchJoues"] += 1
-                        teams_stats[t1]["paniersMarques"] += s1
-                        teams_stats[t1]["paniersEncaisses"] += s2
-                        teams_stats[t2]["paniersMarques"] += s2
-                        teams_stats[t2]["paniersEncaisses"] += s1
-                        if s1 > s2:
-                            teams_stats[t1]["gagnes"] += 1
-                            teams_stats[t1]["points"] += 2
-                            teams_stats[t2]["perdus"] += 1
-                            teams_stats[t2]["points"] += 1
-                        elif s2 > s1:
-                            teams_stats[t2]["gagnes"] += 1
-                            teams_stats[t2]["points"] += 2
-                            teams_stats[t1]["perdus"] += 1
-                            teams_stats[t1]["points"] += 1
-                except (ValueError, TypeError):
-                    # Scores illisibles (données Meilisearch partielles) : la
-                    # rencontre est exclue du calcul du classement.
-                    pass
 
         sorted_teams = sorted(
             teams_stats.values(),
