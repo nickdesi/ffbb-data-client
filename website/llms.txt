@@ -11,7 +11,7 @@
 - **Fiches Clubs & Organismes** : Coordonnées, équipes engagées, gymnases rattachés, couleurs officielles.
 - **Compétitions & Poules** : Calendriers, résultats de toutes les journées, classements officiels mis à jour, feuilles de match.
 - **Scores en Direct (Lives)** : Suivi en temps réel des matchs en cours du week-end sur tous les championnats (Nationale, Régionale, Départementale).
-- **Résilience & Production 2026** : Connexion directe au backend Directus `bo.ffbb.com` (contournement WAF 403), failover multi-miroirs et probe dynamique des chunks Next.js.
+- **Résilience & Production 2026** : Architecture 100 % Meilisearch-First (`meilisearch-prod.ffbb.app`), immunisée contre le WAF BunnyCDN 403.
 - **Observabilité** : Endpoint officiel Prometheus `/metrics` pour le monitoring de latence et santé.
 - **Asynchrone & Synchrone** : Support complet `async/await` avec `httpx`, cache intelligent `hishel` et validation stricte Pydantic v2.
 

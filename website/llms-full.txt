@@ -1,7 +1,7 @@
 # FFBB Data Client (API FFBB Python SDK) - Guide Complet
 
 ## Description
-`ffbb-data-client` est la bibliothèque Python de référence pour interagir avec les données publiques et l'API de la Fédération Française de BasketBall (FFBB). Conçue pour remplacer les anciens paquets obsolètes (`ffbb-api-client`, `ffbb-api-client-v2`), elle propose une architecture moderne avec modèles Pydantic v2, exécution asynchrone, cache HTTP SQLite et intégration MCP (Model Context Protocol).
+`ffbb-data-client` est la bibliothèque Python de référence pour interagir avec les données publiques et l'API de la Fédération Française de BasketBall (FFBB). Conçue pour remplacer les anciens paquets obsolètes (`ffbb-api-client`, `ffbb-api-client-v2`), elle propose une architecture moderne avec modèles Pydantic v2, exécution asynchrone, cache HTTP SQLite et fast-path Meilisearch-First.
 
 ## Installation
 ```bash
@@ -11,7 +11,7 @@ pip install ffbb-data-client
 ## Architecture des Clients
 - `FFBBDataClient` : Façade universelle donnant accès à toutes les sous-fonctionnalités (Meilisearch + Directus API).
 - `MeilisearchClient` : Recherche plein texte haute performance sur les 9 index officiels FFBB.
-- `ApiFFBBAppClient` : Appels REST Directus (`bo.ffbb.com` & `bo.ffbb.app`) pour les fiches détaillées, poules, classements et lives avec résilience anti-403.
+- `ApiFFBBAppClient` : Appels REST Directus optionnels (`FFBB_ENABLE_DIRECTUS=1`, bloqués en 403 par BunnyCDN WAF par défaut).
 
 ## Méthodes Clés
 - `multi_search(query: str)` / `multi_search_async(query: str)` : Recherche globale multi-index.

@@ -30,7 +30,6 @@
 [📍 Recherche Géo & Clubs](#-recherche-géographique--clubs-de-france) •
 [🔥 Cas d'Usage](#-recettes--cas-dusage-concrets) •
 [🧵 Streaming Async](#-haute-performance--streaming-asynchrone) •
-[🤖 Intégration IA / MCP](#-ia-agents--mcp-server) •
 [🌐 API REST](#-serveur-rest-fastapi-embarqué) •
 [📖 Documentation](https://ffbb-api.desimone.fr/docs)
 
@@ -41,23 +40,23 @@
 <!-- DISCOVERY_METRICS:END -->
 
 > [!NOTE]
-> **API Mobile Officielle (`v2.4.42+`)** : Utilisation native de l'origine mobile officielle `https://api.ffbb.com/` avec bootstrapping dynamique des jetons (`/items/configuration`) et émulation User-Agent Android officielle. L'intégralité des données Directus (y compris les feuilles de poules et les classements complets) est accessible en temps réel avec fallback résilient Meilisearch.
+> **Architecture 100 % Meilisearch-First (`v2.4.45+`)** : Toutes les routes principales interrogent directement `https://meilisearch-prod.ffbb.app` (< 40 ms, sans WAF BunnyCDN). Directus (`api.ffbb.com` / `bo.ffbb.com`, bloqué en 403 par BunnyCDN WAF) est désactivé par défaut (`FFBB_ENABLE_DIRECTUS=1` en opt-in uniquement).
 
 ---
 
 ## 🏆 Pourquoi choisir `ffbb-data-client` ?
 
-| Fonctionnalité | Ancien client (`ffbb-api-client`) | **`ffbb-data-client` (v2.4+)** |
+| Fonctionnalité | Ancien client (`ffbb-api-client`) | **`ffbb-data-client` (v2.4.45+)** |
 | :--- | :---: | :---: |
-| **Origine Directus & Anti-403** | ❌ Bloqué en 403 Forbidden (BunnyCDN) | ✅ **API mobile `api.ffbb.com` + bootstrapping dynamique** |
+| **Immunité WAF BunnyCDN** | ❌ Bloqué en 403 Forbidden (BunnyCDN) | ✅ **100 % Meilisearch-First (zéro appel Directus par défaut)** |
 | **Architecture Asynchrone Native** | ❌ 100% bloquant / synchrone | ✅ **Async native (`async/await` + `aiter`)** |
 | **Modèles de Données & Typage** | ❌ Dictionnaires bruts sans type | ✅ **Dataclasses & Pydantic v2 validés** |
 | **Recherche Meilisearch Instantanée** | ❌ Partielle ou absente | ✅ **Multi-index (Clubs, Salles, Poules, 3x3)** |
 | **Recherche Géographique par GPS** | ❌ Non disponible | ✅ **Rayon kilométrique autour de coordonnées** |
 | **Streaming de Masse (Pagination auto)** | ❌ Manuelle, risque d'OOM | ✅ **Générateurs streaming `aiter_all_*`** |
 | **Résolution d'Adresses de Salles** | ❌ Nom brut souvent vide | ✅ **Résolution physique complète (Gymnase, Rue, CP, Ville)** |
-| **Compatibilité IA & Agents MCP** | ❌ Incompatible | ✅ **Connecteur natif Model Context Protocol** |
-| **Couverture de Tests & Fiabilité** | ⚠️ < 30% | ✅ **680+ tests unitaires & 100% Zero-Red CI** |
+| **API REST FastAPI Embarquée** | ❌ Incompatible | ✅ **Swagger / OpenAPI + Prometheus `/metrics`** |
+| **Couverture de Tests & Fiabilité** | ⚠️ < 30% | ✅ **780+ tests unitaires & 100% Zero-Red CI** |
 
 ---
 

@@ -89,7 +89,7 @@
           "codeRepository": "https://github.com/nickdesi/ffbb-data-client",
           "programmingLanguage": "Python",
           "featureList": [
-            "Architecture multi-miroirs avec bascule automatique Directus (bo.ffbb.com & bo.ffbb.app)",
+            "Architecture 100 % Meilisearch-First (sans WAF BunnyCDN)",
             "Probe dynamique temps réel des chunks Next.js pour pérennité de l'API sans coupure",
             "Endpoint Prometheus officiel (/metrics) pour le monitoring de latence et disponibilité",
             "Recherche Universelle Meilisearch (clubs, comités, compétitions, gymnases, arbitres)",
@@ -193,7 +193,7 @@
                 <li><a href="#usages" onclick="closeMobileMenu()">🏀 Ce que vous pouvez faire</a></li>
                 <li><a href="#donnees" onclick="closeMobileMenu()">📊 Données officielles de l'API</a></li>
                 <li><a href="#comparatif" onclick="closeMobileMenu()">⚡ Comparatif & Migration</a></li>
-                <li><a href="#ia" onclick="closeMobileMenu()">🤖 Assistant IA & Serveur MCP</a></li>
+                <li><a href="#devs" onclick="closeMobileMenu()">💻 SDK &amp; API REST</a></li>
                 <li><a href="#devs" onclick="closeMobileMenu()">💻 Espace Développeurs Python</a></li>
                 <li><a href="#faq" onclick="closeMobileMenu()">❓ Questions fréquentes (FAQ)</a></li>
             </ul>
@@ -213,7 +213,7 @@
                         <span class="chip chip-orange">🏀 API FFBB 2026</span>
                         <span class="chip chip-live"><span class="live-pulse"></span> SCORES EN DIRECT</span>
                         <span class="chip chip-mint">⚡ v2.4.37 ASYNC</span>
-                        <span class="chip chip-indigo">🛡️ bo.ffbb.com PROD</span>
+                        <span class="chip chip-indigo">⚡ Meilisearch-First</span>
                     </div>
                     <h1 class="hero-title">
                         L'API <span class="text-gradient">FFBB</span> moderne & Open Data du Basket Français.
@@ -360,7 +360,7 @@
                     <div class="usecase-card">
                         <div class="usecase-icon">💬</div>
                         <h3>Assistants Vocaux & IA Générative</h3>
-                        <p>Interrogez les résultats et classements en parlant naturellement grâce au connecteur FFBB MCP Server officiel pour Claude, Cursor, ChatGPT et GitHub Copilot.</p>
+                        <p>Interrogez les clubs, poules, classements et rencontres en direct via l'API REST FastAPI ou le SDK Python.</p>
                     </div>
                 </div>
             </div>
@@ -441,13 +441,13 @@
                                 <td style="padding: 0.85rem 1rem; color: #ef4444;">❌ Aucun cache ou basique</td>
                             </tr>
                             <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                                <td style="padding: 0.85rem 1rem; font-weight: 600;">🤖 Connecteur IA / MCP Server</td>
-                                <td style="padding: 0.85rem 1rem; color: #34d399;">✅ Compatible MCP natif</td>
-                                <td style="padding: 0.85rem 1rem; color: #ef4444;">❌ Incompatible</td>
+                                <td style="padding: 0.85rem 1rem; font-weight: 600;">⚡ Source Primaire</td>
+                                <td style="padding: 0.85rem 1rem; color: #34d399;">✅ 100 % Meilisearch-First (&lt; 40 ms)</td>
+                                <td style="padding: 0.85rem 1rem; color: #ef4444;">❌ Lent / non indexé</td>
                             </tr>
                             <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                                <td style="padding: 0.85rem 1rem; font-weight: 600;">🛡️ Résilience Directus & Anti-403</td>
-                                <td style="padding: 0.85rem 1rem; color: #34d399;">✅ Directus bo.ffbb.com + failover miroir & probe Next.js</td>
+                                <td style="padding: 0.85rem 1rem; font-weight: 600;">🛡️ Immunité WAF BunnyCDN</td>
+                                <td style="padding: 0.85rem 1rem; color: #34d399;">✅ Zéro appel Directus 403 par défaut</td>
                                 <td style="padding: 0.85rem 1rem; color: #ef4444;">❌ Bloqué par WAF BunnyCDN (Erreur 403)</td>
                             </tr>
                             <tr>
@@ -604,7 +604,7 @@ asyncio.<span style="color: #d2a8ff;">run</span>(main())</code></pre>
                             <span class="faq-plus">+</span>
                         </div>
                         <div class="faq-answer-row">
-                            <p>Les anciennes bibliothèques ne sont plus maintenues et utilisent d'anciennes structures bloquantes. <code>ffbb-data-client</code> est la solution de référence 2026 : asynchrone, modèles Pydantic v2 validés, support des scores en direct et intégration avec les agents IA via MCP.</p>
+                            <p>Les anciennes bibliothèques ne sont plus maintenues et utilisent d'anciennes structures bloquantes. <code>ffbb-data-client</code> est la solution de référence 2026 : asynchrone, modèles Pydantic v2 validés et support des scores en direct via Meilisearch-First.</p>
                         </div>
                     </div>
 
