@@ -140,10 +140,10 @@
             },
             {
               "@type": "Question",
-              "name": "Comment interroger l'API FFBB avec un assistant IA (Claude, Cursor, Copilot) ?",
+              "name": "Comment explorer les endpoints de l'API FFBB ?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "Grâce au FFBB MCP Server connecté à ce SDK (accessible sur https://ffbb.desimone.fr/mcp), vous pouvez poser vos questions en langage naturel pour obtenir le bilan de votre équipe, le prochain match ou les scores live."
+                "text": "Utilisez la documentation interactive Swagger sur /docs ou le SDK Python ffbb-data-client pour interroger clubs, poules, classements et matchs."
               }
             }
           ]
@@ -231,7 +231,6 @@
                     <div class="hero-actions">
                         <a href="/docs" class="btn btn-primary btn-lg">⚡ Explorer l'API Swagger (/docs)</a>
                         <a href="#devs" class="btn btn-surface btn-lg">📦 SDK Python (PyPI)</a>
-                        <a href="https://ffbb.desimone.fr" target="_blank" rel="noopener" class="btn btn-surface btn-lg">🤖 Serveur MCP pour IA</a>
                     </div>
                     <div class="hero-badges-row">
                         <div class="hero-badge-item">
@@ -467,14 +466,14 @@
             <div class="container">
                 <div class="ai-banner">
                     <div>
-                        <span class="chip chip-orange">ASSISTANT IA</span>
-                        <h3>Posez vos questions sur le basket en langage naturel</h3>
+                        <span class="chip chip-orange">SDK &amp; REST API</span>
+                        <h3>Intégrez les données FFBB dans vos applications et scripts</h3>
                         <p>
-                            Grâce au <strong>Serveur FFBB MCP</strong> propulsé par <code>ffbb-data-client</code>, vos assistants IA (Claude, GitHub Copilot, Cursor, ChatGPT) comprennent directement vos questions sur le basket français.
+                            Propulsé par <code>ffbb-data-client</code> (Meilisearch-First), interrogez directement les clubs, poules, classements et rencontres via l'API REST ou le SDK Python.
                         </p>
                         <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-                            <a href="https://ffbb.desimone.fr" target="_blank" rel="noopener" class="btn btn-primary">🌐 Découvrir le Serveur MCP</a>
-                            <a href="https://github.com/nickdesi/FFBB-MCP-Server" target="_blank" rel="noopener" class="btn btn-surface">⭐ Voir le projet MCP</a>
+                            <a href="/docs" class="btn btn-primary">⚡ Documentation Swagger</a>
+                            <a href="https://github.com/nickdesi/ffbb-data-client" target="_blank" rel="noopener" class="btn btn-surface">⭐ Voir sur GitHub</a>
                         </div>
                     </div>
                     <div class="ai-chat-bubble">
@@ -618,17 +617,6 @@ asyncio.<span style="color: #d2a8ff;">run</span>(main())</code></pre>
                             <p>Oui, absolument ! C'est l'un des usages principaux : alimenter les pages résultats, classements et calendriers de votre club ou de votre comité en temps réel sans aucune saisie manuelle.</p>
                         </div>
                     </div>
-
-                    <div class="faq-box" onclick="toggleFaqBox(this)">
-                        <div class="faq-question-row">
-                            <span>Comment poser des questions en langage naturel via l'IA ?</span>
-                            <span class="faq-plus">+</span>
-                        </div>
-                        <div class="faq-answer-row">
-                            <p>Grâce au <strong>FFBB MCP Server</strong> (endpoint <code>https://ffbb.desimone.fr/mcp</code>), vous pouvez connecter directement votre assistant IA (Claude, Copilot, Cursor) pour obtenir des réponses immédiates sur n'importe quelle équipe ou compétition.</p>
-                        </div>
-                    </div>
-                </div>
             </div>
         </section>
     </main>
@@ -654,11 +642,11 @@ asyncio.<span style="color: #d2a8ff;">run</span>(main())</code></pre>
                     </ul>
                 </div>
                 <div class="footer-col">
-                    <h4>Écosystème IA</h4>
+                    <h4>Écosystème</h4>
                     <ul>
-                        <li><a href="https://ffbb.desimone.fr" target="_blank" rel="noopener">Serveur FFBB MCP</a></li>
-                        <li><a href="https://github.com/nickdesi/FFBB-MCP-Server" target="_blank" rel="noopener">Repo FFBB-MCP-Server</a></li>
-                        <li><a href="https://modelcontextprotocol.io" target="_blank" rel="noopener">Protocole MCP</a></li>
+                        <li><a href="/docs">Documentation Swagger</a></li>
+                        <li><a href="/redoc">Référence ReDoc</a></li>
+                        <li><a href="/health">Statut API (/health)</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
