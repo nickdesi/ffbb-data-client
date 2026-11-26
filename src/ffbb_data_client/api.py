@@ -32,7 +32,10 @@ from pydantic import BaseModel, Field
 
 from .clients.ffbb_data_client import FFBBDataClient
 from .config import API_FFBB_BASE_URL
-from .helpers.meilisearch_fallback import club_rencontres_from_meilisearch
+from .helpers.meilisearch_fallback import (
+    club_rencontres_from_meilisearch,
+    organisme_from_meilisearch,
+)
 from .helpers.normalization import parse_categorie
 from .models.query_fields_manager import QueryFieldsManager
 from .utils.retry_utils import aclose_default_clients, waf_blocked_hosts
