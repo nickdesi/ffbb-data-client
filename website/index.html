@@ -20,14 +20,16 @@
     <meta property="og:title" content="API FFBB (2026) : SDK Python, REST & Scores Live du Basket Français">
     <meta property="og:description" content="La seule API FFBB & SDK Python à jour en 2026 : résultats, classements, calendriers, fiches clubs et scores en direct. 100% async, typé Pydantic v2 & Swagger.">
     <meta property="og:url" content="https://ffbb-api.desimone.fr/">
-    <meta property="og:image" content="https://ffbb-api.desimone.fr/assets/apple-touch-icon.png">
+    <meta property="og:image" content="https://ffbb-api.desimone.fr/assets/og-banner.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     <meta property="og:locale" content="fr_FR">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="API FFBB (2026) : SDK Python, REST & Scores Live du Basket Français">
     <meta name="twitter:description" content="La seule API FFBB & SDK Python à jour en 2026 : résultats, classements, calendriers, fiches clubs et scores en direct. 100% async, typé Pydantic v2 & Swagger.">
-    <meta name="twitter:image" content="https://ffbb-api.desimone.fr/assets/apple-touch-icon.png">
+    <meta name="twitter:image" content="https://ffbb-api.desimone.fr/assets/og-banner.png">
 
     <!-- Favicons for Google, Apple and Browsers -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -98,7 +100,7 @@
             "Calendriers et classements officiels FFBB",
             "Client async/await httpx haute performance avec cache intelligent hishel SQLite"
           ],
-          "image": "https://ffbb-api.desimone.fr/assets/logo.webp",
+          "image": "https://ffbb-api.desimone.fr/assets/og-banner.png",
           "author": {
             "@type": "Person",
             "name": "Nicolas De Simone",
@@ -108,6 +110,20 @@
             "@type": "Offer",
             "price": "0.00",
             "priceCurrency": "EUR"
+          }
+        },
+        {
+          "@type": "WebAPI",
+          "@id": "https://ffbb-api.desimone.fr/#webapi",
+          "name": "API REST FFBB (FastAPI Meilisearch-First)",
+          "description": "API REST publique et gratuite pour consulter les clubs, poules, classements, matchs récents et scores en direct de la FFBB sans authentification.",
+          "url": "https://ffbb-api.desimone.fr/",
+          "documentation": "https://ffbb-api.desimone.fr/docs",
+          "termsOfService": "https://github.com/nickdesi/ffbb-data-client/blob/master/LICENSE.txt",
+          "provider": {
+            "@type": "Person",
+            "name": "Nicolas De Simone",
+            "url": "https://github.com/nickdesi"
           }
         },
         {
@@ -485,6 +501,62 @@
                             🏀 <strong>Réponse instantanée :</strong> Votre équipe est actuellement <strong>2e de la poule</strong> avec 12 victoires. Leur prochain match aura lieu ce <strong>samedi à 20h30</strong> à domicile contre le BC Layrac !
                         </div>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SSR REST API Reference (SEO & GEO Indexable without JS) -->
+        <section id="endpoints" style="padding: 3.5rem 0;">
+            <div class="container">
+                <div class="section-head">
+                    <span class="chip chip-indigo">RÉFÉRENCE REST API (SSR)</span>
+                    <h2>Comment interroger l'API REST FFBB sans clé API ?</h2>
+                    <p style="max-width: 780px; margin: 0.75rem auto 0; color: #cbd5e1; line-height: 1.65;">
+                        L'API REST publique <code>https://ffbb-api.desimone.fr</code> expose des endpoints JSON prêts à l'emploi en moins de 400 ms, sans authentification ni contournement WAF. Toutes les routes principales s'appuient sur l'indexation Meilisearch-First (fenêtre glissante d'environ 2 semaines sur l'historique des rencontres).
+                    </p>
+                </div>
+                <div style="overflow-x: auto; background: rgba(15,23,42,0.75); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; margin-top: 1.75rem;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.93rem;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: #94a3b8;">
+                                <th style="padding: 0.9rem 1rem;">Endpoint</th>
+                                <th style="padding: 0.9rem 1rem;">Usage</th>
+                                <th style="padding: 0.9rem 1rem;">Données retournées</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <td style="padding: 0.85rem 1rem;"><code>GET /api/v1/club/{id}</code></td>
+                                <td style="padding: 0.85rem 1rem;">Fiche club FFBB</td>
+                                <td style="padding: 0.85rem 1rem; color: #cbd5e1;">Nom, code, adresse, contacts, logo et engagements</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <td style="padding: 0.85rem 1rem;"><code>GET /api/v1/club/{id}/teams</code></td>
+                                <td style="padding: 0.85rem 1rem;">Équipes engagées</td>
+                                <td style="padding: 0.85rem 1rem; color: #cbd5e1;">Liste des équipes, `competition_id` et `poule_id`</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <td style="padding: 0.85rem 1rem;"><code>GET /api/v1/club/{id}/matches</code></td>
+                                <td style="padding: 0.85rem 1rem;">Matchs récents &amp; à venir</td>
+                                <td style="padding: 0.85rem 1rem; color: #cbd5e1;">Rencontres filtrables par équipe (`team`) et dates</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <td style="padding: 0.85rem 1rem;"><code>GET /api/v1/poule/{id}/classement</code></td>
+                                <td style="padding: 0.85rem 1rem;">Classement de poule</td>
+                                <td style="padding: 0.85rem 1rem; color: #cbd5e1;">Position, points, victoires, défaites et goal-average</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <td style="padding: 0.85rem 1rem;"><code>GET /api/v1/lives</code></td>
+                                <td style="padding: 0.85rem 1rem;">Scores en direct</td>
+                                <td style="padding: 0.85rem 1rem; color: #cbd5e1;">Matchs en cours du week-end sur toutes les divisions</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.85rem 1rem;"><code>GET /api/v1/search?q=...</code></td>
+                                <td style="padding: 0.85rem 1rem;">Recherche universelle</td>
+                                <td style="padding: 0.85rem 1rem; color: #cbd5e1;">Clubs, compétitions, gymnases, tournois et 3x3</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </section>
