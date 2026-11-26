@@ -5,7 +5,6 @@
 - Site officiel : https://ffbb-api.desimone.fr/
 - Dépôt GitHub : https://github.com/nickdesi/ffbb-data-client
 - Package PyPI : https://pypi.org/project/ffbb-data-client/
-- Serveur MCP : https://ffbb.desimone.fr/
 
 ## Capacités principales de l'API FFBB
 - **Recherche Universelle** : Recherche instantanée dans les index Meilisearch (clubs, organismes, compétitions, tournois, gymnases, terrains 3x3, arbitres).

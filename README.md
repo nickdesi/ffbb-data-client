@@ -17,7 +17,6 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/nickdesi/FFBB-MCP-Server"><img src="https://img.shields.io/badge/MCP-Ready-0969da.svg?logo=modelcontextprotocol&logoColor=white&style=flat-square" alt="MCP Ready" /></a>
   <a href="https://github.com/nickdesi/ffbb-data-client/blob/master/LICENSE.txt"><img src="https://img.shields.io/badge/License-Apache--2.0-blue.svg?style=flat-square" alt="License" /></a>
   <a href="https://github.com/psf/black"><img src="https://img.shields.io/badge/Code%20Style-Black-000000.svg?style=flat-square" alt="Code Style: Black" /></a>
   <a href="https://github.com/astral-sh/uv"><img src="https://img.shields.io/badge/Fast%20Packaging-uv-de5fe9.svg?style=flat-square" alt="Packaged with uv" /></a>
@@ -231,20 +230,6 @@ async def main():
 
 asyncio.run(main())
 ```
-
----
-
-## 🤖 IA, Agents & MCP Server
-
-Le SDK `ffbb-data-client` est le moteur officiel du serveur **Model Context Protocol (MCP)** pour le basket français.
-
-Il permet aux LLMs (**Claude**, **ChatGPT**, **Cursor**, **Gemini**, **Antigravity**) d'interagir nativement avec les championnats de basket :
-
-* 💬 *"Quels sont les prochains matchs du SCBA ce week-end ?"*
-* 💬 *"Donne-moi le classement de la Poule Haute U13M2."*
-* 💬 *"Quelle est l'adresse exacte de la salle pour le match de samedi ?"*
-
-👉 Découvrez le projet dédié : **[FFBB-MCP-Server](https://github.com/nickdesi/FFBB-MCP-Server)**
 
 ---
 

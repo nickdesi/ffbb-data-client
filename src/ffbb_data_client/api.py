@@ -207,7 +207,6 @@ l'ensemble des données publiques de la **Fédération Française de BasketBall*
 
 ### 📚 Écosystème & Liens Utiles
 - 📦 **SDK Python (PyPI)** : [`pip install ffbb-data-client`](https://pypi.org/project/ffbb-data-client/)
-- 🤖 **Serveur MCP pour assistants IA** : [`https://ffbb.desimone.fr`](https://ffbb.desimone.fr)
 - ⭐ **Code Source GitHub** : [`https://github.com/nickdesi/ffbb-data-client`](https://github.com/nickdesi/ffbb-data-client)
 - 📖 **Documentation Sphinx complète** : [`https://nickdesi.github.io/ffbb-data-client/`](https://nickdesi.github.io/ffbb-data-client/)
 """,
