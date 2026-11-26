@@ -140,7 +140,12 @@ async def test_poule_from_meilisearch_reconstructs_poule() -> None:
         }
     ]
     search = AsyncMock(side_effect=[[comp_hit], rencontres_hits])
-    with patch.object(mf, "meili_search_async", search):
+    with (
+        patch.object(mf, "meili_search_async", search),
+        patch.object(
+            mf, "fetch_sportsregions_poule_rencontres", AsyncMock(return_value=[])
+        ),
+    ):
         poule = await mf.poule_from_meilisearch("200000003055513")
 
     assert poule is not None
@@ -150,6 +155,90 @@ async def test_poule_from_meilisearch_reconstructs_poule() -> None:
     assert poule["rencontres"][0]["resultatEquipe1"] == "80"
     assert len(poule["classements"]) == 1
     assert poule["classements"][0]["idEngagement"]["nom"] == "SCBA"
+
+
+@pytest.mark.asyncio
+async def test_poule_from_meilisearch_merges_sportsregions_history() -> None:
+    mf.register_poule_competition("200000003062744", "200000002901284", "Poule INTER 2")
+    comp_hit = {
+        "id": "200000002901284",
+        "nom": "Départementale masculine U18 - Phase 2",
+        "phases": [],
+        "saison": {"code": "26-27"},
+        "poules": [
+            {
+                "id": "200000003062744",
+                "nom": "Poule INTER 2",
+                "engagements": [
+                    {"id": "e1", "nom": "GERZAT BASKET"},
+                    {"id": "e2", "nom": "AL AUBIERE"},
+                ],
+            }
+        ],
+    }
+    meili_hits = [
+        {
+            "id": "m3",
+            "numeroJournee": "3",
+            "idPoule": {"id": "200000003062744", "nom": "Poule INTER 2"},
+            "joue": True,
+            "nomEquipe1": "GERZAT BASKET",
+            "nomEquipe2": "AL AUBIERE",
+            "resultatEquipe1": "94",
+            "resultatEquipe2": "46",
+            "date_rencontre": "2026-11-21T18:00:00",
+        }
+    ]
+    sr_hits = [
+        {
+            "id": "sr_1",
+            "numero": "",
+            "numeroJournee": "1",
+            "idPoule": "200000003062744",
+            "competitionId": "200000002901284",
+            "resultatEquipe1": "75",
+            "resultatEquipe2": "77",
+            "joue": 1,
+            "nomEquipe1": "AL AUBIERE",
+            "nomEquipe2": "GERZAT BASKET",
+            "logoEquipe1": "",
+            "logoEquipe2": "",
+            "date_rencontre": "2026-11-07T00:00:00",
+        },
+        {
+            "id": "sr_3_dup",
+            "numero": "",
+            "numeroJournee": "3",
+            "idPoule": "200000003062744",
+            "competitionId": "200000002901284",
+            "resultatEquipe1": "94",
+            "resultatEquipe2": "46",
+            "joue": 1,
+            "nomEquipe1": "GERZAT BASKET",
+            "nomEquipe2": "AL AUBIERE",
+            "logoEquipe1": "",
+            "logoEquipe2": "",
+            "date_rencontre": "2026-11-21T00:00:00",
+        },
+    ]
+    search = AsyncMock(side_effect=[[comp_hit], meili_hits])
+    with (
+        patch.object(mf, "meili_search_async", search),
+        patch.object(
+            mf, "fetch_sportsregions_poule_rencontres", AsyncMock(return_value=sr_hits)
+        ),
+    ):
+        poule = await mf.poule_from_meilisearch("200000003062744")
+
+    assert poule is not None
+    assert [r["numeroJournee"] for r in poule["rencontres"]] == ["1", "3"]
+    assert poule["rencontres"][1]["date_rencontre"] == "2026-11-21T18:00:00"
+    gerzat = next(
+        c for c in poule["classements"] if c["organisme"]["nom"] == "GERZAT BASKET"
+    )
+    assert gerzat["matchJoues"] == 2
+    assert gerzat["gagnes"] == 2
+    assert gerzat["points"] == 4
 
 
 @pytest.mark.asyncio

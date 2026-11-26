@@ -2,8 +2,14 @@
 
 from __future__ import annotations
 
+import hashlib
+import html as html_lib
 import os
+import re
+import time
 from typing import Any
+
+import httpx
 
 from ..config import (
     DEFAULT_FALLBACK_MEILISEARCH_TOKEN,
@@ -17,6 +23,103 @@ from ..config import (
 from .http_requests_utils import http_post_json_async
 
 _POULE_TO_COMP_CACHE: dict[str, tuple[str, str]] = {}
+_SPORTSREGIONS_CACHE: dict[str, tuple[float, list[dict[str, Any]]]] = {}
+_SPORTSREGIONS_TTL_S = 900.0
+_SR_TABLE_RE = re.compile(r"<table[^>]*>(.*?)</table>", re.S | re.I)
+_SR_ROW_RE = re.compile(r"<tr[^>]*>(.*?)</tr>", re.S | re.I)
+_SR_CELL_RE = re.compile(r"<t[hd][^>]*>(.*?)</t[hd]>", re.S | re.I)
+_SR_TAG_RE = re.compile(r"<[^>]+>")
+_SR_DATE_RE = re.compile(r"^(\d{2})/(\d{2})/(\d{4})$")
+
+
+def _norm_team(name: str) -> str:
+    return " ".join(str(name or "").upper().split())
+
+
+async def fetch_sportsregions_poule_rencontres(
+    poule_id: str,
+    competition_id: str = "",
+) -> list[dict[str, Any]]:
+    """Récupère l'ensemble des journées (J1..Jn) d'une poule via la passerelle SportsRegions."""
+    if os.getenv("FFBB_ENABLE_SPORTSREGIONS", "1").lower() in ("0", "false", "no"):
+        return []
+    pid = str(poule_id).strip()
+    if not pid.isdigit():
+        return []
+
+    now = time.monotonic()
+    cached = _SPORTSREGIONS_CACHE.get(pid)
+    if cached and (now - cached[0]) < _SPORTSREGIONS_TTL_S:
+        return [dict(item) for item in cached[1]]
+
+    base_url = os.getenv(
+        "FFBB_SPORTSREGIONS_BASE_URL", "https://www.gerzatbasket.com"
+    ).rstrip("/")
+    url = f"{base_url}/ffbb/poules/{pid}"
+    try:
+        async with httpx.AsyncClient(
+            timeout=5.0,
+            follow_redirects=True,
+            headers={"User-Agent": "Mozilla/5.0 (compatible; ffbb-data-client/1.0)"},
+        ) as client:
+            resp = await client.get(url)
+            if resp.status_code != 200:
+                return []
+            page_html = resp.text
+    except Exception:
+        return []
+
+    tables = _SR_TABLE_RE.findall(page_html)
+    if not tables:
+        return []
+
+    parsed: list[dict[str, Any]] = []
+    current_date_iso = "1970-01-01"
+    for row_html in _SR_ROW_RE.findall(tables[0]):
+        raw_cells = _SR_CELL_RE.findall(row_html)
+        cells = [
+            " ".join(html_lib.unescape(_SR_TAG_RE.sub(" ", c)).split())
+            for c in raw_cells
+        ]
+        if len(cells) == 1:
+            m_date = _SR_DATE_RE.match(cells[0])
+            if m_date:
+                dd, mm, yyyy = m_date.groups()
+                current_date_iso = f"{yyyy}-{mm}-{dd}"
+            continue
+        if len(cells) >= 6 and cells[1].isdigit():
+            jour = cells[1]
+            t1 = cells[2]
+            s1 = cells[3]
+            s2 = cells[4]
+            t2 = cells[5]
+            if not t1 or not t2:
+                continue
+            joue = 1 if (s1.isdigit() and s2.isdigit()) else 0
+            sig = hashlib.sha256(
+                f"{pid}:{jour}:{_norm_team(t1)}:{_norm_team(t2)}".encode()
+            ).hexdigest()[:12]
+            parsed.append(
+                {
+                    "id": f"sr_{pid}_{sig}",
+                    "numero": "",
+                    "numeroJournee": jour,
+                    "idPoule": pid,
+                    "competitionId": competition_id,
+                    "resultatEquipe1": s1 if joue else "",
+                    "resultatEquipe2": s2 if joue else "",
+                    "joue": joue,
+                    "nomEquipe1": t1,
+                    "nomEquipe2": t2,
+                    "logoEquipe1": "",
+                    "logoEquipe2": "",
+                    "date_rencontre": f"{current_date_iso}T00:00:00",
+                }
+            )
+
+    if parsed:
+        _SPORTSREGIONS_CACHE[pid] = (now, parsed)
+    return [dict(item) for item in parsed]
 
 
 def register_poule_competition(
@@ -203,6 +306,41 @@ async def poule_from_meilisearch(
                 ),
             }
         )
+
+    # Enrichissement SportsRegions : récupère les journées hors fenêtre glissante Meilisearch (J1, J2, J5, J6...)
+    sr_rencontres = await fetch_sportsregions_poule_rencontres(pid, cid)
+    if sr_rencontres:
+        by_key: dict[tuple[str, str, str], dict[str, Any]] = {
+            (
+                str(m.get("numeroJournee") or ""),
+                _norm_team(m.get("nomEquipe1") or ""),
+                _norm_team(m.get("nomEquipe2") or ""),
+            ): m
+            for m in rencontres
+        }
+        for sr_m in sr_rencontres:
+            key = (
+                str(sr_m.get("numeroJournee") or ""),
+                _norm_team(sr_m.get("nomEquipe1") or ""),
+                _norm_team(sr_m.get("nomEquipe2") or ""),
+            )
+            existing = by_key.get(key)
+            if existing is None:
+                rencontres.append(sr_m)
+                by_key[key] = sr_m
+            elif existing.get("joue") == 0 and sr_m.get("joue") == 1:
+                existing["joue"] = 1
+                existing["resultatEquipe1"] = sr_m["resultatEquipe1"]
+                existing["resultatEquipe2"] = sr_m["resultatEquipe2"]
+
+    rencontres.sort(
+        key=lambda m: (
+            int(m["numeroJournee"])
+            if str(m.get("numeroJournee") or "").isdigit()
+            else 999,
+            str(m.get("date_rencontre") or ""),
+        )
+    )
 
     classements: list[dict[str, Any]] = []
     engagements = (poule_entry or {}).get("engagements") or []
