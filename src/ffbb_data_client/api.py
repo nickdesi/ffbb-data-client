@@ -1058,6 +1058,94 @@ async def get_club_matches(
     has_date_filter = date_from is not None or date_to is not None
 
     client = get_client()
+    directus_disabled = (
+        type(client).__name__ == "FFBBDataClient"
+        and os.getenv("FFBB_ENABLE_DIRECTUS", "0").lower() not in ("1", "true", "yes")
+    )
+
+    if directus_disabled:
+        org_hit = await organisme_from_meilisearch(organisme_id)
+        if not org_hit:
+            raise HTTPException(
+                status_code=404, detail=f"Club {organisme_id} introuvable."
+            )
+        club_name = str(org_hit.get("nom", "") or "Club")
+        raw_logo = org_hit.get("logo")
+        logo_id = raw_logo.get("id") if isinstance(raw_logo, dict) else raw_logo
+        club_logo_url: str | None = f"/api/v1/assets/{logo_id}" if logo_id else None
+        club_code = str(org_hit.get("code", "") or "")
+        matches_list: list[dict[str, Any]] = []
+        if club_code:
+            try:
+                for hm in await club_rencontres_from_meilisearch(club_code):
+                    is_h = (hm.get("idOrganismeEquipe1") or {}).get("code") == club_code
+                    neq1 = hm.get("nomEquipe1", "") or ""
+                    neq2 = hm.get("nomEquipe2", "") or ""
+                    p_obj = hm.get("idPoule") or {}
+                    dt_r = hm.get("date_rencontre") or hm.get("date") or ""
+                    d_iso = dt_r[:10]
+                    r1 = hm.get("resultatEquipe1")
+                    r2 = hm.get("resultatEquipe2")
+                    r1_int = int(r1) if r1 is not None and str(r1).isdigit() else None
+                    r2_int = int(r2) if r2 is not None and str(r2).isdigit() else None
+                    matches_list.append(
+                        {
+                            "ffbbMatchId": str(hm.get("id")),
+                            "team": neq1 if is_h else neq2,
+                            "opponent": neq2 if is_h else neq1,
+                            "date": format_french_date(d_iso) if d_iso else "",
+                            "dateISO": d_iso,
+                            "time": dt_r[11:16],
+                            "location": (hm.get("salle") or {}).get("libelle", "")
+                            or "",
+                            "isHome": is_h,
+                            "competition": (hm.get("competitionId") or {}).get("nom", "")
+                            or "",
+                            "poule": p_obj.get("nom", "") or "",
+                            "pouleId": str(p_obj.get("id", "") or ""),
+                            "round": hm.get("numeroJournee"),
+                            "isPlayed": bool(hm.get("joue") or r1_int is not None),
+                            "scoreLocal": r1_int if is_h else r2_int,
+                            "scoreOpponent": r2_int if is_h else r1_int,
+                            "scoreEquipe1": r1_int,
+                            "scoreEquipe2": r2_int,
+                            "competitionUrl": hm.get("url_competition", "") or "",
+                            "teamLogo": club_logo_url,
+                        }
+                    )
+            except Exception as exc:
+                logger.warning("Meilisearch rencontres échoué: %s", exc)
+            if matches_list:
+                response.headers["X-FFBB-Data-Source"] = "meilisearch-window"
+        if has_date_filter:
+            matches_list = [
+                m
+                for m in matches_list
+                if m["dateISO"] and in_date_range(date.fromisoformat(m["dateISO"]))
+            ]
+        matches_list.sort(key=lambda x: (x.get("dateISO", ""), x.get("time", "")))
+        response.headers["Cache-Control"] = (
+            "public, max-age=180, stale-while-revalidate=60"
+        )
+        total_count = len(matches_list)
+        paged_matches = (
+            matches_list[offset : offset + limit]
+            if limit is not None
+            else matches_list[offset:]
+        )
+        return {
+            "organisme_id": organisme_id,
+            "club": club_name,
+            "matches": paged_matches,
+            "count": len(paged_matches),
+            "total": total_count,
+            "pagination": {
+                "total": total_count,
+                "limit": limit if limit is not None else total_count,
+                "offset": offset,
+                "has_more": (offset + len(paged_matches)) < total_count,
+            },
+        }
 
     try:
         org = await client.get_organisme_async(organisme_id)
@@ -1789,6 +1877,16 @@ async def get_club_details(
 ):
     """Retourne les informations détaillées d'un club (nom, contacts, adresse, engagements)."""
     client = get_client()
+    if (
+        type(client).__name__ == "FFBBDataClient"
+        and os.getenv("FFBB_ENABLE_DIRECTUS", "0").lower() not in ("1", "true", "yes")
+    ):
+        from .helpers.meilisearch_fallback import organisme_from_meilisearch
+
+        org_hit = await organisme_from_meilisearch(organisme_id)
+        if not org_hit:
+            raise HTTPException(status_code=404, detail="Club introuvable.")
+        return org_hit
     try:
         org = await client.get_organisme_async(organisme_id)
         if not org:
@@ -2028,6 +2126,19 @@ async def get_competition_detail(
 ):
     """Retourne les métadonnées et la liste des poules associées à une compétition officielle FFBB."""
     client = get_client()
+    if (
+        type(client).__name__ == "FFBBDataClient"
+        and os.getenv("FFBB_ENABLE_DIRECTUS", "0").lower() not in ("1", "true", "yes")
+    ):
+        from .helpers.meilisearch_fallback import competition_from_meilisearch
+
+        comp_hit = await competition_from_meilisearch(competition_id)
+        if not comp_hit:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Compétition {competition_id} introuvable.",
+            )
+        return comp_hit
     try:
         comp = await client.get_competition_async(competition_id)
         if not comp:
