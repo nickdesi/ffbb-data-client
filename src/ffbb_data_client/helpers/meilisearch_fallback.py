@@ -236,102 +236,105 @@ async def poule_from_meilisearch(
                     poule_nom = p.get("nom") or poule_nom
                     break
 
-    if not cid and not poule_entry:
-        return None
-
-    rencontres_raw: list[dict[str, Any]] = []
-    if cid and poule_nom:
-        safe_nom = poule_nom.replace('"', '\\"')
-        rencontres_raw = await meili_search_async(
-            MEILISEARCH_INDEX_RENCONTRES,
-            {
-                "q": "",
-                "filter": f'competitionId.id = "{cid}" AND idPoule.nom = "{safe_nom}"',
-                "limit": 500,
-            },
-        )
-    elif cid:
-        all_comp_r = await meili_search_async(
-            MEILISEARCH_INDEX_RENCONTRES,
-            {
-                "q": "",
-                "filter": f'competitionId.id = "{cid}"',
-                "limit": 500,
-            },
-        )
-        rencontres_raw = [
-            r for r in all_comp_r if str((r.get("idPoule") or {}).get("id")) == pid
-        ]
-
     rencontres: list[dict[str, Any]] = []
-    for r in rencontres_raw:
-        if not isinstance(r, dict):
-            continue
-        p_obj = r.get("idPoule") or {}
-        p_id = str(p_obj.get("id") if isinstance(p_obj, dict) else p_obj or "")
-        if p_id and p_id != pid:
-            continue
-        if not poule_nom and isinstance(p_obj, dict) and p_obj.get("nom"):
-            poule_nom = str(p_obj.get("nom"))
-
-        org1 = r.get("idOrganismeEquipe1") or {}
-        org2 = r.get("idOrganismeEquipe2") or {}
-        logo1 = (
-            (org1.get("logo") or {}).get("id")
-            if isinstance(org1, dict) and isinstance(org1.get("logo"), dict)
-            else (org1.get("logo") if isinstance(org1, dict) else "")
-        )
-        logo2 = (
-            (org2.get("logo") or {}).get("id")
-            if isinstance(org2, dict) and isinstance(org2.get("logo"), dict)
-            else (org2.get("logo") if isinstance(org2, dict) else "")
-        )
-
-        rencontres.append(
-            {
-                "id": str(r.get("id") or ""),
-                "numero": str(r.get("numero") or ""),
-                "numeroJournee": str(r.get("numeroJournee") or ""),
-                "idPoule": pid,
-                "competitionId": cid,
-                "resultatEquipe1": str(r.get("resultatEquipe1") or ""),
-                "resultatEquipe2": str(r.get("resultatEquipe2") or ""),
-                "joue": 1 if r.get("joue") in (True, 1, "1") else 0,
-                "nomEquipe1": str(r.get("nomEquipe1") or ""),
-                "nomEquipe2": str(r.get("nomEquipe2") or ""),
-                "logoEquipe1": str(logo1 or ""),
-                "logoEquipe2": str(logo2 or ""),
-                "date_rencontre": str(
-                    r.get("date_rencontre") or r.get("date") or "1970-01-01"
-                ),
-            }
-        )
-
-    # Enrichissement SportsRegions : récupère les journées hors fenêtre glissante Meilisearch (J1, J2, J5, J6...)
-    sr_rencontres = await fetch_sportsregions_poule_rencontres(pid, cid)
-    if sr_rencontres:
-        by_key: dict[tuple[str, str, str], dict[str, Any]] = {
-            (
-                str(m.get("numeroJournee") or ""),
-                _norm_team(m.get("nomEquipe1") or ""),
-                _norm_team(m.get("nomEquipe2") or ""),
-            ): m
-            for m in rencontres
-        }
-        for sr_m in sr_rencontres:
-            key = (
-                str(sr_m.get("numeroJournee") or ""),
-                _norm_team(sr_m.get("nomEquipe1") or ""),
-                _norm_team(sr_m.get("nomEquipe2") or ""),
+    if not cid and not poule_entry:
+        sr_only = await fetch_sportsregions_poule_rencontres(pid)
+        if not sr_only:
+            return None
+        rencontres = sr_only
+    else:
+        rencontres_raw: list[dict[str, Any]] = []
+        if cid and poule_nom:
+            safe_nom = poule_nom.replace('"', '\\"')
+            rencontres_raw = await meili_search_async(
+                MEILISEARCH_INDEX_RENCONTRES,
+                {
+                    "q": "",
+                    "filter": f'competitionId.id = "{cid}" AND idPoule.nom = "{safe_nom}"',
+                    "limit": 500,
+                },
             )
-            existing = by_key.get(key)
-            if existing is None:
-                rencontres.append(sr_m)
-                by_key[key] = sr_m
-            elif existing.get("joue") == 0 and sr_m.get("joue") == 1:
-                existing["joue"] = 1
-                existing["resultatEquipe1"] = sr_m["resultatEquipe1"]
-                existing["resultatEquipe2"] = sr_m["resultatEquipe2"]
+        elif cid:
+            all_comp_r = await meili_search_async(
+                MEILISEARCH_INDEX_RENCONTRES,
+                {
+                    "q": "",
+                    "filter": f'competitionId.id = "{cid}"',
+                    "limit": 500,
+                },
+            )
+            rencontres_raw = [
+                r for r in all_comp_r if str((r.get("idPoule") or {}).get("id")) == pid
+            ]
+
+        for r in rencontres_raw:
+            if not isinstance(r, dict):
+                continue
+            p_obj = r.get("idPoule") or {}
+            p_id = str(p_obj.get("id") if isinstance(p_obj, dict) else p_obj or "")
+            if p_id and p_id != pid:
+                continue
+            if not poule_nom and isinstance(p_obj, dict) and p_obj.get("nom"):
+                poule_nom = str(p_obj.get("nom"))
+
+            org1 = r.get("idOrganismeEquipe1") or {}
+            org2 = r.get("idOrganismeEquipe2") or {}
+            logo1 = (
+                (org1.get("logo") or {}).get("id")
+                if isinstance(org1, dict) and isinstance(org1.get("logo"), dict)
+                else (org1.get("logo") if isinstance(org1, dict) else "")
+            )
+            logo2 = (
+                (org2.get("logo") or {}).get("id")
+                if isinstance(org2, dict) and isinstance(org2.get("logo"), dict)
+                else (org2.get("logo") if isinstance(org2, dict) else "")
+            )
+
+            rencontres.append(
+                {
+                    "id": str(r.get("id") or ""),
+                    "numero": str(r.get("numero") or ""),
+                    "numeroJournee": str(r.get("numeroJournee") or ""),
+                    "idPoule": pid,
+                    "competitionId": cid,
+                    "resultatEquipe1": str(r.get("resultatEquipe1") or ""),
+                    "resultatEquipe2": str(r.get("resultatEquipe2") or ""),
+                    "joue": 1 if r.get("joue") in (True, 1, "1") else 0,
+                    "nomEquipe1": str(r.get("nomEquipe1") or ""),
+                    "nomEquipe2": str(r.get("nomEquipe2") or ""),
+                    "logoEquipe1": str(logo1 or ""),
+                    "logoEquipe2": str(logo2 or ""),
+                    "date_rencontre": str(
+                        r.get("date_rencontre") or r.get("date") or "1970-01-01"
+                    ),
+                }
+            )
+
+        # Enrichissement SportsRegions : récupère les journées hors fenêtre glissante Meilisearch (J1, J2, J5, J6...)
+        sr_rencontres = await fetch_sportsregions_poule_rencontres(pid, cid)
+        if sr_rencontres:
+            by_key: dict[tuple[str, str, str], dict[str, Any]] = {
+                (
+                    str(m.get("numeroJournee") or ""),
+                    _norm_team(m.get("nomEquipe1") or ""),
+                    _norm_team(m.get("nomEquipe2") or ""),
+                ): m
+                for m in rencontres
+            }
+            for sr_m in sr_rencontres:
+                key = (
+                    str(sr_m.get("numeroJournee") or ""),
+                    _norm_team(sr_m.get("nomEquipe1") or ""),
+                    _norm_team(sr_m.get("nomEquipe2") or ""),
+                )
+                existing = by_key.get(key)
+                if existing is None:
+                    rencontres.append(sr_m)
+                    by_key[key] = sr_m
+                elif existing.get("joue") == 0 and sr_m.get("joue") == 1:
+                    existing["joue"] = 1
+                    existing["resultatEquipe1"] = sr_m["resultatEquipe1"]
+                    existing["resultatEquipe2"] = sr_m["resultatEquipe2"]
 
     rencontres.sort(
         key=lambda m: (
