@@ -1060,10 +1060,9 @@ async def get_club_matches(
     has_date_filter = date_from is not None or date_to is not None
 
     client = get_client()
-    directus_disabled = (
-        type(client).__name__ == "FFBBDataClient"
-        and os.getenv("FFBB_ENABLE_DIRECTUS", "0").lower() not in ("1", "true", "yes")
-    )
+    directus_disabled = type(client).__name__ == "FFBBDataClient" and os.getenv(
+        "FFBB_ENABLE_DIRECTUS", "0"
+    ).lower() not in ("1", "true", "yes")
 
     if directus_disabled:
         org_hit = await organisme_from_meilisearch(organisme_id)
@@ -1074,7 +1073,7 @@ async def get_club_matches(
         club_name = str(org_hit.get("nom", "") or "Club")
         raw_logo = org_hit.get("logo")
         logo_id = raw_logo.get("id") if isinstance(raw_logo, dict) else raw_logo
-        club_logo_url: str | None = f"/api/v1/assets/{logo_id}" if logo_id else None
+        club_logo_url = f"/api/v1/assets/{logo_id}" if logo_id else None
         club_code = str(org_hit.get("code", "") or "")
         matches_list: list[dict[str, Any]] = []
         if club_code:
@@ -1101,7 +1100,9 @@ async def get_club_matches(
                             "location": (hm.get("salle") or {}).get("libelle", "")
                             or "",
                             "isHome": is_h,
-                            "competition": (hm.get("competitionId") or {}).get("nom", "")
+                            "competition": (hm.get("competitionId") or {}).get(
+                                "nom", ""
+                            )
                             or "",
                             "poule": p_obj.get("nom", "") or "",
                             "pouleId": str(p_obj.get("id", "") or ""),
@@ -1161,7 +1162,7 @@ async def get_club_matches(
         raise HTTPException(status_code=500, detail=f"Erreur FFBB: {e}")
 
     club_name = getattr(org, "nom", "") or "Club"
-    club_logo_url: str | None = None
+    club_logo_url = None
     if getattr(org, "logo", None):
         logo_id = getattr(org.logo, "id", None) or org.logo
         if logo_id:
@@ -1879,10 +1880,9 @@ async def get_club_details(
 ):
     """Retourne les informations détaillées d'un club (nom, contacts, adresse, engagements)."""
     client = get_client()
-    if (
-        type(client).__name__ == "FFBBDataClient"
-        and os.getenv("FFBB_ENABLE_DIRECTUS", "0").lower() not in ("1", "true", "yes")
-    ):
+    if type(client).__name__ == "FFBBDataClient" and os.getenv(
+        "FFBB_ENABLE_DIRECTUS", "0"
+    ).lower() not in ("1", "true", "yes"):
         from .helpers.meilisearch_fallback import organisme_from_meilisearch
 
         org_hit = await organisme_from_meilisearch(organisme_id)
@@ -1934,7 +1934,9 @@ async def get_poule(
     ):
         client = get_client()
         try:
-            poule = await asyncio.wait_for(client.get_poule_async(poule_id), timeout=6.0)
+            poule = await asyncio.wait_for(
+                client.get_poule_async(poule_id), timeout=6.0
+            )
         except Exception as e:
             safe_err = str(e).replace("\r", " ").replace("\n", " ")
             logger.warning("Fallback get_poule %d: %s", int(poule_id), safe_err)
@@ -2128,10 +2130,9 @@ async def get_competition_detail(
 ):
     """Retourne les métadonnées et la liste des poules associées à une compétition officielle FFBB."""
     client = get_client()
-    if (
-        type(client).__name__ == "FFBBDataClient"
-        and os.getenv("FFBB_ENABLE_DIRECTUS", "0").lower() not in ("1", "true", "yes")
-    ):
+    if type(client).__name__ == "FFBBDataClient" and os.getenv(
+        "FFBB_ENABLE_DIRECTUS", "0"
+    ).lower() not in ("1", "true", "yes"):
         from .helpers.meilisearch_fallback import competition_from_meilisearch
 
         comp_hit = await competition_from_meilisearch(competition_id)

@@ -324,7 +324,6 @@ async def poule_from_meilisearch(
     # Si le tableau de bord n'a pas pu récupérer les engagements officiels depuis la compétition,
     # on déduit les équipes et classements directement depuis les rencontres de la poule.
     if not classements and rencontres:
-
         sorted_teams = sorted(
             teams_stats.values(),
             key=lambda x: (x["points"], x["paniersMarques"] - x["paniersEncaisses"]),
