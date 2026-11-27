@@ -338,9 +338,11 @@ async def poule_from_meilisearch(
 
     rencontres.sort(
         key=lambda m: (
-            int(m["numeroJournee"])
-            if str(m.get("numeroJournee") or "").isdigit()
-            else 999,
+            (
+                int(m["numeroJournee"])
+                if str(m.get("numeroJournee") or "").isdigit()
+                else 999
+            ),
             str(m.get("date_rencontre") or ""),
         )
     )

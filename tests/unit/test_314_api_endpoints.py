@@ -329,7 +329,9 @@ async def test_get_asset_local_logo_fallback_on_403():
     from ffbb_data_client import api
 
     api._asset_bytes_cache.clear()
-    fake_403 = MagicMock(status_code=403, content=b"Forbidden", headers={"content-type": "text/html"})
+    fake_403 = MagicMock(
+        status_code=403, content=b"Forbidden", headers={"content-type": "text/html"}
+    )
     transport = ASGITransport(app=api.app)
     with (
         patch("ffbb_data_client.api.get_client", return_value=MagicMock()),
