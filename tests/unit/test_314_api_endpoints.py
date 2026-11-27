@@ -321,3 +321,25 @@ async def test_asset_proxy_endpoint():
             assert r_ok.headers["content-type"] == "image/jpeg"
             assert "immutable" in r_ok.headers["cache-control"]
             assert r_ok.content == b"\xff\xd8\xff\xe0JFIF"
+
+
+@pytest.mark.asyncio
+async def test_get_asset_local_logo_fallback_on_403():
+    """Sert le logo officiel local si Directus/BunnyCDN répond 403."""
+    from ffbb_data_client import api
+
+    api._asset_bytes_cache.clear()
+    fake_403 = MagicMock(status_code=403, content=b"Forbidden", headers={"content-type": "text/html"})
+    transport = ASGITransport(app=api.app)
+    with (
+        patch("ffbb_data_client.api.get_client", return_value=MagicMock()),
+        patch(
+            "ffbb_data_client.helpers.http_requests_utils.http_get_async",
+            AsyncMock(return_value=fake_403),
+        ),
+    ):
+        async with AsyncClient(transport=transport, base_url="http://test") as ac:
+            r = await ac.get("/api/v1/assets/5f0cecca-7477-4151-9e81-167ac3a42484")
+            assert r.status_code == 200
+            assert r.headers["content-type"] == "image/webp"
+            assert r.content[:4] == b"RIFF"

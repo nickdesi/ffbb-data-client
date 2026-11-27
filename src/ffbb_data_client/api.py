@@ -47,6 +47,9 @@ _BASE_DIR = Path(__file__).resolve().parent.parent.parent
 _WEBSITE_DIR = _BASE_DIR / "website"
 if not _WEBSITE_DIR.exists():
     _WEBSITE_DIR = Path("/app/website")
+_LOGOS_DIR = _BASE_DIR / "data" / "logos"
+if not _LOGOS_DIR.exists():
+    _LOGOS_DIR = Path("/app/data/logos")
 
 
 def _get_process_rss_mb() -> float:
@@ -2178,6 +2181,24 @@ async def get_saisons(response: Response):
 _ASSET_UUID_RE = re.compile(r"^[0-9a-fA-F-]{36}$")
 _asset_bytes_cache: OrderedDict[str, tuple[bytes, str]] = OrderedDict()
 _ASSET_CACHE_MAX = 256
+_LOCAL_LOGO_EXTS = (
+    (".webp", "image/webp"),
+    (".png", "image/png"),
+    (".jpg", "image/jpeg"),
+    (".jpeg", "image/jpeg"),
+    (".svg", "image/svg+xml"),
+)
+
+
+def _load_local_logo(clean_id: str) -> tuple[bytes, str] | None:
+    """Charge un logo officiel embarqué localement si l'asset Directus est bloqué (403)."""
+    if not _LOGOS_DIR.exists():
+        return None
+    for ext, media_type in _LOCAL_LOGO_EXTS:
+        candidate = _LOGOS_DIR / f"{clean_id}{ext}"
+        if candidate.is_file():
+            return candidate.read_bytes(), media_type
+    return None
 
 
 @app.get(
@@ -2215,36 +2236,48 @@ async def get_asset(
 
     client = get_client()
     url = f"{API_FFBB_BASE_URL}assets/{clean_id}"
+    content_bytes: bytes | None = None
+    media_type = "image/jpeg"
+    last_error: Exception | None = None
+
     try:
         resp = await http_get_async(
             url,
             client.api_ffbb_client.headers,
             cached_session=client.api_ffbb_client.async_cached_session,
         )
-        if resp.status_code != 200 or not resp.content:
-            raise HTTPException(status_code=404, detail="Asset introuvable.")
-        media_type = (
-            resp.headers.get("content-type", "image/jpeg").split(";")[0].strip()
-        )
-        if not media_type.startswith("image/"):
-            raise HTTPException(status_code=404, detail="Contenu d'asset invalide.")
-
-        _asset_bytes_cache[clean_id] = (resp.content, media_type)
-        while len(_asset_bytes_cache) > _ASSET_CACHE_MAX:
-            _asset_bytes_cache.popitem(last=False)
-
-        return Response(
-            content=resp.content,
-            media_type=media_type,
-            headers={
-                "Cache-Control": "public, max-age=31536000, immutable",
-                "Access-Control-Allow-Origin": "*",
-            },
-        )
-    except HTTPException:
-        raise
+        if resp.status_code == 200 and resp.content:
+            mt = resp.headers.get("content-type", "image/jpeg").split(";")[0].strip()
+            if mt.startswith("image/"):
+                content_bytes = resp.content
+                media_type = mt
     except Exception as e:
-        raise HTTPException(status_code=404, detail=f"Asset indisponible: {e}") from e
+        last_error = e
+
+    if content_bytes is None:
+        local = _load_local_logo(clean_id)
+        if local is not None:
+            content_bytes, media_type = local
+
+    if content_bytes is None:
+        if last_error is not None:
+            raise HTTPException(
+                status_code=404, detail=f"Asset indisponible: {last_error}"
+            ) from last_error
+        raise HTTPException(status_code=404, detail="Asset introuvable.")
+
+    _asset_bytes_cache[clean_id] = (content_bytes, media_type)
+    while len(_asset_bytes_cache) > _ASSET_CACHE_MAX:
+        _asset_bytes_cache.popitem(last=False)
+
+    return Response(
+        content=content_bytes,
+        media_type=media_type,
+        headers={
+            "Cache-Control": "public, max-age=31536000, immutable",
+            "Access-Control-Allow-Origin": "*",
+        },
+    )
 
 
 # --------------------------------------------------------------------------
