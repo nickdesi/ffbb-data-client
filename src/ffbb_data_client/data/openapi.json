@@ -6817,6 +6817,18 @@
               }
             ]
           },
+          "image_mobile": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/Files"
+              }
+            ]
+          },
           "socials_items": {
             "nullable": true
           },
@@ -11704,7 +11716,7 @@
   "info": {
     "description": "This is a dynamically generated API specification for all endpoints existing on the current project.",
     "title": "Dynamic API Specification",
-    "version": "af9259c6e0484f7b9dc574d8d80505b469cc983d"
+    "version": "45abea6cff2f04d87a4ed5388eda87ab2a684a57"
   },
   "openapi": "3.0.1",
   "paths": {
