@@ -1990,8 +1990,10 @@ async def get_poule_classement(
                 "count": len(cls_list),
                 "degraded": False,
             }
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug(
+            "Fallback Meilisearch classement indisponible: %s", type(e).__name__
+        )
 
     poule = None
     if os.getenv("FFBB_ENABLE_DIRECTUS", "0").lower() in ("1", "true", "yes"):
@@ -2192,10 +2194,13 @@ _LOCAL_LOGO_EXTS = (
 
 def _load_local_logo(clean_id: str) -> tuple[bytes, str] | None:
     """Charge un logo officiel embarqué localement si l'asset Directus est bloqué (403)."""
-    if not _LOGOS_DIR.exists():
+    if not _LOGOS_DIR.exists() or not _ASSET_UUID_RE.match(clean_id):
         return None
+    base_dir = _LOGOS_DIR.resolve()
     for ext, media_type in _LOCAL_LOGO_EXTS:
-        candidate = _LOGOS_DIR / f"{clean_id}{ext}"
+        candidate = (base_dir / f"{clean_id}{ext}").resolve()
+        if not str(candidate).startswith(f"{base_dir}{os.sep}"):
+            continue
         if candidate.is_file():
             return candidate.read_bytes(), media_type
     return None
