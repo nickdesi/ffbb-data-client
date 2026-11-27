@@ -2196,13 +2196,11 @@ def _load_local_logo(clean_id: str) -> tuple[bytes, str] | None:
     """Charge un logo officiel embarqué localement si l'asset Directus est bloqué (403)."""
     if not _LOGOS_DIR.exists() or not _ASSET_UUID_RE.match(clean_id):
         return None
-    base_dir = _LOGOS_DIR.resolve()
-    for ext, media_type in _LOCAL_LOGO_EXTS:
-        candidate = (base_dir / f"{clean_id}{ext}").resolve()
-        if not str(candidate).startswith(f"{base_dir}{os.sep}"):
-            continue
-        if candidate.is_file():
-            return candidate.read_bytes(), media_type
+    targets = {f"{clean_id}{ext}": mt for ext, mt in _LOCAL_LOGO_EXTS}
+    for entry in _LOGOS_DIR.iterdir():
+        media_type = targets.get(entry.name)
+        if media_type is not None and entry.is_file():
+            return entry.read_bytes(), media_type
     return None
 
 
