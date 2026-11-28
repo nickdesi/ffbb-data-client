@@ -1885,6 +1885,12 @@ async def get_club_details(
     except HTTPException:
         raise
     except Exception as e:
+        if type(client).__name__ == "FFBBDataClient":
+            from .helpers.meilisearch_fallback import organisme_from_meilisearch
+
+            org_hit = await organisme_from_meilisearch(organisme_id)
+            if org_hit:
+                return org_hit
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -2143,6 +2149,12 @@ async def get_competition_detail(
     except HTTPException:
         raise
     except Exception as e:
+        if type(client).__name__ == "FFBBDataClient":
+            from .helpers.meilisearch_fallback import competition_from_meilisearch
+
+            comp_hit = await competition_from_meilisearch(competition_id)
+            if comp_hit:
+                return comp_hit
         raise HTTPException(status_code=500, detail=str(e))
 
 
