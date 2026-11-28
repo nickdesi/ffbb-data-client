@@ -999,6 +999,56 @@ async def search_ffbb(
         raise HTTPException(status_code=500, detail=f"Erreur de recherche: {e}")
 
 
+def _meili_hit_to_match_card(
+    hm: dict[str, Any], club_code: str, club_logo_url: str | None
+) -> dict[str, Any]:
+    """Convertit un hit Meilisearch ffbbserver_rencontres en carte de match normalisée avec logos."""
+    org1 = hm.get("idOrganismeEquipe1") or {}
+    org2 = hm.get("idOrganismeEquipe2") or {}
+    is_h = (org1.get("code") if isinstance(org1, dict) else None) == club_code
+    neq1 = hm.get("nomEquipe1", "") or ""
+    neq2 = hm.get("nomEquipe2", "") or ""
+    p_obj = hm.get("idPoule") or {}
+    dt_r = hm.get("date_rencontre") or hm.get("date") or ""
+    d_iso = dt_r[:10]
+    r1 = hm.get("resultatEquipe1")
+    r2 = hm.get("resultatEquipe2")
+    r1_int = int(r1) if r1 is not None and str(r1).isdigit() else None
+    r2_int = int(r2) if r2 is not None and str(r2).isdigit() else None
+
+    opp_org = org2 if is_h else org1
+    opp_logo_raw = opp_org.get("logo") if isinstance(opp_org, dict) else None
+    opp_logo_id = (
+        opp_logo_raw.get("id")
+        if isinstance(opp_logo_raw, dict)
+        else (opp_logo_raw if isinstance(opp_logo_raw, str) else None)
+    )
+    card: dict[str, Any] = {
+        "ffbbMatchId": str(hm.get("id")),
+        "team": neq1 if is_h else neq2,
+        "opponent": neq2 if is_h else neq1,
+        "date": format_french_date(d_iso) if d_iso else "",
+        "dateISO": d_iso,
+        "time": dt_r[11:16],
+        "location": (hm.get("salle") or {}).get("libelle", "") or "",
+        "isHome": is_h,
+        "competition": (hm.get("competitionId") or {}).get("nom", "") or "",
+        "poule": p_obj.get("nom", "") or "",
+        "pouleId": str(p_obj.get("id", "") or ""),
+        "round": hm.get("numeroJournee"),
+        "isPlayed": bool(hm.get("joue") or r1_int is not None),
+        "scoreLocal": r1_int if is_h else r2_int,
+        "scoreOpponent": r2_int if is_h else r1_int,
+        "scoreEquipe1": r1_int,
+        "scoreEquipe2": r2_int,
+        "competitionUrl": hm.get("url_competition", "") or "",
+        "teamLogo": club_logo_url,
+    }
+    if opp_logo_id:
+        card["opponentLogo"] = f"/api/v1/assets/{opp_logo_id}"
+    return card
+
+
 @app.get(
     "/api/v1/club/{organisme_id}/matches",
     operation_id="getClubMatches",
@@ -1081,44 +1131,10 @@ async def get_club_matches(
         matches_list: list[dict[str, Any]] = []
         if club_code:
             try:
-                for hm in await club_rencontres_from_meilisearch(club_code):
-                    is_h = (hm.get("idOrganismeEquipe1") or {}).get("code") == club_code
-                    neq1 = hm.get("nomEquipe1", "") or ""
-                    neq2 = hm.get("nomEquipe2", "") or ""
-                    p_obj = hm.get("idPoule") or {}
-                    dt_r = hm.get("date_rencontre") or hm.get("date") or ""
-                    d_iso = dt_r[:10]
-                    r1 = hm.get("resultatEquipe1")
-                    r2 = hm.get("resultatEquipe2")
-                    r1_int = int(r1) if r1 is not None and str(r1).isdigit() else None
-                    r2_int = int(r2) if r2 is not None and str(r2).isdigit() else None
-                    matches_list.append(
-                        {
-                            "ffbbMatchId": str(hm.get("id")),
-                            "team": neq1 if is_h else neq2,
-                            "opponent": neq2 if is_h else neq1,
-                            "date": format_french_date(d_iso) if d_iso else "",
-                            "dateISO": d_iso,
-                            "time": dt_r[11:16],
-                            "location": (hm.get("salle") or {}).get("libelle", "")
-                            or "",
-                            "isHome": is_h,
-                            "competition": (hm.get("competitionId") or {}).get(
-                                "nom", ""
-                            )
-                            or "",
-                            "poule": p_obj.get("nom", "") or "",
-                            "pouleId": str(p_obj.get("id", "") or ""),
-                            "round": hm.get("numeroJournee"),
-                            "isPlayed": bool(hm.get("joue") or r1_int is not None),
-                            "scoreLocal": r1_int if is_h else r2_int,
-                            "scoreOpponent": r2_int if is_h else r1_int,
-                            "scoreEquipe1": r1_int,
-                            "scoreEquipe2": r2_int,
-                            "competitionUrl": hm.get("url_competition", "") or "",
-                            "teamLogo": club_logo_url,
-                        }
-                    )
+                matches_list.extend(
+                    _meili_hit_to_match_card(hm, club_code, club_logo_url)
+                    for hm in await club_rencontres_from_meilisearch(club_code)
+                )
             except Exception as exc:
                 logger.warning("Meilisearch rencontres échoué: %s", exc)
             if matches_list:
@@ -1702,41 +1718,10 @@ async def get_club_matches(
     club_code = getattr(org, "code", "") or ""
     if not matches_list and club_code:
         try:
-            for hm in await club_rencontres_from_meilisearch(club_code):
-                is_h = (hm.get("idOrganismeEquipe1") or {}).get("code") == club_code
-                neq1 = hm.get("nomEquipe1", "") or ""
-                neq2 = hm.get("nomEquipe2", "") or ""
-                p_obj = hm.get("idPoule") or {}
-                dt_r = hm.get("date_rencontre") or hm.get("date") or ""
-                d_iso = dt_r[:10]
-                r1 = hm.get("resultatEquipe1")
-                r2 = hm.get("resultatEquipe2")
-                r1_int = int(r1) if r1 is not None and str(r1).isdigit() else None
-                r2_int = int(r2) if r2 is not None and str(r2).isdigit() else None
-                matches_list.append(
-                    {
-                        "ffbbMatchId": str(hm.get("id")),
-                        "team": neq1 if is_h else neq2,
-                        "opponent": neq2 if is_h else neq1,
-                        "date": format_french_date(d_iso) if d_iso else "",
-                        "dateISO": d_iso,
-                        "time": dt_r[11:16],
-                        "location": (hm.get("salle") or {}).get("libelle", "") or "",
-                        "isHome": is_h,
-                        "competition": (hm.get("competitionId") or {}).get("nom", "")
-                        or "",
-                        "poule": p_obj.get("nom", "") or "",
-                        "pouleId": str(p_obj.get("id", "") or ""),
-                        "round": hm.get("numeroJournee"),
-                        "isPlayed": bool(hm.get("joue") or r1_int is not None),
-                        "scoreLocal": r1_int if is_h else r2_int,
-                        "scoreOpponent": r2_int if is_h else r1_int,
-                        "scoreEquipe1": r1_int,
-                        "scoreEquipe2": r2_int,
-                        "competitionUrl": hm.get("url_competition", "") or "",
-                        "teamLogo": club_logo_url,
-                    }
-                )
+            matches_list.extend(
+                _meili_hit_to_match_card(hm, club_code, club_logo_url)
+                for hm in await club_rencontres_from_meilisearch(club_code)
+            )
         except Exception as exc:
             logger.warning("Fallback Meilisearch rencontres échoué: %s", exc)
         if matches_list:
