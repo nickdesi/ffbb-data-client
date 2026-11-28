@@ -31,6 +31,10 @@ MEILISEARCH_TOKEN = os.getenv(
 DIRECTUS_BASE_URL = os.getenv("API_FFBB_BASE_URL", "https://api.ffbb.com").rstrip("/")
 
 DEFAULT_CLUB_CODES = ("ARA0063074", "ARA0063029", "ARA0063062")
+# 12 départements de la ligue Auvergne-Rhône-Alpes (codes FFBB ARA0001..ARA0074)
+REGION_DEPTS: dict[str, tuple[str, ...]] = {
+    "ARA": ("01", "03", "07", "15", "26", "38", "42", "43", "63", "69", "73", "74"),
+}
 UUID_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
 
 # Mapping explicite slug local (hoops63-workflow) -> UUID Directus si le nom diffère
@@ -105,6 +109,48 @@ def fetch_needed_logos(club_codes: list[str]) -> dict[str, str]:
     return needed
 
 
+def fetch_region_logos(region_prefix: str) -> dict[str, str]:
+    """Interroge Meilisearch ffbbserver_organismes pour tous les clubs d'une région (ex: ARA)."""
+    headers = {
+        "Authorization": f"Bearer {MEILISEARCH_TOKEN}",
+        "Content-Type": "application/json",
+    }
+    prefix = region_prefix.upper().strip()
+    depts = REGION_DEPTS.get(prefix, ("",))
+    queries = [f"{prefix}00{d}" if d else prefix for d in depts]
+    needed: dict[str, str] = {}
+
+    with httpx.Client(timeout=15.0) as client:
+        for q_str in queries:
+            resp = client.post(
+                f"{MEILISEARCH_URL}/indexes/ffbbserver_organismes/search",
+                headers=headers,
+                json={
+                    "q": q_str,
+                    "attributesToSearchOn": ["code"],
+                    "limit": 1000,
+                    "attributesToRetrieve": ["id", "nom", "code", "logo"],
+                },
+            )
+            resp.raise_for_status()
+            for hit in resp.json().get("hits", []):
+                code = str(hit.get("code") or "")
+                if not code.startswith(prefix):
+                    continue
+                logo = hit.get("logo")
+                lid = (
+                    logo.get("id")
+                    if isinstance(logo, dict)
+                    else (logo if isinstance(logo, str) else None)
+                )
+                if not lid:
+                    continue
+                clean_id = str(lid).strip().lower()
+                if UUID_RE.match(clean_id) and clean_id not in needed:
+                    needed[clean_id] = str(hit.get("nom") or "?").strip()
+    return needed
+
+
 def existing_logo_uuids(logos_dir: Path) -> set[str]:
     if not logos_dir.exists():
         return set()
@@ -166,6 +212,11 @@ def main() -> int:
         help="Codes clubs FFBB à scanner dans Meilisearch",
     )
     parser.add_argument(
+        "--region",
+        default=None,
+        help="Préfixe ligue FFBB à synchroniser intégralement (ex: ARA pour Auvergne-Rhône-Alpes)",
+    )
+    parser.add_argument(
         "--proxy",
         default=os.getenv("HTTPS_PROXY") or os.getenv("HTTP_PROXY") or None,
         help="Proxy HTTP/SOCKS5 optionnel pour contourner le WAF BunnyCDN",
@@ -184,7 +235,11 @@ def main() -> int:
     args = parser.parse_args()
 
     LOGOS_DIR.mkdir(parents=True, exist_ok=True)
-    needed = fetch_needed_logos(args.clubs)
+    needed = (
+        fetch_region_logos(args.region)
+        if args.region
+        else fetch_needed_logos(args.clubs)
+    )
     present = existing_logo_uuids(LOGOS_DIR)
     missing = {k: v for k, v in needed.items() if k not in present}
 
