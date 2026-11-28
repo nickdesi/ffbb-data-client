@@ -83,7 +83,7 @@
           ],
           "applicationCategory": "SportsApplication, DeveloperApplication",
           "operatingSystem": "All",
-          "softwareVersion": "2.4.45",
+          "softwareVersion": "2.4.46",
           "dateModified": "2026-11-26T10:00:00Z",
           "description": "SDK Python asynchrone et typé pour interroger l'API officielle de la Fédération Française de BasketBall : fiches clubs, championnats, poules, calendriers, classements et scores en direct.",
           "url": "https://ffbb-api.desimone.fr/",
@@ -550,10 +550,15 @@
                                 <td style="padding: 0.85rem 1rem;">Scores en direct</td>
                                 <td style="padding: 0.85rem 1rem; color: #cbd5e1;">Matchs en cours du week-end sur toutes les divisions</td>
                             </tr>
-                            <tr>
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
                                 <td style="padding: 0.85rem 1rem;"><code>GET /api/v1/search?q=...</code></td>
                                 <td style="padding: 0.85rem 1rem;">Recherche universelle</td>
                                 <td style="padding: 0.85rem 1rem; color: #cbd5e1;">Clubs, compétitions, gymnases, tournois et 3x3</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.85rem 1rem;"><code>GET /api/v1/assets/{asset_id}</code></td>
+                                <td style="padding: 0.85rem 1rem;">Proxy Logos &amp; Assets</td>
+                                <td style="padding: 0.85rem 1rem; color: #cbd5e1;">Sert les logos Directus en direct ou via fallback local (348+ logos AURA)</td>
                             </tr>
                         </tbody>
                     </table>
@@ -707,7 +712,7 @@ asyncio.<span style="color: #d2a8ff;">run</span>(main())</code></pre>
                 <div class="footer-col">
                     <h4>Ressources API</h4>
                     <ul>
-                        <li><a href="https://pypi.org/project/ffbb-data-client/" target="_blank" rel="noopener">Package PyPI (v2.4.45)</a></li>
+                        <li><a href="https://pypi.org/project/ffbb-data-client/" target="_blank" rel="noopener">Package PyPI (v2.4.46)</a></li>
                         <li><a href="https://github.com/nickdesi/ffbb-data-client" target="_blank" rel="noopener">Code Source GitHub</a></li>
                         <li><a href="https://github.com/nickdesi/ffbb-data-client/releases" target="_blank" rel="noopener">Versions & Mises à jour</a></li>
                         <li><a href="https://github.com/nickdesi/ffbb-data-client/issues" target="_blank" rel="noopener">Signaler un bug / Support</a></li>

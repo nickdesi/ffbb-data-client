@@ -40,13 +40,13 @@
 <!-- DISCOVERY_METRICS:END -->
 
 > [!NOTE]
-> **Architecture 100 % Meilisearch-First (`v2.4.45+`)** : Toutes les routes principales interrogent directement `https://meilisearch-prod.ffbb.app` (< 40 ms, sans WAF BunnyCDN). Directus (`api.ffbb.com` / `bo.ffbb.com`, bloqué en 403 par BunnyCDN WAF) est désactivé par défaut (`FFBB_ENABLE_DIRECTUS=1` en opt-in uniquement).
+> **Architecture 100 % Meilisearch-First (`v2.4.46+`)** : Toutes les routes principales interrogent directement `https://meilisearch-prod.ffbb.app` (< 40 ms, sans WAF BunnyCDN). Directus (`api.ffbb.com` / `bo.ffbb.com`, souvent bloqué en 403 par BunnyCDN WAF) est désactivé par défaut (`FFBB_ENABLE_DIRECTUS=1` en opt-in pour les IP non bloquées, avec fallback Meilisearch automatique en cas de 403).
 
 ---
 
 ## 🏆 Pourquoi choisir `ffbb-data-client` ?
 
-| Fonctionnalité | Ancien client (`ffbb-api-client`) | **`ffbb-data-client` (v2.4.45+)** |
+| Fonctionnalité | Ancien client (`ffbb-api-client`) | **`ffbb-data-client` (v2.4.46+)** |
 | :--- | :---: | :---: |
 | **Immunité WAF BunnyCDN** | ❌ Bloqué en 403 Forbidden (BunnyCDN) | ✅ **100 % Meilisearch-First (zéro appel Directus par défaut)** |
 | **Architecture Asynchrone Native** | ❌ 100% bloquant / synchrone | ✅ **Async native (`async/await` + `aiter`)** |
@@ -245,7 +245,10 @@ Accédez ensuite à la documentation Swagger interactive sur `http://localhost:8
 
 *Endpoints phares :*
 - `GET /health` : Statut de santé et horodatage UTC.
-- `GET /api/v1/club/{id}/matches` : Calendrier optimisé du club avec adresses de salles résolues.
+- `GET /api/v1/club/{id}/teams` : Équipes engagées d'un club avec IDs de poules et compétitions.
+- `GET /api/v1/club/{id}/matches` : Calendrier du club avec adresses, scores, `teamLogo` et `opponentLogo`.
+- `GET /api/v1/poule/{id}` & `/classement` : Rencontres (enrichies via SportsRegions) et classement officiel.
+- `GET /api/v1/assets/{asset_id}` : Proxy résilient de logos FFBB (tente Directus en direct pour les IP non bannies, puis bascule sur les 348+ logos AURA embarqués dans `data/logos/`).
 - `GET /api/v1/lives` : Matchs en direct agrégés.
 
 ---
@@ -275,6 +278,7 @@ Accédez ensuite à la documentation Swagger interactive sur `http://localhost:8
 * **Origine Directus & API Mobile** : Origine officielle `https://api.ffbb.com/` issue du reverse engineering de l'app mobile (pullzone 5204911). Les jetons Directus et Meilisearch sont découverts à chaud via `/items/configuration`. En cas d'indisponibilité temporaire de l'upstream, un disjoncteur bascule sur Meilisearch avec signalement défensif (`degraded`).
 * **Auto-Résolution des Tokens** : Découverte et rotation dynamiques des jetons Bearer Directus et Meilisearch sans configuration requise.
 * **Découverte Quotidienne du Schéma** : Un cron GitHub Actions analyse chaque matin à 5h17 UTC l'OpenAPI spec officielle de la FFBB et détecte automatiquement tout nouveau champ ou collection Directus.
+* **Synchronisation Hebdomadaire des Logos AURA** : Un workflow GitHub Actions (`sync-aura-logos.yml`) exécute chaque lundi `scripts/sync_logos.py --region ARA` et ouvre une PR automatique si un club change de logo.
 * **Cache Intelligent Sécurisé** : Gestionnaire de cache HTTP `hishel` avec SQLite distinct pour les flux synchrones et asynchrones.
 * **CodeQL & Zéro Dette** : Conformité aux normes de sécurité, zéro alerte d'injection de log, 100% typé.
 
@@ -287,6 +291,7 @@ Le SDK fonctionne instantanément sans configuration. Des variables d'environnem
 | Variable | Description | Valeur par défaut |
 | :--- | :--- | :--- |
 | `API_FFBB_BASE_URL` | URL de base du backend Directus | `https://api.ffbb.com/` |
+| `FFBB_ENABLE_DIRECTUS` | Active les appels Directus (`1`) pour les IP non bloquées (fallback Meilisearch en cas de 403) | `0` (Meilisearch-First) |
 | `FFBB_USER_AGENT` | En-tête User-Agent transmis aux requêtes | FFBB Android Mobile (1.6.7.42) |
 | `API_FFBB_APP_BEARER_TOKEN` | Jeton Directus explicite (override l'auto-résolution) | Auto-résolu dynamiquement |
 | `MEILISEARCH_BEARER_TOKEN` | Jeton Meilisearch explicite (override l'auto-résolution) | Auto-résolu dynamiquement |
