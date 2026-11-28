@@ -44,6 +44,7 @@ jobs:
         env:
           MEILISEARCH_BEARER_TOKEN: ${{ secrets.MEILISEARCH_BEARER_TOKEN }}
         run: |
+          set -euo pipefail
           FORCE_FLAG=""
           if [ "${{ inputs.force }}" = "true" ]; then
             FORCE_FLAG="--force"

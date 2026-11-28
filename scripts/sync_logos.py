@@ -23,14 +23,16 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 LOGOS_DIR = ROOT_DIR / "data" / "logos"
 DEFAULT_HOOPS63_LOGOS_DIR = ROOT_DIR.parent / "hoops63-workflow" / "assets" / "logos"
 
-MEILISEARCH_URL = os.getenv(
-    "MEILISEARCH_URL", "https://meilisearch-prod.ffbb.app"
+MEILISEARCH_URL = (
+    os.getenv("MEILISEARCH_URL") or "https://meilisearch-prod.ffbb.app"
 ).rstrip("/")
-MEILISEARCH_TOKEN = os.getenv(
-    "MEILISEARCH_BEARER_TOKEN",
-    "98f07e4d3869853c218a0f65edce2ae56cc670728d9bcb8b035a5107ce1b55dc",
+MEILISEARCH_TOKEN = (
+    os.getenv("MEILISEARCH_BEARER_TOKEN")
+    or "98f07e4d3869853c218a0f65edce2ae56cc670728d9bcb8b035a5107ce1b55dc"
 )
-DIRECTUS_BASE_URL = os.getenv("API_FFBB_BASE_URL", "https://api.ffbb.com").rstrip("/")
+DIRECTUS_BASE_URL = (os.getenv("API_FFBB_BASE_URL") or "https://api.ffbb.com").rstrip(
+    "/"
+)
 
 DEFAULT_CLUB_CODES = ("ARA0063074", "ARA0063029", "ARA0063062")
 # 12 départements de la ligue Auvergne-Rhône-Alpes (codes FFBB ARA0001..ARA0074)
