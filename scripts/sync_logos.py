@@ -23,7 +23,9 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 LOGOS_DIR = ROOT_DIR / "data" / "logos"
 DEFAULT_HOOPS63_LOGOS_DIR = ROOT_DIR.parent / "hoops63-workflow" / "assets" / "logos"
 
-MEILISEARCH_URL = os.getenv("MEILISEARCH_URL", "https://meilisearch-prod.ffbb.app").rstrip("/")
+MEILISEARCH_URL = os.getenv(
+    "MEILISEARCH_URL", "https://meilisearch-prod.ffbb.app"
+).rstrip("/")
 MEILISEARCH_TOKEN = os.getenv(
     "MEILISEARCH_BEARER_TOKEN",
     "98f07e4d3869853c218a0f65edce2ae56cc670728d9bcb8b035a5107ce1b55dc",
@@ -104,7 +106,9 @@ def fetch_needed_logos(club_codes: list[str]) -> dict[str, str]:
                         continue
                     clean_id = str(lid).strip().lower()
                     if UUID_RE.match(clean_id) and clean_id not in needed:
-                        team_name = str(hit.get(team_key) or "?").split(" - ")[0].strip()
+                        team_name = (
+                            str(hit.get(team_key) or "?").split(" - ")[0].strip()
+                        )
                         needed[clean_id] = team_name
     return needed
 
@@ -161,9 +165,7 @@ def existing_logo_uuids(logos_dir: Path) -> set[str]:
     }
 
 
-def try_import_local(
-    uuid: str, local_dir: Path | None, dest_dir: Path
-) -> Path | None:
+def try_import_local(uuid: str, local_dir: Path | None, dest_dir: Path) -> Path | None:
     if not local_dir or not local_dir.exists():
         return None
     filename = KNOWN_LOCAL_ALIASES.get(uuid)
@@ -204,7 +206,9 @@ def try_download_directus(
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Sync FFBB club logos into data/logos/")
+    parser = argparse.ArgumentParser(
+        description="Sync FFBB club logos into data/logos/"
+    )
     parser.add_argument(
         "--clubs",
         nargs="+",
@@ -232,6 +236,16 @@ def main() -> int:
         action="store_true",
         help="Lister les logos manquants sans écrire sur disque",
     )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Re-télécharger même les logos déjà présents dans data/logos/",
+    )
+    parser.add_argument(
+        "--allow-partial",
+        action="store_true",
+        help="Retourner 0 même si certains logos restent bloqués en 403",
+    )
     args = parser.parse_args()
 
     LOGOS_DIR.mkdir(parents=True, exist_ok=True)
@@ -241,10 +255,12 @@ def main() -> int:
         else fetch_needed_logos(args.clubs)
     )
     present = existing_logo_uuids(LOGOS_DIR)
-    missing = {k: v for k, v in needed.items() if k not in present}
+    missing = (
+        needed if args.force else {k: v for k, v in needed.items() if k not in present}
+    )
 
     print(
-        f"Logos nécessaires: {len(needed)} | Déjà présents: {len(needed) - len(missing)} | Manquants: {len(missing)}"
+        f"Logos nécessaires: {len(needed)} | Déjà présents: {len(present & set(needed))} | À traiter: {len(missing)}"
     )
     if not missing:
         print("Tous les logos sont déjà présents dans data/logos/.")
@@ -282,7 +298,7 @@ def main() -> int:
         print(
             "Astuce: relancez avec un VPN hors-FR ou `--proxy <http/socks5>` si BunnyCDN WAF renvoie 403."
         )
-        return 2
+        return 0 if args.allow_partial else 2
     return 0
 
 

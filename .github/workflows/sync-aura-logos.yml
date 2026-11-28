@@ -1,0 +1,79 @@
+name: Sync AURA Club Logos
+
+on:
+  schedule:
+    # Synchronisation hebdomadaire chaque lundi à 04h15 UTC
+    - cron: '15 4 * * 1'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Re-télécharger même les logos déjà présents (--force)'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-aura-logos
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  sync-logos:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Install httpx
+        run: python -m pip install --no-cache-dir httpx
+
+      - name: Sync AURA logos from Meilisearch & Directus
+        id: sync
+        env:
+          MEILISEARCH_BEARER_TOKEN: ${{ secrets.MEILISEARCH_BEARER_TOKEN }}
+        run: |
+          FORCE_FLAG=""
+          if [ "${{ inputs.force }}" = "true" ]; then
+            FORCE_FLAG="--force"
+          fi
+          python scripts/sync_logos.py --region ARA --allow-partial $FORCE_FLAG | tee /tmp/sync_output.txt
+          {
+            echo "Synchronisation automatique des logos officiels des clubs AURA (\`data/logos/\`) via \`scripts/sync_logos.py --region ARA\`."
+            echo ""
+            echo '```'
+            cat /tmp/sync_output.txt
+            echo '```'
+          } > /tmp/sync_logos_body.md
+          if [ -n "$(git status --porcelain data/logos/)" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create pull request
+        if: steps.sync.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1  # v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: chore/sync-aura-logos
+          delete-branch: true
+          commit-message: 'chore(assets): sync updated AURA club logos'
+          title: 'chore(assets): sync updated AURA club logos'
+          body-path: /tmp/sync_logos_body.md
+          labels: |
+            automation
+            assets
+          add-paths: |
+            data/logos/
